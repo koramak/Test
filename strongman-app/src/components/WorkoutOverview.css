@@ -1,0 +1,151 @@
+.workout-overview {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+}
+
+.overview-header {
+  padding: 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.back-button {
+  background: none;
+  border: none;
+  color: #90a4ae;
+  padding: 8px;
+  margin: -8px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.back-button:hover {
+  color: #ffffff;
+}
+
+.header-content {
+  padding-left: 4px;
+}
+
+.day-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--day-color);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.header-content h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 8px 0 4px 0;
+}
+
+.header-content p {
+  font-size: 0.9rem;
+  color: #90a4ae;
+  margin: 0;
+}
+
+.exercise-list {
+  flex: 1;
+  padding: 16px;
+  overflow-y: auto;
+}
+
+.exercise-item {
+  background: rgba(255,255,255,0.05);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.exercise-item.superset {
+  border-left: 3px solid #ff9800;
+}
+
+.superset-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #ff9800;
+  letter-spacing: 1px;
+  margin-bottom: 12px;
+}
+
+.superset-exercises {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.exercise-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.exercise-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.exercise-name {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #ffffff;
+}
+
+.exercise-note {
+  font-size: 0.75rem;
+  color: #78909c;
+  margin-top: 4px;
+}
+
+.exercise-prescription {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--day-color);
+  white-space: nowrap;
+}
+
+.overview-footer {
+  padding: 20px;
+  border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+.start-button {
+  width: 100%;
+  padding: 18px 24px;
+  border: none;
+  border-radius: 16px;
+  background: linear-gradient(135deg, var(--day-color) 0%, color-mix(in srgb, var(--day-color) 80%, black) 100%);
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.start-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+}
+
+.start-button:active {
+  transform: scale(0.98);
+}
+
+.start-button svg {
+  width: 20px;
+  height: 20px;
+}
