@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Understory - NYC Wildflower Flashcards</title>
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Georgia', 'Times New Roman', serif; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const WILDFLOWERS = [
+      { id: 1, commonName: "Trout Lily", latinName: "Erythronium americanum", habitat: "Moist deciduous forests", season: "March-May", hint: "Yellow nodding flower, mottled leaves like trout skin", color: "#f4d03f", photos: ["https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Erythronium_americanum_002.JPG/640px-Erythronium_americanum_002.JPG"], attribution: "Wikimedia Commons, CC BY-SA" },
+      { id: 2, commonName: "Bloodroot", latinName: "Sanguinaria canadensis", habitat: "Rich woodlands", season: "March-April", hint: "White flower with orange sap, single lobed leaf wraps stem", color: "#fff", photos: ["https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Sanguinaria_canadensis_002.JPG/640px-Sanguinaria_canadensis_002.JPG"], attribution: "Wikimedia Commons, CC BY-SA" },
+      { id: 3, commonName: "Wild Columbine", latinName: "Aquilegia canadensis", habitat: "Rocky woods, ledges", season: "April-May", hint: "Red and yellow spurred flowers, hummingbird favorite", color: "#e74c3c", photos: ["https://upload.wikimedia.org/wikipedia/commons/thumb/4/40/Aquilegia_canadensis_002.jpg/640px-Aquilegia_canadensis_002.jpg"], attribution: "Wikimedia Commons, CC BY-SA" },
+      { id: 4, commonName: "Jack-in-the-Pulpit", latinName: "Arisaema triphyllum", habitat: "Moist woods", season: "April-June", hint: "Hooded spathe over club-like spadix, three-part leaves", color: "#27ae60", photos: ["https://upload.wikimedia.org/wikipedia/commons/thumb/d/d6/Arisaema_triphyllum_002.JPG/640px-Arisaema_triphyllum_002.JPG"], attribution: "Wikimedia Commons, CC BY-SA" },
+      { id: 5, commonName: "Virginia Bluebell", latinName: "Mertensia virginica", habitat: "Floodplains, moist woods", season: "March-May", hint: "Blue trumpet flowers, pink buds, smooth oval leaves", color: "#5dade2", photos: ["https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/Mertensia_virginica_002.JPG/640px-Mertensia_virginica_002.JPG"], attribution: "Wikimedia Commons, CC BY-SA" },
+      { id: 6, commonName: "Dutchman's Breeches", latinName: "Dicentra cucullaria", habitat: "Rich deciduous woods", season: "April-May", hint: "White pantaloon-shaped flowers on arching stem", color: "#f8f9f9", photos: ["https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/Dicentra_cucullaria_001.jpg/640px-Dicentra_cucullaria_001.jpg"], attribution: "Wikimedia Commons, CC BY-SA" },
+      { id: 7, commonName: "Wood Anemone", latinName: "Anemone quinquefolia", habitat: "Open woods, clearings", season: "April-June", hint: "Five white petals, whorl of three divided leaves", color: "#fff", photos: ["https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/Anemone_quinquefolia_002.JPG/640px-Anemone_quinquefolia_002.JPG"], attribution: "Wikimedia Commons, CC BY-SA" },
+      { id: 8, commonName: "Marsh Marigold", latinName: "Caltha palustris", habitat: "Wet meadows, stream edges", season: "April-June", hint: "Bright yellow buttercup-like flowers, glossy round leaves", color: "#f1c40f", photos: ["https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Caltha_palustris_002.JPG/640px-Caltha_palustris_002.JPG"], attribution: "Wikimedia Commons, CC BY-SA" },
+      { id: 9, commonName: "Wild Geranium", latinName: "Geranium maculatum", habitat: "Open woods, meadows", season: "April-June", hint: "Five pink-purple petals with dark veins, deeply lobed leaves", color: "#af7ac5", photos: ["https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Geranium_maculatum_002.JPG/640px-Geranium_maculatum_002.JPG"], attribution: "Wikimedia Commons, CC BY-SA" },
+      { id: 10, commonName: "Solomon's Seal", latinName: "Polygonatum biflorum", habitat: "Woods, thickets", season: "May-June", hint: "Paired bell flowers hanging beneath arching stem", color: "#d5f5e3", photos: ["https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/Polygonatum_biflorum_002.JPG/640px-Polygonatum_biflorum_002.JPG"], attribution: "Wikimedia Commons, CC BY-SA" },
+      { id: 11, commonName: "Common Milkweed", latinName: "Asclepias syriaca", habitat: "Fields, roadsides", season: "June-August", hint: "Pink fragrant flower clusters, milky sap, monarch host", color: "#f5b7b1", photos: ["https://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/Asclepias_syriaca_002.JPG/640px-Asclepias_syriaca_002.JPG"], attribution: "Wikimedia Commons, CC BY-SA" },
+      { id: 12, commonName: "Black-eyed Susan", latinName: "Rudbeckia hirta", habitat: "Fields, prairies, roadsides", season: "June-October", hint: "Yellow ray petals around dark brown center cone", color: "#f9e79f", photos: ["https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Rudbeckia_hirta_002.JPG/640px-Rudbeckia_hirta_002.JPG"], attribution: "Wikimedia Commons, CC BY-SA" },
+      { id: 13, commonName: "Cardinal Flower", latinName: "Lobelia cardinalis", habitat: "Stream banks, wet meadows", season: "July-September", hint: "Brilliant red spike of tubular flowers, hummingbird magnet", color: "#e74c3c", photos: ["https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Lobelia_cardinalis_002.JPG/640px-Lobelia_cardinalis_002.JPG"], attribution: "Wikimedia Commons, CC BY-SA" },
+      { id: 14, commonName: "New England Aster", latinName: "Symphyotrichum novae-angliae", habitat: "Meadows, roadsides", season: "August-October", hint: "Purple-pink rays with yellow center, clasping leaves", color: "#9b59b6", photos: ["https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Symphyotrichum_novae-angliae_002.JPG/640px-Symphyotrichum_novae-angliae_002.JPG"], attribution: "Wikimedia Commons, CC BY-SA" },
+      { id: 15, commonName: "Goldenrod", latinName: "Solidago canadensis", habitat: "Fields, meadows, roadsides", season: "August-October", hint: "Plume-like clusters of tiny yellow flowers", color: "#f4d03f", photos: ["https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Solidago_canadensis_002.JPG/640px-Solidago_canadensis_002.JPG"], attribution: "Wikimedia Commons, CC BY-SA" },
+    ];
+
+    function App() {
+      const [mode, setMode] = React.useState('learn');
+      const [currentIndex, setCurrentIndex] = React.useState(0);
+      const [showAnswer, setShowAnswer] = React.useState(false);
+      const [masteredIds, setMasteredIds] = React.useState(new Set());
+      const [userGuess, setUserGuess] = React.useState('');
+      const [feedback, setFeedback] = React.useState(null);
+      const [imageError, setImageError] = React.useState(false);
+
+      const currentFlower = WILDFLOWERS[currentIndex];
+
+      const nextFlower = () => {
+        setShowAnswer(false);
+        setUserGuess('');
+        setFeedback(null);
+        setImageError(false);
+        setCurrentIndex((prev) => (prev + 1) % WILDFLOWERS.length);
+      };
+
+      const prevFlower = () => {
+        setShowAnswer(false);
+        setUserGuess('');
+        setFeedback(null);
+        setImageError(false);
+        setCurrentIndex((prev) => (prev - 1 + WILDFLOWERS.length) % WILDFLOWERS.length);
+      };
+
+      const toggleMastered = () => {
+        setMasteredIds(prev => {
+          const next = new Set(prev);
+          if (next.has(currentFlower.id)) {
+            next.delete(currentFlower.id);
+          } else {
+            next.add(currentFlower.id);
+          }
+          return next;
+        });
+      };
+
+      const checkGuess = () => {
+        const guess = userGuess.toLowerCase().trim();
+        const commonName = currentFlower.commonName.toLowerCase();
+        const latinName = currentFlower.latinName.toLowerCase();
+
+        if (guess === commonName || guess === latinName ||
+            (commonName.includes(guess) && guess.length > 3)) {
+          setFeedback({ correct: true, message: 'Correct!' });
+          setShowAnswer(true);
+        } else {
+          setFeedback({ correct: false, message: 'Not quite. Try again or reveal the answer.' });
+        }
+      };
+
+      return (
+        <div style={{
+          minHeight: '100vh',
+          background: 'linear-gradient(135deg, #f5f5f0 0%, #e8e4d9 100%)',
+          fontFamily: "'Georgia', 'Times New Roman', serif",
+          padding: '20px',
+        }}>
+          <header style={{ textAlign: 'center', marginBottom: '24px', paddingBottom: '16px', borderBottom: '2px solid #a8a090' }}>
+            <h1 style={{ fontSize: '2.5rem', fontWeight: '400', letterSpacing: '0.3em', color: '#3d3d3d', margin: '0 0 8px 0', textTransform: 'uppercase' }}>Understory</h1>
+            <p style={{ fontSize: '0.9rem', color: '#6b6b6b', letterSpacing: '0.15em', margin: 0 }}>NYC Regional Wildflowers • {WILDFLOWERS.length} Species</p>
+          </header>
+
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', marginBottom: '24px' }}>
+            {['learn', 'practice', 'test'].map((m) => (
+              <button
+                key={m}
+                onClick={() => { setMode(m); setShowAnswer(false); setFeedback(null); setUserGuess(''); }}
+                style={{
+                  padding: '10px 24px', border: 'none', borderRadius: '4px', fontSize: '0.85rem',
+                  fontFamily: 'inherit', letterSpacing: '0.1em', textTransform: 'uppercase', cursor: 'pointer',
+                  background: mode === m ? '#5c6b4a' : '#d4cfc4', color: mode === m ? '#fff' : '#4a4a4a',
+                }}
+              >{m}</button>
+            ))}
+          </div>
+
+          <div style={{ maxWidth: '600px', margin: '0 auto 24px', background: '#d4cfc4', borderRadius: '4px', height: '6px', overflow: 'hidden' }}>
+            <div style={{ width: `${(masteredIds.size / WILDFLOWERS.length) * 100}%`, height: '100%', background: '#5c6b4a', transition: 'width 0.3s ease' }} />
+          </div>
+          <p style={{ textAlign: 'center', fontSize: '0.8rem', color: '#6b6b6b', margin: '0 0 24px 0' }}>{masteredIds.size} of {WILDFLOWERS.length} mastered</p>
+
+          <div style={{ maxWidth: '700px', margin: '0 auto', background: '#fff', borderRadius: '8px', boxShadow: '0 4px 20px rgba(0,0,0,0.08)', overflow: 'hidden' }}>
+            <div style={{ aspectRatio: '4/3', background: '#e8e4d9', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
+              {!imageError ? (
+                <img src={currentFlower.photos[0]} alt={currentFlower.commonName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={() => setImageError(true)} />
+              ) : (
+                <div style={{ textAlign: 'center', padding: '40px', color: '#6b6b6b' }}>
+                  <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: currentFlower.color, margin: '0 auto 16px', border: '3px solid #d4cfc4' }} />
+                  <p style={{ margin: '0 0 8px 0', fontStyle: 'italic' }}>{currentFlower.latinName}</p>
+                  <p style={{ margin: 0, fontSize: '0.8rem' }}>Image unavailable</p>
+                </div>
+              )}
+              <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'linear-gradient(transparent, rgba(0,0,0,0.5))', padding: '20px 12px 8px' }}>
+                <p style={{ margin: 0, fontSize: '0.65rem', color: 'rgba(255,255,255,0.8)', textAlign: 'right' }}>{currentFlower.attribution}</p>
+              </div>
+            </div>
+
+            <div style={{ padding: '24px' }}>
+              {mode === 'learn' && (
+                <>
+                  <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+                    <h2 style={{ fontSize: '1.8rem', fontWeight: '400', color: '#3d3d3d', margin: '0 0 4px 0' }}>{currentFlower.commonName}</h2>
+                    <p style={{ fontSize: '1rem', fontStyle: 'italic', color: '#6b6b6b', margin: 0 }}>{currentFlower.latinName}</p>
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
+                    <div>
+                      <p style={{ margin: '0 0 4px 0', fontSize: '0.75rem', color: '#888', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Habitat</p>
+                      <p style={{ margin: 0, fontSize: '0.95rem', color: '#4a4a4a' }}>{currentFlower.habitat}</p>
+                    </div>
+                    <div>
+                      <p style={{ margin: '0 0 4px 0', fontSize: '0.75rem', color: '#888', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Blooming Season</p>
+                      <p style={{ margin: 0, fontSize: '0.95rem', color: '#4a4a4a' }}>{currentFlower.season}</p>
+                    </div>
+                  </div>
+                  <div style={{ background: '#f9f8f5', padding: '16px', borderRadius: '6px', borderLeft: '3px solid #5c6b4a' }}>
+                    <p style={{ margin: '0 0 4px 0', fontSize: '0.75rem', color: '#888', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Key ID Features</p>
+                    <p style={{ margin: 0, fontSize: '0.95rem', color: '#4a4a4a', lineHeight: '1.5' }}>{currentFlower.hint}</p>
+                  </div>
+                </>
+              )}
+
+              {(mode === 'practice' || mode === 'test') && (
+                <>
+                  {!showAnswer && mode === 'practice' && (
+                    <div style={{ background: '#f9f8f5', padding: '16px', borderRadius: '6px', marginBottom: '20px', borderLeft: '3px solid #d4a574' }}>
+                      <p style={{ margin: '0 0 4px 0', fontSize: '0.75rem', color: '#888', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Hint</p>
+                      <p style={{ margin: 0, fontSize: '0.95rem', color: '#4a4a4a', lineHeight: '1.5' }}>{currentFlower.hint}</p>
+                    </div>
+                  )}
+                  {!showAnswer && mode === 'test' && (
+                    <p style={{ textAlign: 'center', fontSize: '0.9rem', color: '#6b6b6b', marginBottom: '16px' }}>Identify this wildflower</p>
+                  )}
+                  {!showAnswer ? (
+                    <div>
+                      <input
+                        type="text" value={userGuess} onChange={(e) => setUserGuess(e.target.value)}
+                        onKeyPress={(e) => e.key === 'Enter' && checkGuess()}
+                        placeholder="Enter flower name..."
+                        style={{ width: '100%', padding: '12px 16px', fontSize: '1rem', fontFamily: 'inherit', border: '2px solid #d4cfc4', borderRadius: '6px', marginBottom: '12px', boxSizing: 'border-box' }}
+                      />
+                      {feedback && <p style={{ margin: '0 0 12px 0', color: feedback.correct ? '#5c6b4a' : '#b85c5c', fontSize: '0.9rem' }}>{feedback.message}</p>}
+                      <div style={{ display: 'flex', gap: '12px' }}>
+                        <button onClick={checkGuess} style={{ flex: 1, padding: '12px', background: '#5c6b4a', color: '#fff', border: 'none', borderRadius: '6px', fontSize: '0.9rem', fontFamily: 'inherit', cursor: 'pointer' }}>Check</button>
+                        <button onClick={() => setShowAnswer(true)} style={{ flex: 1, padding: '12px', background: '#d4cfc4', color: '#4a4a4a', border: 'none', borderRadius: '6px', fontSize: '0.9rem', fontFamily: 'inherit', cursor: 'pointer' }}>{mode === 'test' ? 'Give Up' : 'Reveal'}</button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div style={{ textAlign: 'center' }}>
+                      <h2 style={{ fontSize: '1.8rem', fontWeight: '400', color: '#3d3d3d', margin: '0 0 4px 0' }}>{currentFlower.commonName}</h2>
+                      <p style={{ fontSize: '1rem', fontStyle: 'italic', color: '#6b6b6b', margin: '0 0 16px 0' }}>{currentFlower.latinName}</p>
+                      <p style={{ margin: 0, fontSize: '0.9rem', color: '#4a4a4a' }}>{currentFlower.habitat} • {currentFlower.season}</p>
+                    </div>
+                  )}
+                </>
+              )}
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '24px', paddingTop: '20px', borderTop: '1px solid #e8e4d9' }}>
+                <button onClick={prevFlower} style={{ padding: '10px 20px', background: 'transparent', border: '1px solid #d4cfc4', borderRadius: '4px', fontSize: '0.85rem', fontFamily: 'inherit', cursor: 'pointer', color: '#4a4a4a' }}>← Previous</button>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                  <span style={{ fontSize: '0.85rem', color: '#6b6b6b' }}>{currentIndex + 1} / {WILDFLOWERS.length}</span>
+                  <button onClick={toggleMastered} style={{ padding: '8px 16px', background: masteredIds.has(currentFlower.id) ? '#5c6b4a' : 'transparent', border: `1px solid ${masteredIds.has(currentFlower.id) ? '#5c6b4a' : '#d4cfc4'}`, borderRadius: '4px', fontSize: '0.8rem', fontFamily: 'inherit', cursor: 'pointer', color: masteredIds.has(currentFlower.id) ? '#fff' : '#4a4a4a' }}>
+                    {masteredIds.has(currentFlower.id) ? '✓ Mastered' : 'Mark Mastered'}
+                  </button>
+                </div>
+                <button onClick={nextFlower} style={{ padding: '10px 20px', background: 'transparent', border: '1px solid #d4cfc4', borderRadius: '4px', fontSize: '0.85rem', fontFamily: 'inherit', cursor: 'pointer', color: '#4a4a4a' }}>Next →</button>
+              </div>
+            </div>
+          </div>
+
+          <footer style={{ textAlign: 'center', marginTop: '32px', padding: '16px', color: '#888', fontSize: '0.75rem' }}>
+            <p style={{ margin: 0 }}>Photos from Wikimedia Commons • CC BY-SA licensed</p>
+          </footer>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
