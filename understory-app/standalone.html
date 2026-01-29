@@ -21,29 +21,311 @@
     @keyframes spin {
       to { transform: rotate(360deg); }
     }
+    .toxicity-safe { background: #d4edda; color: #155724; }
+    .toxicity-caution { background: #fff3cd; color: #856404; }
+    .toxicity-toxic { background: #f8d7da; color: #721c24; }
+    .tag {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-right: 6px;
+      margin-bottom: 4px;
+    }
+    .pollinator-tag { background: #e8f4ea; color: #2d5a3d; }
+    .wildlife-tag { background: #e8f0f4; color: #2d4a5a; }
+    .family-tag { background: #f4e8f4; color: #5a2d5a; }
+    .region-tag { background: #f4f0e8; color: #5a4a2d; }
+    .sr-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 0.7rem;
+      background: #f0f0f0;
+    }
+    .sr-new { background: #e3f2fd; color: #1565c0; }
+    .sr-learning { background: #fff8e1; color: #f57f17; }
+    .sr-familiar { background: #e8f5e9; color: #2e7d32; }
+    .sr-mastered { background: #f3e5f5; color: #7b1fa2; }
   </style>
 </head>
 <body>
   <div id="root"></div>
   <script type="text/babel">
-    // Species data - images fetched from iNaturalist API
+    // Enhanced species data with toxicity, family, pollinators, wildlife
     const WILDFLOWERS = [
-      { id: 1, commonName: "Trout Lily", latinName: "Erythronium americanum", habitat: "Moist deciduous forests", season: "March-May", hint: "Yellow nodding flower, mottled leaves like trout skin", color: "#f4d03f" },
-      { id: 2, commonName: "Bloodroot", latinName: "Sanguinaria canadensis", habitat: "Rich woodlands", season: "March-April", hint: "White flower with orange sap, single lobed leaf wraps stem", color: "#fff" },
-      { id: 3, commonName: "Wild Columbine", latinName: "Aquilegia canadensis", habitat: "Rocky woods, ledges", season: "April-May", hint: "Red and yellow spurred flowers, hummingbird favorite", color: "#e74c3c" },
-      { id: 4, commonName: "Jack-in-the-Pulpit", latinName: "Arisaema triphyllum", habitat: "Moist woods", season: "April-June", hint: "Hooded spathe over club-like spadix, three-part leaves", color: "#27ae60" },
-      { id: 5, commonName: "Virginia Bluebell", latinName: "Mertensia virginica", habitat: "Floodplains, moist woods", season: "March-May", hint: "Blue trumpet flowers, pink buds, smooth oval leaves", color: "#5dade2" },
-      { id: 6, commonName: "Dutchman's Breeches", latinName: "Dicentra cucullaria", habitat: "Rich deciduous woods", season: "April-May", hint: "White pantaloon-shaped flowers on arching stem", color: "#f8f9f9" },
-      { id: 7, commonName: "Wood Anemone", latinName: "Anemone quinquefolia", habitat: "Open woods, clearings", season: "April-June", hint: "Five white petals, whorl of three divided leaves", color: "#fff" },
-      { id: 8, commonName: "Marsh Marigold", latinName: "Caltha palustris", habitat: "Wet meadows, stream edges", season: "April-June", hint: "Bright yellow buttercup-like flowers, glossy round leaves", color: "#f1c40f" },
-      { id: 9, commonName: "Wild Geranium", latinName: "Geranium maculatum", habitat: "Open woods, meadows", season: "April-June", hint: "Five pink-purple petals with dark veins, deeply lobed leaves", color: "#af7ac5" },
-      { id: 10, commonName: "Solomon's Seal", latinName: "Polygonatum biflorum", habitat: "Woods, thickets", season: "May-June", hint: "Paired bell flowers hanging beneath arching stem", color: "#d5f5e3" },
-      { id: 11, commonName: "Common Milkweed", latinName: "Asclepias syriaca", habitat: "Fields, roadsides", season: "June-August", hint: "Pink fragrant flower clusters, milky sap, monarch host", color: "#f5b7b1" },
-      { id: 12, commonName: "Black-eyed Susan", latinName: "Rudbeckia hirta", habitat: "Fields, prairies, roadsides", season: "June-October", hint: "Yellow ray petals around dark brown center cone", color: "#f9e79f" },
-      { id: 13, commonName: "Cardinal Flower", latinName: "Lobelia cardinalis", habitat: "Stream banks, wet meadows", season: "July-September", hint: "Brilliant red spike of tubular flowers, hummingbird magnet", color: "#e74c3c" },
-      { id: 14, commonName: "New England Aster", latinName: "Symphyotrichum novae-angliae", habitat: "Meadows, roadsides", season: "August-October", hint: "Purple-pink rays with yellow center, clasping leaves", color: "#9b59b6" },
-      { id: 15, commonName: "Goldenrod", latinName: "Solidago canadensis", habitat: "Fields, meadows, roadsides", season: "August-October", hint: "Plume-like clusters of tiny yellow flowers", color: "#f4d03f" },
+      {
+        id: 1,
+        commonName: "Trout Lily",
+        latinName: "Erythronium americanum",
+        family: "Liliaceae (Lily)",
+        habitat: "Moist deciduous forests",
+        season: "March-May",
+        hint: "Yellow nodding flower, mottled leaves like trout skin",
+        color: "#f4d03f",
+        toxicity: "caution",
+        toxicityNote: "Mildly toxic if ingested in quantity. Leaves may cause mild skin irritation in sensitive individuals.",
+        pollinators: ["Native bees", "Bumblebees", "Bee flies"],
+        wildlife: "Ants disperse seeds (myrmecochory). Deer occasionally browse leaves.",
+        nativeStatus: "Native to Eastern North America"
+      },
+      {
+        id: 2,
+        commonName: "Bloodroot",
+        latinName: "Sanguinaria canadensis",
+        family: "Papaveraceae (Poppy)",
+        habitat: "Rich woodlands",
+        season: "March-April",
+        hint: "White flower with orange sap, single lobed leaf wraps stem",
+        color: "#fff",
+        toxicity: "toxic",
+        toxicityNote: "Contains toxic alkaloids. Red-orange sap can cause skin irritation. Do not ingest any part.",
+        pollinators: ["Mining bees", "Sweat bees", "Syrphid flies"],
+        wildlife: "Seeds have elaiosomes dispersed by ants. Important early spring nectar source.",
+        nativeStatus: "Native to Eastern North America"
+      },
+      {
+        id: 3,
+        commonName: "Wild Columbine",
+        latinName: "Aquilegia canadensis",
+        family: "Ranunculaceae (Buttercup)",
+        habitat: "Rocky woods, ledges",
+        season: "April-May",
+        hint: "Red and yellow spurred flowers, hummingbird favorite",
+        color: "#e74c3c",
+        toxicity: "caution",
+        toxicityNote: "Contains mildly toxic compounds typical of buttercup family. Avoid ingestion.",
+        pollinators: ["Ruby-throated Hummingbird", "Bumblebees", "Hawk moths"],
+        wildlife: "Critical early nectar for migrating hummingbirds. Seeds eaten by small birds.",
+        nativeStatus: "Native to Eastern North America"
+      },
+      {
+        id: 4,
+        commonName: "Jack-in-the-Pulpit",
+        latinName: "Arisaema triphyllum",
+        family: "Araceae (Arum)",
+        habitat: "Moist woods",
+        season: "April-June",
+        hint: "Hooded spathe over club-like spadix, three-part leaves",
+        color: "#27ae60",
+        toxicity: "toxic",
+        toxicityNote: "Contains calcium oxalate crystals. All parts cause intense burning if chewed. Bright red berries especially dangerous.",
+        pollinators: ["Fungus gnats", "Thrips (trapped temporarily)"],
+        wildlife: "Red berries eaten by Wood Thrush, Wild Turkey. Plant is deer-resistant due to toxicity.",
+        nativeStatus: "Native to Eastern North America"
+      },
+      {
+        id: 5,
+        commonName: "Virginia Bluebell",
+        latinName: "Mertensia virginica",
+        family: "Boraginaceae (Borage)",
+        habitat: "Floodplains, moist woods",
+        season: "March-May",
+        hint: "Blue trumpet flowers, pink buds, smooth oval leaves",
+        color: "#5dade2",
+        toxicity: "safe",
+        toxicityNote: "Generally considered non-toxic. Historically used as a potherb, though not recommended.",
+        pollinators: ["Bumblebees", "Mason bees", "Butterfly species"],
+        wildlife: "Important spring nectar source. Ephemeral—disappears by summer. Deer may browse.",
+        nativeStatus: "Native to Eastern North America"
+      },
+      {
+        id: 6,
+        commonName: "Dutchman's Breeches",
+        latinName: "Dicentra cucullaria",
+        family: "Papaveraceae (Poppy)",
+        habitat: "Rich deciduous woods",
+        season: "April-May",
+        hint: "White pantaloon-shaped flowers on arching stem",
+        color: "#f8f9f9",
+        toxicity: "toxic",
+        toxicityNote: "Contains toxic alkaloids including isoquinolines. Toxic to humans and livestock if ingested.",
+        pollinators: ["Bumblebee queens (primary)", "Mining bees"],
+        wildlife: "Seeds dispersed by ants. Deer-resistant. Important early food for queen bumblebees emerging from hibernation.",
+        nativeStatus: "Native to Eastern North America"
+      },
+      {
+        id: 7,
+        commonName: "Wood Anemone",
+        latinName: "Anemone quinquefolia",
+        family: "Ranunculaceae (Buttercup)",
+        habitat: "Open woods, clearings",
+        season: "April-June",
+        hint: "Five white petals, whorl of three divided leaves",
+        color: "#fff",
+        toxicity: "caution",
+        toxicityNote: "Contains protoanemonin like other buttercup family members. Can irritate skin and mucous membranes.",
+        pollinators: ["Solitary bees", "Bee flies", "Syrphid flies"],
+        wildlife: "Spreads by rhizomes forming colonies. Indicator of ancient woodlands in some regions.",
+        nativeStatus: "Native to Eastern North America"
+      },
+      {
+        id: 8,
+        commonName: "Marsh Marigold",
+        latinName: "Caltha palustris",
+        family: "Ranunculaceae (Buttercup)",
+        habitat: "Wet meadows, stream edges",
+        season: "April-June",
+        hint: "Bright yellow buttercup-like flowers, glossy round leaves",
+        color: "#f1c40f",
+        toxicity: "caution",
+        toxicityNote: "Toxic when raw due to protoanemonin. Historically eaten after thorough cooking, but not recommended.",
+        pollinators: ["Mining bees", "Hoverflies", "Beetles"],
+        wildlife: "Wetland indicator species. Seeds eaten by ducks. Important early pollen source.",
+        nativeStatus: "Native to North America, Europe, Asia (circumboreal)"
+      },
+      {
+        id: 9,
+        commonName: "Wild Geranium",
+        latinName: "Geranium maculatum",
+        family: "Geraniaceae (Geranium)",
+        habitat: "Open woods, meadows",
+        season: "April-June",
+        hint: "Five pink-purple petals with dark veins, deeply lobed leaves",
+        color: "#af7ac5",
+        toxicity: "safe",
+        toxicityNote: "Generally non-toxic. Roots historically used medicinally by Native Americans as an astringent.",
+        pollinators: ["Bumblebees", "Sweat bees", "Syrphid flies", "Bee flies"],
+        wildlife: "Seeds explosively dispersed. Mourning Doves and Bobwhite eat seeds. Deer occasionally browse.",
+        nativeStatus: "Native to Eastern North America"
+      },
+      {
+        id: 10,
+        commonName: "Solomon's Seal",
+        latinName: "Polygonatum biflorum",
+        family: "Asparagaceae (Asparagus)",
+        habitat: "Woods, thickets",
+        season: "May-June",
+        hint: "Paired bell flowers hanging beneath arching stem",
+        color: "#d5f5e3",
+        toxicity: "caution",
+        toxicityNote: "Berries mildly toxic—may cause vomiting, nausea. Young shoots historically eaten, but caution advised.",
+        pollinators: ["Bumblebees (primary)", "Mason bees"],
+        wildlife: "Blue-black berries eaten by thrushes, grouse. Deer-resistant. Rhizomes historically used medicinally.",
+        nativeStatus: "Native to Eastern North America"
+      },
+      {
+        id: 11,
+        commonName: "Common Milkweed",
+        latinName: "Asclepias syriaca",
+        family: "Apocynaceae (Dogbane)",
+        habitat: "Fields, roadsides",
+        season: "June-August",
+        hint: "Pink fragrant flower clusters, milky sap, monarch host",
+        color: "#f5b7b1",
+        toxicity: "toxic",
+        toxicityNote: "Contains cardiac glycosides toxic to humans and livestock. Milky sap can irritate skin and eyes.",
+        pollinators: ["Many bee species", "Butterflies", "Hummingbird moths", "Beetles"],
+        wildlife: "CRITICAL Monarch butterfly host plant. Orioles nest in fiber. Seeds eaten by goldfinches.",
+        nativeStatus: "Native to Eastern North America"
+      },
+      {
+        id: 12,
+        commonName: "Black-eyed Susan",
+        latinName: "Rudbeckia hirta",
+        family: "Asteraceae (Aster/Daisy)",
+        habitat: "Fields, prairies, roadsides",
+        season: "June-October",
+        hint: "Yellow ray petals around dark brown center cone",
+        color: "#f9e79f",
+        toxicity: "safe",
+        toxicityNote: "Generally non-toxic. May cause minor skin irritation in sensitive individuals due to slight hairiness.",
+        pollinators: ["Native bees", "Butterflies", "Soldier beetles", "Hoverflies"],
+        wildlife: "Seeds eaten by goldfinches and sparrows. Provides late-season nectar. Deer-resistant.",
+        nativeStatus: "Native to Eastern & Central North America"
+      },
+      {
+        id: 13,
+        commonName: "Cardinal Flower",
+        latinName: "Lobelia cardinalis",
+        family: "Campanulaceae (Bellflower)",
+        habitat: "Stream banks, wet meadows",
+        season: "July-September",
+        hint: "Brilliant red spike of tubular flowers, hummingbird magnet",
+        color: "#e74c3c",
+        toxicity: "toxic",
+        toxicityNote: "Contains toxic alkaloids (lobelamine, lobeline). All parts toxic if ingested. Do not eat.",
+        pollinators: ["Ruby-throated Hummingbird (primary)", "Swallowtail butterflies"],
+        wildlife: "One of few native plants with true red flowers—evolved specifically for hummingbird pollination.",
+        nativeStatus: "Native to Eastern North America"
+      },
+      {
+        id: 14,
+        commonName: "New England Aster",
+        latinName: "Symphyotrichum novae-angliae",
+        family: "Asteraceae (Aster/Daisy)",
+        habitat: "Meadows, roadsides",
+        season: "August-October",
+        hint: "Purple-pink rays with yellow center, clasping leaves",
+        color: "#9b59b6",
+        toxicity: "safe",
+        toxicityNote: "Non-toxic. Flowers historically used for tea by Native Americans.",
+        pollinators: ["Monarch butterflies", "Bumblebees", "Native bees", "Migrating butterflies"],
+        wildlife: "CRITICAL late-season nectar for migrating Monarchs. Seeds eaten by songbirds. Supports 100+ caterpillar species.",
+        nativeStatus: "Native to Eastern & Central North America"
+      },
+      {
+        id: 15,
+        commonName: "Goldenrod",
+        latinName: "Solidago canadensis",
+        family: "Asteraceae (Aster/Daisy)",
+        habitat: "Fields, meadows, roadsides",
+        season: "August-October",
+        hint: "Plume-like clusters of tiny yellow flowers",
+        color: "#f4d03f",
+        toxicity: "safe",
+        toxicityNote: "Non-toxic. Does NOT cause hay fever (ragweed does). Historically used medicinally.",
+        pollinators: ["Native bees (100+ species)", "Wasps", "Butterflies", "Beetles", "Flies"],
+        wildlife: "Supports 100+ caterpillar species. Critical fall nectar source. Seeds eaten by birds. Galls host insects.",
+        nativeStatus: "Native to North America"
+      },
     ];
+
+    // Spaced repetition intervals (in hours)
+    const SR_INTERVALS = {
+      new: 0,        // Show immediately
+      learning: 4,   // 4 hours
+      familiar: 24,  // 1 day
+      mastered: 72   // 3 days
+    };
+
+    // Load/save progress to localStorage
+    const loadProgress = () => {
+      try {
+        const saved = localStorage.getItem('understory-progress');
+        return saved ? JSON.parse(saved) : {};
+      } catch {
+        return {};
+      }
+    };
+
+    const saveProgress = (progress) => {
+      try {
+        localStorage.setItem('understory-progress', JSON.stringify(progress));
+      } catch (e) {
+        console.warn('Could not save progress:', e);
+      }
+    };
+
+    // Get SR level based on correct answers
+    const getSRLevel = (card) => {
+      if (!card || card.timesCorrect === 0) return 'new';
+      if (card.timesCorrect < 2) return 'learning';
+      if (card.timesCorrect < 5) return 'familiar';
+      return 'mastered';
+    };
+
+    // Check if card is due for review
+    const isDue = (card) => {
+      if (!card || !card.lastSeen) return true;
+      const level = getSRLevel(card);
+      const hoursSince = (Date.now() - card.lastSeen) / (1000 * 60 * 60);
+      return hoursSince >= SR_INTERVALS[level];
+    };
 
     // Fetch photos from iNaturalist API
     async function fetchINaturalistPhotos(latinName) {
@@ -53,12 +335,10 @@
         const data = await response.json();
 
         if (data.results && data.results.length > 0) {
-          // Extract photos from observations
           const photos = [];
           for (const obs of data.results) {
             if (obs.photos && obs.photos.length > 0) {
               for (const photo of obs.photos) {
-                // Convert square thumbnail to medium size
                 const mediumUrl = photo.url.replace('square', 'medium');
                 photos.push({
                   url: mediumUrl,
@@ -79,22 +359,84 @@
       }
     }
 
+    // Fetch regional observation data from iNaturalist
+    async function fetchRegionalData(latinName) {
+      try {
+        // Get observation counts by place for northeastern US
+        const url = `https://api.inaturalist.org/v1/observations?taxon_name=${encodeURIComponent(latinName)}&quality_grade=research&per_page=0&place_id=47`;
+        const response = await fetch(url);
+        const data = await response.json();
+
+        // Also get total observations count
+        const totalUrl = `https://api.inaturalist.org/v1/observations?taxon_name=${encodeURIComponent(latinName)}&quality_grade=research&per_page=0`;
+        const totalResponse = await fetch(totalUrl);
+        const totalData = await totalResponse.json();
+
+        return {
+          northeastCount: data.total_results || 0,
+          totalCount: totalData.total_results || 0
+        };
+      } catch (error) {
+        console.error(`Error fetching regional data for ${latinName}:`, error);
+        return null;
+      }
+    }
+
+    function ToxicityBadge({ level, note }) {
+      const labels = {
+        safe: '✓ Safe',
+        caution: '⚠ Caution',
+        toxic: '☠ Toxic'
+      };
+      return (
+        <div style={{ marginBottom: '12px' }}>
+          <span className={`tag toxicity-${level}`}>{labels[level]}</span>
+          <p style={{ fontSize: '0.8rem', color: '#666', marginTop: '6px', lineHeight: '1.4' }}>{note}</p>
+        </div>
+      );
+    }
+
+    function SRBadge({ level, timesCorrect, lastSeen }) {
+      const labels = {
+        new: '🆕 New',
+        learning: '📖 Learning',
+        familiar: '👍 Familiar',
+        mastered: '⭐ Mastered'
+      };
+      const lastSeenText = lastSeen
+        ? `Last seen: ${new Date(lastSeen).toLocaleDateString()}`
+        : 'Not yet studied';
+      return (
+        <div className={`sr-badge sr-${level}`} title={lastSeenText}>
+          {labels[level]} {timesCorrect > 0 && `(${timesCorrect}×)`}
+        </div>
+      );
+    }
+
     function App() {
       const [mode, setMode] = React.useState('learn');
       const [currentIndex, setCurrentIndex] = React.useState(0);
       const [showAnswer, setShowAnswer] = React.useState(false);
-      const [masteredIds, setMasteredIds] = React.useState(new Set());
       const [userGuess, setUserGuess] = React.useState('');
       const [feedback, setFeedback] = React.useState(null);
       const [imageError, setImageError] = React.useState(false);
       const [photoIndex, setPhotoIndex] = React.useState(0);
+      const [expandedSection, setExpandedSection] = React.useState(null);
 
-      // Photo cache: { latinName: [photos] }
+      // Progress tracking (spaced repetition)
+      const [progress, setProgress] = React.useState(loadProgress);
+
+      // Photo cache
       const [photoCache, setPhotoCache] = React.useState({});
       const [loadingPhotos, setLoadingPhotos] = React.useState(false);
 
+      // Regional data cache
+      const [regionalCache, setRegionalCache] = React.useState({});
+
       const currentFlower = WILDFLOWERS[currentIndex];
       const currentPhotos = photoCache[currentFlower.latinName];
+      const currentRegional = regionalCache[currentFlower.latinName];
+      const cardProgress = progress[currentFlower.id] || { timesCorrect: 0, timesIncorrect: 0, lastSeen: null };
 
       // Fetch photos when flower changes
       React.useEffect(() => {
@@ -112,12 +454,39 @@
         fetchPhotos();
       }, [currentFlower.latinName]);
 
+      // Fetch regional data when flower changes
+      React.useEffect(() => {
+        const fetchRegional = async () => {
+          if (!regionalCache[currentFlower.latinName]) {
+            const data = await fetchRegionalData(currentFlower.latinName);
+            if (data) {
+              setRegionalCache(prev => ({
+                ...prev,
+                [currentFlower.latinName]: data
+              }));
+            }
+          }
+        };
+        fetchRegional();
+      }, [currentFlower.latinName]);
+
+      // Save progress whenever it changes
+      React.useEffect(() => {
+        saveProgress(progress);
+      }, [progress]);
+
+      // Get cards due for review
+      const getDueCards = () => {
+        return WILDFLOWERS.filter(f => isDue(progress[f.id]));
+      };
+
       const nextFlower = () => {
         setShowAnswer(false);
         setUserGuess('');
         setFeedback(null);
         setImageError(false);
         setPhotoIndex(0);
+        setExpandedSection(null);
         setCurrentIndex((prev) => (prev + 1) % WILDFLOWERS.length);
       };
 
@@ -127,19 +496,19 @@
         setFeedback(null);
         setImageError(false);
         setPhotoIndex(0);
+        setExpandedSection(null);
         setCurrentIndex((prev) => (prev - 1 + WILDFLOWERS.length) % WILDFLOWERS.length);
       };
 
-      const toggleMastered = () => {
-        setMasteredIds(prev => {
-          const next = new Set(prev);
-          if (next.has(currentFlower.id)) {
-            next.delete(currentFlower.id);
-          } else {
-            next.add(currentFlower.id);
+      const recordAnswer = (correct) => {
+        setProgress(prev => ({
+          ...prev,
+          [currentFlower.id]: {
+            timesCorrect: (prev[currentFlower.id]?.timesCorrect || 0) + (correct ? 1 : 0),
+            timesIncorrect: (prev[currentFlower.id]?.timesIncorrect || 0) + (correct ? 0 : 1),
+            lastSeen: Date.now()
           }
-          return next;
-        });
+        }));
       };
 
       const checkGuess = () => {
@@ -148,12 +517,19 @@
         const latinName = currentFlower.latinName.toLowerCase();
 
         if (guess === commonName || guess === latinName ||
-            (commonName.includes(guess) && guess.length > 3)) {
+            (commonName.includes(guess) && guess.length > 3) ||
+            (latinName.includes(guess) && guess.length > 3)) {
           setFeedback({ correct: true, message: 'Correct!' });
           setShowAnswer(true);
+          recordAnswer(true);
         } else {
           setFeedback({ correct: false, message: 'Not quite. Try again or reveal the answer.' });
         }
+      };
+
+      const giveUp = () => {
+        setShowAnswer(true);
+        recordAnswer(false);
       };
 
       const cyclePhoto = () => {
@@ -164,6 +540,8 @@
       };
 
       const currentPhoto = currentPhotos && currentPhotos[photoIndex];
+      const dueCount = getDueCards().length;
+      const masteredCount = WILDFLOWERS.filter(f => getSRLevel(progress[f.id]) === 'mastered').length;
 
       return (
         <div style={{
@@ -177,6 +555,7 @@
             <p style={{ fontSize: '0.9rem', color: '#6b6b6b', letterSpacing: '0.15em', margin: 0 }}>NYC Regional Wildflowers • {WILDFLOWERS.length} Species</p>
           </header>
 
+          {/* Mode selector */}
           <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', marginBottom: '24px' }}>
             {['learn', 'practice', 'test'].map((m) => (
               <button
@@ -191,12 +570,20 @@
             ))}
           </div>
 
-          <div style={{ maxWidth: '600px', margin: '0 auto 24px', background: '#d4cfc4', borderRadius: '4px', height: '6px', overflow: 'hidden' }}>
-            <div style={{ width: `${(masteredIds.size / WILDFLOWERS.length) * 100}%`, height: '100%', background: '#5c6b4a', transition: 'width 0.3s ease' }} />
+          {/* Progress bar and stats */}
+          <div style={{ maxWidth: '600px', margin: '0 auto 16px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: '#6b6b6b', marginBottom: '6px' }}>
+              <span>{masteredCount} mastered</span>
+              <span>{dueCount} due for review</span>
+            </div>
+            <div style={{ background: '#d4cfc4', borderRadius: '4px', height: '6px', overflow: 'hidden' }}>
+              <div style={{ width: `${(masteredCount / WILDFLOWERS.length) * 100}%`, height: '100%', background: '#5c6b4a', transition: 'width 0.3s ease' }} />
+            </div>
           </div>
-          <p style={{ textAlign: 'center', fontSize: '0.8rem', color: '#6b6b6b', margin: '0 0 24px 0' }}>{masteredIds.size} of {WILDFLOWERS.length} mastered</p>
 
+          {/* Main card */}
           <div style={{ maxWidth: '700px', margin: '0 auto', background: '#fff', borderRadius: '8px', boxShadow: '0 4px 20px rgba(0,0,0,0.08)', overflow: 'hidden' }}>
+            {/* Photo section */}
             <div
               onClick={cyclePhoto}
               style={{ aspectRatio: '4/3', background: '#e8e4d9', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden', cursor: currentPhotos && currentPhotos.length > 1 ? 'pointer' : 'default' }}
@@ -221,17 +608,21 @@
                 </div>
               )}
 
+              {/* SR Badge */}
+              <div style={{ position: 'absolute', top: '12px', left: '12px' }}>
+                <SRBadge
+                  level={getSRLevel(cardProgress)}
+                  timesCorrect={cardProgress.timesCorrect}
+                  lastSeen={cardProgress.lastSeen}
+                />
+              </div>
+
               {/* Photo counter */}
               {currentPhotos && currentPhotos.length > 1 && !loadingPhotos && (
                 <div style={{
-                  position: 'absolute',
-                  top: '12px',
-                  right: '12px',
-                  background: 'rgba(0,0,0,0.6)',
-                  color: '#fff',
-                  padding: '4px 10px',
-                  borderRadius: '12px',
-                  fontSize: '0.75rem',
+                  position: 'absolute', top: '12px', right: '12px',
+                  background: 'rgba(0,0,0,0.6)', color: '#fff',
+                  padding: '4px 10px', borderRadius: '12px', fontSize: '0.75rem',
                 }}>
                   {photoIndex + 1} / {currentPhotos.length} • tap for more
                 </div>
@@ -252,14 +643,18 @@
               )}
             </div>
 
+            {/* Info section */}
             <div style={{ padding: '24px' }}>
               {mode === 'learn' && (
                 <>
-                  <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+                  <div style={{ textAlign: 'center', marginBottom: '16px' }}>
                     <h2 style={{ fontSize: '1.8rem', fontWeight: '400', color: '#3d3d3d', margin: '0 0 4px 0' }}>{currentFlower.commonName}</h2>
-                    <p style={{ fontSize: '1rem', fontStyle: 'italic', color: '#6b6b6b', margin: 0 }}>{currentFlower.latinName}</p>
+                    <p style={{ fontSize: '1rem', fontStyle: 'italic', color: '#6b6b6b', margin: '0 0 8px 0' }}>{currentFlower.latinName}</p>
+                    <span className="tag family-tag">{currentFlower.family}</span>
                   </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
+
+                  {/* Basic info grid */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
                     <div>
                       <p style={{ margin: '0 0 4px 0', fontSize: '0.75rem', color: '#888', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Habitat</p>
                       <p style={{ margin: 0, fontSize: '0.95rem', color: '#4a4a4a' }}>{currentFlower.habitat}</p>
@@ -269,9 +664,77 @@
                       <p style={{ margin: 0, fontSize: '0.95rem', color: '#4a4a4a' }}>{currentFlower.season}</p>
                     </div>
                   </div>
-                  <div style={{ background: '#f9f8f5', padding: '16px', borderRadius: '6px', borderLeft: '3px solid #5c6b4a' }}>
+
+                  {/* Key ID Features */}
+                  <div style={{ background: '#f9f8f5', padding: '16px', borderRadius: '6px', borderLeft: '3px solid #5c6b4a', marginBottom: '16px' }}>
                     <p style={{ margin: '0 0 4px 0', fontSize: '0.75rem', color: '#888', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Key ID Features</p>
                     <p style={{ margin: 0, fontSize: '0.95rem', color: '#4a4a4a', lineHeight: '1.5' }}>{currentFlower.hint}</p>
+                  </div>
+
+                  {/* Toxicity */}
+                  <ToxicityBadge level={currentFlower.toxicity} note={currentFlower.toxicityNote} />
+
+                  {/* Expandable sections */}
+                  <div style={{ borderTop: '1px solid #e8e4d9', paddingTop: '16px' }}>
+                    {/* Pollinators & Wildlife */}
+                    <button
+                      onClick={() => setExpandedSection(expandedSection === 'ecology' ? null : 'ecology')}
+                      style={{
+                        width: '100%', background: 'none', border: '1px solid #d4cfc4', borderRadius: '6px',
+                        padding: '12px 16px', textAlign: 'left', cursor: 'pointer', marginBottom: '8px',
+                        display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontFamily: 'inherit'
+                      }}
+                    >
+                      <span style={{ fontWeight: '500', color: '#4a4a4a' }}>🐝 Ecology & Wildlife</span>
+                      <span>{expandedSection === 'ecology' ? '−' : '+'}</span>
+                    </button>
+                    {expandedSection === 'ecology' && (
+                      <div style={{ padding: '12px 16px', background: '#fafafa', borderRadius: '6px', marginBottom: '12px' }}>
+                        <p style={{ margin: '0 0 8px 0', fontSize: '0.75rem', color: '#888', textTransform: 'uppercase' }}>Pollinators</p>
+                        <div style={{ marginBottom: '12px' }}>
+                          {currentFlower.pollinators.map((p, i) => (
+                            <span key={i} className="tag pollinator-tag">{p}</span>
+                          ))}
+                        </div>
+                        <p style={{ margin: '0 0 8px 0', fontSize: '0.75rem', color: '#888', textTransform: 'uppercase' }}>Wildlife Value</p>
+                        <p style={{ margin: 0, fontSize: '0.9rem', color: '#4a4a4a', lineHeight: '1.5' }}>{currentFlower.wildlife}</p>
+                      </div>
+                    )}
+
+                    {/* Regional data */}
+                    <button
+                      onClick={() => setExpandedSection(expandedSection === 'region' ? null : 'region')}
+                      style={{
+                        width: '100%', background: 'none', border: '1px solid #d4cfc4', borderRadius: '6px',
+                        padding: '12px 16px', textAlign: 'left', cursor: 'pointer',
+                        display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontFamily: 'inherit'
+                      }}
+                    >
+                      <span style={{ fontWeight: '500', color: '#4a4a4a' }}>🗺️ Range & Observations</span>
+                      <span>{expandedSection === 'region' ? '−' : '+'}</span>
+                    </button>
+                    {expandedSection === 'region' && (
+                      <div style={{ padding: '12px 16px', background: '#fafafa', borderRadius: '6px', marginTop: '8px' }}>
+                        <p style={{ margin: '0 0 8px 0', fontSize: '0.75rem', color: '#888', textTransform: 'uppercase' }}>Native Status</p>
+                        <p style={{ margin: '0 0 12px 0', fontSize: '0.9rem', color: '#4a4a4a' }}>{currentFlower.nativeStatus}</p>
+
+                        <p style={{ margin: '0 0 8px 0', fontSize: '0.75rem', color: '#888', textTransform: 'uppercase' }}>iNaturalist Observations (Research Grade)</p>
+                        {currentRegional ? (
+                          <div style={{ display: 'flex', gap: '16px' }}>
+                            <div>
+                              <span style={{ fontSize: '1.5rem', fontWeight: '500', color: '#5c6b4a' }}>{currentRegional.northeastCount.toLocaleString()}</span>
+                              <p style={{ margin: 0, fontSize: '0.75rem', color: '#888' }}>in Northeast US</p>
+                            </div>
+                            <div>
+                              <span style={{ fontSize: '1.5rem', fontWeight: '500', color: '#4a4a4a' }}>{currentRegional.totalCount.toLocaleString()}</span>
+                              <p style={{ margin: 0, fontSize: '0.75rem', color: '#888' }}>worldwide</p>
+                            </div>
+                          </div>
+                        ) : (
+                          <p style={{ margin: 0, fontSize: '0.9rem', color: '#888' }}>Loading...</p>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </>
               )}
@@ -298,34 +761,35 @@
                       {feedback && <p style={{ margin: '0 0 12px 0', color: feedback.correct ? '#5c6b4a' : '#b85c5c', fontSize: '0.9rem' }}>{feedback.message}</p>}
                       <div style={{ display: 'flex', gap: '12px' }}>
                         <button onClick={checkGuess} style={{ flex: 1, padding: '12px', background: '#5c6b4a', color: '#fff', border: 'none', borderRadius: '6px', fontSize: '0.9rem', fontFamily: 'inherit', cursor: 'pointer' }}>Check</button>
-                        <button onClick={() => setShowAnswer(true)} style={{ flex: 1, padding: '12px', background: '#d4cfc4', color: '#4a4a4a', border: 'none', borderRadius: '6px', fontSize: '0.9rem', fontFamily: 'inherit', cursor: 'pointer' }}>{mode === 'test' ? 'Give Up' : 'Reveal'}</button>
+                        <button onClick={giveUp} style={{ flex: 1, padding: '12px', background: '#d4cfc4', color: '#4a4a4a', border: 'none', borderRadius: '6px', fontSize: '0.9rem', fontFamily: 'inherit', cursor: 'pointer' }}>{mode === 'test' ? 'Give Up' : 'Reveal'}</button>
                       </div>
                     </div>
                   ) : (
-                    <div style={{ textAlign: 'center' }}>
-                      <h2 style={{ fontSize: '1.8rem', fontWeight: '400', color: '#3d3d3d', margin: '0 0 4px 0' }}>{currentFlower.commonName}</h2>
-                      <p style={{ fontSize: '1rem', fontStyle: 'italic', color: '#6b6b6b', margin: '0 0 16px 0' }}>{currentFlower.latinName}</p>
-                      <p style={{ margin: 0, fontSize: '0.9rem', color: '#4a4a4a' }}>{currentFlower.habitat} • {currentFlower.season}</p>
+                    <div>
+                      <div style={{ textAlign: 'center', marginBottom: '16px' }}>
+                        <h2 style={{ fontSize: '1.8rem', fontWeight: '400', color: '#3d3d3d', margin: '0 0 4px 0' }}>{currentFlower.commonName}</h2>
+                        <p style={{ fontSize: '1rem', fontStyle: 'italic', color: '#6b6b6b', margin: '0 0 8px 0' }}>{currentFlower.latinName}</p>
+                        <span className="tag family-tag">{currentFlower.family}</span>
+                      </div>
+                      <p style={{ margin: '0 0 12px 0', fontSize: '0.9rem', color: '#4a4a4a', textAlign: 'center' }}>{currentFlower.habitat} • {currentFlower.season}</p>
+                      <ToxicityBadge level={currentFlower.toxicity} note={currentFlower.toxicityNote} />
                     </div>
                   )}
                 </>
               )}
 
+              {/* Navigation */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '24px', paddingTop: '20px', borderTop: '1px solid #e8e4d9' }}>
                 <button onClick={prevFlower} style={{ padding: '10px 20px', background: 'transparent', border: '1px solid #d4cfc4', borderRadius: '4px', fontSize: '0.85rem', fontFamily: 'inherit', cursor: 'pointer', color: '#4a4a4a' }}>← Previous</button>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                  <span style={{ fontSize: '0.85rem', color: '#6b6b6b' }}>{currentIndex + 1} / {WILDFLOWERS.length}</span>
-                  <button onClick={toggleMastered} style={{ padding: '8px 16px', background: masteredIds.has(currentFlower.id) ? '#5c6b4a' : 'transparent', border: `1px solid ${masteredIds.has(currentFlower.id) ? '#5c6b4a' : '#d4cfc4'}`, borderRadius: '4px', fontSize: '0.8rem', fontFamily: 'inherit', cursor: 'pointer', color: masteredIds.has(currentFlower.id) ? '#fff' : '#4a4a4a' }}>
-                    {masteredIds.has(currentFlower.id) ? '✓ Mastered' : 'Mark Mastered'}
-                  </button>
-                </div>
+                <span style={{ fontSize: '0.85rem', color: '#6b6b6b' }}>{currentIndex + 1} / {WILDFLOWERS.length}</span>
                 <button onClick={nextFlower} style={{ padding: '10px 20px', background: 'transparent', border: '1px solid #d4cfc4', borderRadius: '4px', fontSize: '0.85rem', fontFamily: 'inherit', cursor: 'pointer', color: '#4a4a4a' }}>Next →</button>
               </div>
             </div>
           </div>
 
           <footer style={{ textAlign: 'center', marginTop: '32px', padding: '16px', color: '#888', fontSize: '0.75rem' }}>
-            <p style={{ margin: 0 }}>Photos from <a href="https://www.inaturalist.org" target="_blank" rel="noopener noreferrer" style={{ color: '#5c6b4a' }}>iNaturalist</a> • Research-grade observations</p>
+            <p style={{ margin: '0 0 8px 0' }}>Photos & observation data from <a href="https://www.inaturalist.org" target="_blank" rel="noopener noreferrer" style={{ color: '#5c6b4a' }}>iNaturalist</a></p>
+            <p style={{ margin: 0 }}>Research-grade observations • Progress saved locally</p>
           </footer>
         </div>
       );
