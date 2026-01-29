@@ -1,0 +1,97 @@
+.container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f5f0 0%, #e8e4d9 100%);
+  font-family: 'Georgia', 'Times New Roman', serif;
+  padding: 20px;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #a8a090;
+}
+
+.title {
+  font-size: 2.5rem;
+  font-weight: 400;
+  letter-spacing: 0.3em;
+  color: #3d3d3d;
+  margin: 0 0 8px 0;
+  text-transform: uppercase;
+}
+
+.subtitle {
+  font-size: 0.9rem;
+  color: #6b6b6b;
+  letter-spacing: 0.15em;
+  margin: 0;
+}
+
+.modeSelector {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.modeButton {
+  padding: 10px 24px;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-family: inherit;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: #d4cfc4;
+  color: #4a4a4a;
+}
+
+.modeButton:hover {
+  background: #c4bfb4;
+}
+
+.modeButtonActive {
+  background: #5c6b4a;
+  color: #fff;
+}
+
+.modeButtonActive:hover {
+  background: #4c5b3a;
+}
+
+.progressContainer {
+  max-width: 600px;
+  margin: 0 auto 24px;
+  background: #d4cfc4;
+  border-radius: 4px;
+  height: 6px;
+  overflow: hidden;
+}
+
+.progressBar {
+  height: 100%;
+  background: #5c6b4a;
+  transition: width 0.3s ease;
+}
+
+.progressText {
+  text-align: center;
+  font-size: 0.8rem;
+  color: #6b6b6b;
+  margin: 0 0 24px 0;
+}
+
+.footer {
+  text-align: center;
+  margin-top: 32px;
+  padding: 16px;
+  color: #888;
+  font-size: 0.75rem;
+}
+
+.footer p {
+  margin: 0;
+}
