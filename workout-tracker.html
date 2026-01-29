@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#0a0a0f">
+  <title>Workout Tracker</title>
+  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%233b82f6' width='100' height='100' rx='20'/><text x='50' y='68' text-anchor='middle' font-size='50'>🏋️</text></svg>">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    * { -webkit-tap-highlight-color: transparent; }
+    body { margin: 0; background: #0a0a0f; overscroll-behavior: none; }
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+    input[type="number"] { -moz-appearance: textfield; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+
+    // Icons
+    const ChevronLeft = ({ className }) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>;
+    const ChevronRight = ({ className }) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>;
+    const Check = ({ className }) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>;
+    const Dumbbell = ({ className }) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7h2v10H4zM18 7h2v10h-2zM6 9h2v6H6zM16 9h2v6h-2zM8 11h8v2H8z" /></svg>;
+    const Trophy = ({ className }) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15l-2 5h4l-2-5zM8 15H5a2 2 0 01-2-2V6a2 2 0 012-2h3M16 15h3a2 2 0 002-2V6a2 2 0 00-2-2h-3M8 4h8v7a4 4 0 01-8 0V4z" /></svg>;
+    const RotateCcw = ({ className }) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>;
+    const Download = ({ className }) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>;
+    const Sparkles = ({ className }) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3l.5 2M3 5l2 .5M5 7l-.5 2M7 5l-2-.5M12 3l1 4 4 1-4 1-1 4-1-4-4-1 4-1 1-4zM19 13l.5 2m-2.5.5l2 .5m-.5 2l-.5-2m-2-.5l2-.5" /></svg>;
+    const TrendingUp = ({ className, style }) => <svg className={className} style={style} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>;
+    const TrendingDown = ({ className, style }) => <svg className={className} style={style} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 17h8m0 0v-8m0 8l-8-8-4 4-6-6" /></svg>;
+    const Minus = ({ className, style }) => <svg className={className} style={style} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" /></svg>;
+
+    // Progression configs
+    const progressionConfig = {
+      deadlift: { progressionType: "load-first", weightIncrement: 5, repRange: [4, 6], rirTarget: 2, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 6) return { action: 'increase', amount: 5, reason: `Hit ${Math.round(avgReps)} reps → Add 5 lbs` }; if (avgReps < 4) return { action: 'decrease', amount: 5, reason: `Only ${Math.round(avgReps)} reps → Drop 5 lbs` }; return { action: 'maintain', reason: 'Building strength within range' }; } },
+      squat: { progressionType: "load-first", weightIncrement: 5, repRange: [4, 8], rirTarget: 2, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 6) return { action: 'increase', amount: 5, reason: `Strong at ${Math.round(avgReps)} reps → Add 5 lbs` }; if (avgReps < 4) return { action: 'decrease', amount: 5, reason: `Below target → Deload 5 lbs` }; return { action: 'maintain', reason: 'Building within range' }; } },
+      hack_squat: { progressionType: "rep-first", weightIncrement: 10, repRange: [6, 10], rirTarget: 2, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 10) return { action: 'increase', amount: 10, reason: `Hit 10 reps → Add 10 lbs` }; if (avgReps < 6) return { action: 'decrease', amount: 10, reason: 'Below range → Reduce weight' }; return { action: 'maintain', reason: 'Building reps within range' }; } },
+      leg_press: { progressionType: "rep-first", weightIncrement: 10, repRange: [8, 12], rirTarget: 2, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 12) return { action: 'increase', amount: 10, reason: 'Hit 12 reps → Add 10 lbs' }; if (avgReps < 8) return { action: 'decrease', amount: 10, reason: 'Below 8 reps → Reduce weight' }; return { action: 'maintain', reason: 'Building within rep range' }; } },
+      hip_thrust: { progressionType: "load-first", weightIncrement: 10, repRange: [5, 8], rirTarget: 2, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 8) return { action: 'increase', amount: 10, reason: 'Strong at 8+ reps → Add 10 lbs' }; if (allCompleted && avgReps >= 6) return { action: 'increase', amount: 5, reason: 'Hit target → Add 5 lbs' }; if (avgReps < 5) return { action: 'decrease', amount: 5, reason: 'Below target → Reduce 5 lbs' }; return { action: 'maintain', reason: 'Focus on glute squeeze at top' }; } },
+      rdl: { progressionType: "rep-first", weightIncrement: 5, repRange: [10, 12], rirTarget: 2, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 12) return { action: 'increase', amount: 5, reason: 'Hit 12 reps → Add 5 lbs' }; if (avgReps < 10) return { action: 'decrease', amount: 5, reason: 'Form likely degrading → Drop 5 lbs' }; return { action: 'maintain', reason: 'Focus on hamstring stretch' }; } },
+      bulgarian_split: { progressionType: "rep-first", weightIncrement: 2.5, repRange: [8, 12], rirTarget: 2, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 12) return { action: 'increase', amount: 2.5, reason: 'Both legs hit 12 → Add 2.5 lbs/hand' }; if (avgReps < 8) return { action: 'decrease', amount: 2.5, reason: 'Below range → Prioritize stability' }; return { action: 'maintain', reason: 'Focus on depth and control' }; } },
+      walking_lunge: { progressionType: "rep-first", weightIncrement: 2.5, repRange: [24, 30], rirTarget: 2, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 30) return { action: 'increase', amount: 2.5, reason: 'Hit 30 steps → Add 2.5 lbs/hand' }; if (avgReps < 24) return { action: 'decrease', amount: 2.5, reason: 'Below target → Reduce load' }; return { action: 'maintain', reason: 'Building metabolic capacity' }; } },
+      step_up: { progressionType: "rep-first", weightIncrement: 2.5, repRange: [10, 12], rirTarget: 2, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 12) return { action: 'increase', amount: 2.5, reason: 'Both legs hit 12 → Add 2.5 lbs/hand' }; if (avgReps < 10) return { action: 'decrease', amount: 2.5, reason: 'Below target → Reduce weight' }; return { action: 'maintain', reason: 'Building unilateral strength' }; } },
+      single_leg_rdl: { progressionType: "rep-first", weightIncrement: 2.5, repRange: [10, 12], rirTarget: 3, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 12) return { action: 'increase', amount: 2.5, reason: 'Stable at 12 → Add 2.5 lbs' }; if (avgReps < 10) return { action: 'decrease', amount: 2.5, reason: 'Balance limiting → Reduce load' }; return { action: 'maintain', reason: 'Focus on stability' }; } },
+      leg_curl: { progressionType: "rep-first", weightIncrement: 5, repRange: [10, 15], rirTarget: 2, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 15) return { action: 'increase', amount: 5, reason: 'Hit top of range → Move pin' }; if (avgReps < 10) return { action: 'decrease', amount: 5, reason: 'Below range → Reduce weight' }; return { action: 'maintain', reason: 'Building within rep range' }; } },
+      leg_ext: { progressionType: "rep-first", weightIncrement: 5, repRange: [12, 20], rirTarget: 2, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 20) return { action: 'increase', amount: 5, reason: 'Hit 20 reps → Add weight' }; if (avgReps < 12) return { action: 'decrease', amount: 5, reason: 'Below 12 → Reduce for joint health' }; return { action: 'maintain', reason: 'Higher reps optimal here' }; } },
+      cable_kickback: { progressionType: "rep-first", weightIncrement: 2.5, repRange: [12, 15], rirTarget: 2, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 15) return { action: 'increase', amount: 2.5, reason: 'Strong squeeze at 15 → Add 2.5 lbs' }; if (avgReps < 12) return { action: 'decrease', amount: 2.5, reason: 'Below range → Focus on MMC' }; return { action: 'maintain', reason: 'Prioritize glute squeeze' }; } },
+      calf_raise: { progressionType: "rep-first", weightIncrement: 5, repRange: [12, 20], rirTarget: 1, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 20) return { action: 'increase', amount: 5, reason: 'Hit 20 → Add weight (calves progress slowly)' }; if (avgReps < 12) return { action: 'decrease', amount: 5, reason: 'Prioritize ROM over load' }; return { action: 'maintain', reason: 'Focus on stretch and squeeze' }; } },
+      log_press: { progressionType: "load-first", weightIncrement: 2.5, repRange: [3, 5], rirTarget: 2, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 5) return { action: 'increase', amount: 2.5, reason: 'Hit 5 reps → Add ONLY 2.5 lbs (OHP stalls fastest)' }; if (avgReps < 3) return { action: 'decrease', amount: 2.5, reason: 'Below 3 → Drop 2.5 lbs' }; return { action: 'maintain', reason: 'OHP patience - small jumps win' }; } },
+      incline_bb: { progressionType: "load-first", weightIncrement: 2.5, repRange: [8, 10], rirTarget: 2, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 10) return { action: 'increase', amount: 2.5, reason: 'Hit 10 reps → Add 2.5 lbs' }; if (avgReps < 8) return { action: 'decrease', amount: 2.5, reason: 'Below 8 → Reduce weight' }; return { action: 'maintain', reason: 'Building pressing strength' }; } },
+      incline_db: { progressionType: "rep-first", weightIncrement: 5, repRange: [8, 12], rirTarget: 2, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 12) return { action: 'increase', amount: 5, reason: 'Hit 12 → Add 5 lbs per dumbbell' }; if (avgReps < 8) return { action: 'decrease', amount: 5, reason: 'Below 8 → Drop 5 lbs per DB' }; return { action: 'maintain', reason: 'Building within rep range' }; } },
+      db_bench: { progressionType: "rep-first", weightIncrement: 5, repRange: [8, 12], rirTarget: 2, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 12) return { action: 'increase', amount: 5, reason: 'Hit 12 → Add 5 lbs per DB' }; if (avgReps < 8) return { action: 'decrease', amount: 5, reason: 'Below range' }; return { action: 'maintain', reason: 'Progressing well' }; } },
+      barbell_row: { progressionType: "rep-first", weightIncrement: 5, repRange: [8, 12], rirTarget: 2, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 12) return { action: 'increase', amount: 5, reason: 'Feeling lats, hit 12 → Add 5 lbs' }; if (avgReps < 8) return { action: 'decrease', amount: 5, reason: 'Form likely breaking → Drop 5 lbs' }; return { action: 'maintain', reason: 'Prioritize muscle engagement' }; } },
+      machine_chest: { progressionType: "rep-first", weightIncrement: 5, repRange: [10, 15], rirTarget: 1, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 15) return { action: 'increase', amount: 5, reason: 'Hit 15 → Move pin' }; if (avgReps < 10) return { action: 'decrease', amount: 5, reason: 'Below range' }; return { action: 'maintain', reason: 'Building within range' }; } },
+      cable_row: { progressionType: "rep-first", weightIncrement: 5, repRange: [10, 12], rirTarget: 2, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 12) return { action: 'increase', amount: 5, reason: 'Hit 12 → Move pin' }; if (avgReps < 10) return { action: 'decrease', amount: 5, reason: 'Below range' }; return { action: 'maintain', reason: 'Good progress' }; } },
+      seated_row: { progressionType: "rep-first", weightIncrement: 5, repRange: [10, 12], rirTarget: 2, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 12) return { action: 'increase', amount: 5, reason: 'Hit 12 → Add 5 lbs' }; if (avgReps < 10) return { action: 'decrease', amount: 5, reason: 'Below range' }; return { action: 'maintain', reason: 'Building back thickness' }; } },
+      lat_pulldown: { progressionType: "rep-first", weightIncrement: 5, repRange: [10, 12], rirTarget: 2, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 12) return { action: 'increase', amount: 5, reason: 'Hit 12 → Move pin' }; if (avgReps < 10) return { action: 'decrease', amount: 5, reason: 'Below range' }; return { action: 'maintain', reason: 'Good progress' }; } },
+      face_pull: { progressionType: "rep-first", weightIncrement: 2.5, repRange: [15, 20], rirTarget: 3, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 20) return { action: 'increase', amount: 2.5, reason: 'Perfect form at 20 → Tiny bump only' }; if (avgReps < 15) return { action: 'decrease', amount: 2.5, reason: 'Too heavy for this movement' }; return { action: 'maintain', reason: 'Shoulder health > ego' }; } },
+      low_high_fly: { progressionType: "rep-first", weightIncrement: 2.5, repRange: [12, 15], rirTarget: 2, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 15) return { action: 'increase', amount: 2.5, reason: 'Hit 15 → Small bump' }; if (avgReps < 12) return { action: 'decrease', amount: 2.5, reason: 'Below range' }; return { action: 'maintain', reason: 'Focus on chest squeeze' }; } },
+      lateral_raise: { progressionType: "rep-first", weightIncrement: 1.25, repRange: [12, 20], rirTarget: 2, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 20) return { action: 'increase', amount: 1.25, reason: 'Hit 20 → Add ONLY 1.25 lbs (microplates essential)' }; if (avgReps < 12) return { action: 'decrease', amount: 1.25, reason: 'Below range → Drop slightly' }; return { action: 'maintain', reason: 'Building within range' }; } },
+      incline_curl: { progressionType: "rep-first", weightIncrement: 2.5, repRange: [10, 12], rirTarget: 2, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 12) return { action: 'increase', amount: 2.5, reason: 'Hit 12 → Add 2.5 lbs' }; if (avgReps < 10) return { action: 'decrease', amount: 2.5, reason: 'Below range' }; return { action: 'maintain', reason: 'Focus on stretch at bottom' }; } },
+      hammer_curl: { progressionType: "rep-first", weightIncrement: 2.5, repRange: [10, 15], rirTarget: 2, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 15) return { action: 'increase', amount: 2.5, reason: 'Hit 15 → Add 2.5 lbs' }; if (avgReps < 10) return { action: 'decrease', amount: 2.5, reason: 'Below range' }; return { action: 'maintain', reason: 'Building brachialis' }; } },
+      bayesian_curl: { progressionType: "rep-first", weightIncrement: 2.5, repRange: [10, 15], rirTarget: 2, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 15) return { action: 'increase', amount: 2.5, reason: 'Hit 15 → Move pin' }; if (avgReps < 10) return { action: 'decrease', amount: 2.5, reason: 'Below range' }; return { action: 'maintain', reason: 'Constant tension advantage' }; } },
+      preacher_curl: { progressionType: "rep-first", weightIncrement: 2.5, repRange: [10, 12], rirTarget: 2, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 12) return { action: 'increase', amount: 2.5, reason: 'Hit 12 → Add 2.5 lbs' }; if (avgReps < 10) return { action: 'decrease', amount: 2.5, reason: 'Below range' }; return { action: 'maintain', reason: 'Focus on full stretch' }; } },
+      preacher_fri: { progressionType: "rep-first", weightIncrement: 2.5, repRange: [8, 10], rirTarget: 2, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 10) return { action: 'increase', amount: 2.5, reason: 'Hit 10 → Add 2.5 lbs' }; if (avgReps < 8) return { action: 'decrease', amount: 2.5, reason: 'Below range' }; return { action: 'maintain', reason: 'Building curl strength' }; } },
+      spider_curl: { progressionType: "rep-first", weightIncrement: 2.5, repRange: [12, 15], rirTarget: 2, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 15) return { action: 'increase', amount: 2.5, reason: 'Hit 15 → Add 2.5 lbs' }; if (avgReps < 12) return { action: 'decrease', amount: 2.5, reason: 'Below range' }; return { action: 'maintain', reason: 'Focus on contraction' }; } },
+      seated_curl: { progressionType: "rep-first", weightIncrement: 2.5, repRange: [8, 12], rirTarget: 2, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 12) return { action: 'increase', amount: 2.5, reason: 'Hit 12 → Add 2.5 lbs per DB' }; if (avgReps < 8) return { action: 'decrease', amount: 2.5, reason: 'Below range' }; return { action: 'maintain', reason: 'Controlled curls' }; } },
+      overhead_tri: { progressionType: "rep-first", weightIncrement: 2.5, repRange: [10, 15], rirTarget: 2, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 15) return { action: 'increase', amount: 2.5, reason: 'Hit 15 → Add 2.5 lbs' }; if (avgReps < 10) return { action: 'decrease', amount: 2.5, reason: 'Below range' }; return { action: 'maintain', reason: 'Focus on stretch' }; } },
+      pushdown: { progressionType: "rep-first", weightIncrement: 5, repRange: [12, 20], rirTarget: 2, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 20) return { action: 'increase', amount: 5, reason: 'Hit 20 → Move pin' }; if (avgReps < 12) return { action: 'decrease', amount: 5, reason: 'Below range' }; return { action: 'maintain', reason: 'Building pump' }; } },
+      bent_lateral: { progressionType: "rep-first", weightIncrement: 1.25, repRange: [12, 20], rirTarget: 2, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 20) return { action: 'increase', amount: 1.25, reason: 'Hit 20 → Tiny bump (microplates)' }; if (avgReps < 12) return { action: 'decrease', amount: 1.25, reason: 'Below range' }; return { action: 'maintain', reason: 'Focus on rear delt squeeze' }; } },
+      cable_crunch: { progressionType: "load-first", weightIncrement: 5, repRange: [12, 15], rirTarget: 2, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 15) return { action: 'increase', amount: 5, reason: 'Hit 15 → Move pin down' }; if (avgReps < 12) return { action: 'decrease', amount: 5, reason: 'Below range' }; return { action: 'maintain', reason: 'Building core strength' }; } },
+      hanging_leg_raise: { progressionType: "rom-first", weightIncrement: 0, repRange: [10, 15], rirTarget: 2, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 15) return { action: 'progress', reason: 'Hit 15 → Progress to straight legs or add ankle weights' }; if (avgReps < 10) return { action: 'regress', reason: 'Below 10 → Bend knees more' }; return { action: 'maintain', reason: 'Control the swing' }; } },
+      ab_wheel: { progressionType: "rom-first", weightIncrement: 0, repRange: [8, 15], rirTarget: 2, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 15) return { action: 'progress', reason: 'Hit 15 → Extend distance or add pause' }; if (avgReps < 8) return { action: 'regress', reason: 'Below 8 → Reduce rollout distance' }; return { action: 'maintain', reason: 'Focus on brace' }; } },
+      reverse_crunch: { progressionType: "rep-first", weightIncrement: 0, repRange: [12, 20], rirTarget: 2, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 20) return { action: 'progress', reason: 'Hit 20 → Add decline angle or ankle weight' }; if (avgReps < 12) return { action: 'regress', reason: 'Below 12 → Reduce difficulty' }; return { action: 'maintain', reason: 'Lower with control' }; } },
+      pallof_press: { progressionType: "rep-first", weightIncrement: 2.5, repRange: [10, 15], rirTarget: 3, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 15) return { action: 'increase', amount: 2.5, reason: 'Hit 15 per side → Small bump' }; if (avgReps < 10) return { action: 'decrease', amount: 2.5, reason: 'Below range' }; return { action: 'maintain', reason: 'Resist the rotation' }; } },
+      side_plank_abduction: { progressionType: "time-first", weightIncrement: 0, repRange: [8, 12], rirTarget: 2, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 12) return { action: 'progress', reason: 'Hit 12 → Add mini band or dumbbell on hip' }; if (avgReps < 8) return { action: 'regress', reason: 'Below 8 → Simplify position' }; return { action: 'maintain', reason: 'Hips stacked, lift with heel' }; } },
+      abs_mon: { progressionType: "rep-first", weightIncrement: 0, repRange: [12, 20], rirTarget: 2, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 20) return { action: 'progress', reason: 'Hit 20 → Increase difficulty or add load' }; return { action: 'maintain', reason: 'Consistent core work' }; } },
+      abs_tue: { progressionType: "rep-first", weightIncrement: 0, repRange: [12, 20], rirTarget: 2, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 20) return { action: 'progress', reason: 'Hit 20 → Increase difficulty' }; return { action: 'maintain', reason: 'Consistent core work' }; } },
+      farmers_walk: { progressionType: "distance-first", weightIncrement: 5, repRange: [50, 70], rirTarget: 2, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 70) return { action: 'increase', amount: 5, reason: 'Hit 70 ft → Add 5 lbs per hand' }; if (avgReps < 50) return { action: 'decrease', amount: 5, reason: 'Below 50 ft → Reduce weight' }; return { action: 'maintain', reason: 'Building grip and core' }; } },
+      battle_rope: { progressionType: "time-first", weightIncrement: 0, repRange: [40, 60], rirTarget: 1, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 60) return { action: 'progress', reason: 'Hit 60 → Add wave complexity or extend time' }; if (avgReps < 40) return { action: 'regress', reason: 'Below 40 → Reduce interval' }; return { action: 'maintain', reason: 'Building conditioning' }; } },
+      push_ups: { progressionType: "rep-first", weightIncrement: 0, repRange: [12, 20], rirTarget: 2, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 20) return { action: 'progress', reason: 'Hit 20 → Add deficit, pause, or weight' }; if (avgReps < 12) return { action: 'regress', reason: 'Below 12 → Elevate hands' }; return { action: 'maintain', reason: 'Building pushing endurance' }; } }
+    };
+    const defaultProgressionConfig = { progressionType: "rep-first", weightIncrement: 5, repRange: [8, 12], rirTarget: 2, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 12) return { action: 'increase', amount: 5, reason: 'Hit top of range → Add 5 lbs' }; if (avgReps < 8) return { action: 'decrease', amount: 5, reason: 'Below range → Reduce weight' }; return { action: 'maintain', reason: 'Progressing within range' }; } };
+
+    const muscleColors = { shoulders: '#f97316', triceps: '#ef4444', chest: '#ec4899', upperChest: '#f472b6', lats: '#8b5cf6', traps: '#a855f7', biceps: '#3b82f6', rearDelts: '#f59e0b', sideDelts: '#fb923c', forearms: '#6366f1', abs: '#10b981', hamstrings: '#14b8a6', glutes: '#06b6d4', quads: '#22d3d1', calves: '#84cc16' };
+
+    // Exercise Animation Component
+    const ExerciseAnimation = ({ exerciseId, accent = '#3b82f6' }) => {
+      const config = progressionConfig[exerciseId] || defaultProgressionConfig;
+      const animations = {
+        deadlift: (<svg viewBox="0 0 200 160" className="w-full h-32"><style>{`@keyframes dlUp{0%,100%{transform:rotate(0) translateY(0)}50%{transform:rotate(-45deg) translateY(-25px)}}@keyframes dlLegs{0%,100%{transform:scaleY(0.7)}50%{transform:scaleY(1)}}.dl-u{animation:dlUp 2.5s ease-in-out infinite;transform-origin:100px 130px}.dl-l{animation:dlLegs 2.5s ease-in-out infinite;transform-origin:100px 140px}`}</style><line x1="20" y1="145" x2="180" y2="145" stroke="#27272a" strokeWidth="2"/><g className="dl-l"><line x1="100" y1="100" x2="85" y2="140" stroke={accent} strokeWidth="3" strokeLinecap="round"/><line x1="100" y1="100" x2="115" y2="140" stroke={accent} strokeWidth="3" strokeLinecap="round" opacity="0.6"/></g><g className="dl-u"><line x1="100" y1="100" x2="100" y2="55" stroke={accent} strokeWidth="4" strokeLinecap="round"/><circle cx="100" cy="45" r="10" fill="none" stroke={accent} strokeWidth="3"/><line x1="100" y1="60" x2="70" y2="95" stroke={accent} strokeWidth="3" strokeLinecap="round"/><line x1="100" y1="60" x2="130" y2="95" stroke={accent} strokeWidth="3" strokeLinecap="round" opacity="0.6"/><line x1="40" y1="95" x2="160" y2="95" stroke="#52525b" strokeWidth="4" strokeLinecap="round"/><circle cx="45" cy="95" r="14" fill="none" stroke="#52525b" strokeWidth="3"/><circle cx="155" cy="95" r="14" fill="none" stroke="#52525b" strokeWidth="3"/></g></svg>),
+        hip_thrust: (<svg viewBox="0 0 200 160" className="w-full h-32"><style>{`@keyframes thrust{0%,100%{transform:rotate(0)}50%{transform:rotate(-20deg)}}.thr{animation:thrust 2s ease-in-out infinite;transform-origin:120px 100px}`}</style><line x1="20" y1="145" x2="180" y2="145" stroke="#27272a" strokeWidth="2"/><rect x="30" y="85" width="50" height="25" rx="3" fill="#52525b"/><g className="thr"><line x1="55" y1="90" x2="90" y2="100" stroke={accent} strokeWidth="4" strokeLinecap="round"/><circle cx="45" cy="80" r="10" fill="none" stroke={accent} strokeWidth="3"/><line x1="90" y1="100" x2="120" y2="95" stroke={accent} strokeWidth="4" strokeLinecap="round"/><line x1="120" y1="95" x2="140" y2="130" stroke={accent} strokeWidth="3" strokeLinecap="round"/><line x1="140" y1="130" x2="145" y2="145" stroke={accent} strokeWidth="3" strokeLinecap="round"/><line x1="80" y1="95" x2="160" y2="95" stroke="#52525b" strokeWidth="4" strokeLinecap="round"/><circle cx="85" cy="95" r="10" fill="none" stroke="#52525b" strokeWidth="2"/><circle cx="155" cy="95" r="10" fill="none" stroke="#52525b" strokeWidth="2"/></g></svg>),
+        squat: (<svg viewBox="0 0 200 160" className="w-full h-32"><style>{`@keyframes sqt{0%,100%{transform:translateY(0) scaleY(1)}50%{transform:translateY(20px) scaleY(0.8)}}.sqt-b{animation:sqt 2.5s ease-in-out infinite;transform-origin:100px 140px}`}</style><line x1="20" y1="145" x2="180" y2="145" stroke="#27272a" strokeWidth="2"/><g className="sqt-b"><line x1="100" y1="95" x2="80" y2="140" stroke={accent} strokeWidth="3" strokeLinecap="round"/><line x1="100" y1="95" x2="120" y2="140" stroke={accent} strokeWidth="3" strokeLinecap="round" opacity="0.6"/><line x1="100" y1="95" x2="100" y2="55" stroke={accent} strokeWidth="4" strokeLinecap="round"/><circle cx="100" cy="45" r="10" fill="none" stroke={accent} strokeWidth="3"/><line x1="60" y1="55" x2="140" y2="55" stroke="#52525b" strokeWidth="4" strokeLinecap="round"/><circle cx="65" cy="55" r="10" fill="none" stroke="#52525b" strokeWidth="2"/><circle cx="135" cy="55" r="10" fill="none" stroke="#52525b" strokeWidth="2"/></g></svg>),
+        log_press: (<svg viewBox="0 0 200 160" className="w-full h-32"><style>{`@keyframes lp{0%,100%{transform:translateY(0)}50%{transform:translateY(-35px)}}.lp-b{animation:lp 2.5s ease-in-out infinite}`}</style><line x1="20" y1="145" x2="180" y2="145" stroke="#27272a" strokeWidth="2"/><line x1="100" y1="95" x2="85" y2="140" stroke={accent} strokeWidth="3" strokeLinecap="round"/><line x1="100" y1="95" x2="115" y2="140" stroke={accent} strokeWidth="3" strokeLinecap="round" opacity="0.6"/><line x1="100" y1="95" x2="100" y2="55" stroke={accent} strokeWidth="4" strokeLinecap="round"/><circle cx="100" cy="45" r="10" fill="none" stroke={accent} strokeWidth="3"/><g className="lp-b"><line x1="100" y1="55" x2="70" y2="40" stroke={accent} strokeWidth="3" strokeLinecap="round"/><line x1="100" y1="55" x2="130" y2="40" stroke={accent} strokeWidth="3" strokeLinecap="round" opacity="0.6"/><rect x="50" y="30" width="100" height="16" rx="8" fill="#52525b"/></g></svg>),
+        lat_pulldown: (<svg viewBox="0 0 200 160" className="w-full h-32"><style>{`@keyframes lat{0%,100%{transform:translateY(0)}50%{transform:translateY(30px)}}.lat-b{animation:lat 2s ease-in-out infinite}`}</style><rect x="80" y="20" width="40" height="15" rx="2" fill="#52525b"/><rect x="70" y="110" width="60" height="10" rx="2" fill="#52525b"/><line x1="100" y1="110" x2="100" y2="70" stroke={accent} strokeWidth="4" strokeLinecap="round"/><circle cx="100" cy="60" r="10" fill="none" stroke={accent} strokeWidth="3"/><line x1="100" y1="115" x2="80" y2="140" stroke={accent} strokeWidth="3" strokeLinecap="round"/><g className="lat-b"><line x1="100" y1="70" x2="70" y2="55" stroke={accent} strokeWidth="3" strokeLinecap="round"/><line x1="100" y1="70" x2="130" y2="55" stroke={accent} strokeWidth="3" strokeLinecap="round" opacity="0.6"/><line x1="50" y1="50" x2="150" y2="50" stroke="#52525b" strokeWidth="3" strokeLinecap="round"/></g></svg>),
+        lateral_raise: (<svg viewBox="0 0 200 160" className="w-full h-32"><style>{`@keyframes latr{0%,100%{transform:rotate(0)}50%{transform:rotate(-70deg)}}.latr-l{animation:latr 2.5s ease-in-out infinite;transform-origin:100px 60px}`}</style><line x1="20" y1="145" x2="180" y2="145" stroke="#27272a" strokeWidth="2"/><line x1="100" y1="95" x2="90" y2="140" stroke={accent} strokeWidth="3" strokeLinecap="round"/><line x1="100" y1="95" x2="100" y2="55" stroke={accent} strokeWidth="4" strokeLinecap="round"/><circle cx="100" cy="45" r="10" fill="none" stroke={accent} strokeWidth="3"/><g className="latr-l"><line x1="100" y1="60" x2="70" y2="90" stroke={accent} strokeWidth="3" strokeLinecap="round"/><rect x="63" y="85" width="10" height="16" rx="2" fill="#52525b"/></g></svg>)
+      };
+      const fallback = (<svg viewBox="0 0 200 160" className="w-full h-32"><style>{`@keyframes pls{0%,100%{transform:scale(1);opacity:0.8}50%{transform:scale(1.05);opacity:1}}.pls-f{animation:pls 2s ease-in-out infinite;transform-origin:center}`}</style><line x1="20" y1="145" x2="180" y2="145" stroke="#27272a" strokeWidth="2"/><g className="pls-f"><circle cx="100" cy="45" r="12" fill="none" stroke={accent} strokeWidth="3"/><line x1="100" y1="57" x2="100" y2="95" stroke={accent} strokeWidth="4" strokeLinecap="round"/><line x1="100" y1="65" x2="70" y2="85" stroke={accent} strokeWidth="3" strokeLinecap="round"/><line x1="100" y1="65" x2="130" y2="85" stroke={accent} strokeWidth="3" strokeLinecap="round"/><line x1="100" y1="95" x2="80" y2="140" stroke={accent} strokeWidth="3" strokeLinecap="round"/><line x1="100" y1="95" x2="120" y2="140" stroke={accent} strokeWidth="3" strokeLinecap="round"/></g></svg>);
+      return (
+        <div className="relative rounded-xl overflow-hidden" style={{ background: `linear-gradient(135deg, ${accent}10 0%, #18181b 100%)` }}>
+          {animations[exerciseId] || fallback}
+          <div className="absolute bottom-2 left-2 right-2 flex gap-2 justify-center">
+            <span className="px-2 py-0.5 rounded-full text-[9px] font-medium" style={{ background: `${accent}20`, color: accent }}>{config.repRange[0]}-{config.repRange[1]} reps</span>
+            <span className="px-2 py-0.5 rounded-full text-[9px] font-medium" style={{ background: `${accent}20`, color: accent }}>+{config.weightIncrement} lb</span>
+          </div>
+        </div>
+      );
+    };
+
+    // Workout data
+    const workoutData4Day = {
+      day1: { name: "Upper Power + Biceps", focus: "Heavy pressing, pulling, bicep stretch", exercises: [
+        { id: "log_press", name: "Log Press / Standing DB Press", sets: 4, reps: "3-5", defaultWeight: 95, muscles: ["shoulders", "triceps", "chest"], notes: "Heavy, 3-min rest" },
+        { id: "incline_db", name: "Incline Dumbbell Press (30°)", sets: 3, reps: "8-12", defaultWeight: 50, muscles: ["upperChest", "shoulders", "triceps"], notes: "Deep stretch at bottom" },
+        { id: "barbell_row", name: "Barbell Row", sets: 4, reps: "8-12", defaultWeight: 135, muscles: ["lats", "traps", "biceps", "rearDelts"], notes: "Feel lats, not just moving weight" },
+        { id: "lateral_raise", name: "Lateral Raise", sets: 3, reps: "12-20", defaultWeight: 15, muscles: ["sideDelts"], notes: "Microplates essential", superset: true },
+        { id: "incline_curl", name: "Incline Dumbbell Curl", sets: 3, reps: "10-12", defaultWeight: 20, muscles: ["biceps"], notes: "Arms behind torso, max stretch" },
+        { id: "face_pull", name: "Face Pull", sets: 3, reps: "15-20", defaultWeight: 40, muscles: ["rearDelts", "traps"], notes: "Shoulder health - form > load", superset: true },
+        { id: "hammer_curl", name: "Hammer Curl", sets: 3, reps: "10-15", defaultWeight: 25, muscles: ["biceps", "forearms"], notes: "Brachialis emphasis" },
+        { id: "abs_mon", name: "Abs (any variation)", sets: 2, reps: "12-20", defaultWeight: 0, muscles: ["abs"], notes: "Ab wheel, leg raise, or cable crunch" }
+      ]},
+      day2: { name: "Lower Power + Carries", focus: "Deadlift strength, carries for traps/forearms", exercises: [
+        { id: "deadlift", name: "Conventional Deadlift", sets: 4, reps: "4-6", defaultWeight: 225, muscles: ["hamstrings", "glutes", "lats", "traps", "forearms"], notes: "Ramp up: 135→185→225→working weight" },
+        { id: "hack_squat", name: "Hack Squat", sets: 3, reps: "6-10", defaultWeight: 180, muscles: ["quads", "glutes"], notes: "High SFR - push hard" },
+        { id: "farmers_walk", name: "Farmer's Walk", sets: 3, reps: "50-70 ft", defaultWeight: 70, muscles: ["traps", "forearms", "abs"], notes: "Per hand. Distance before load." },
+        { id: "leg_curl", name: "Leg Curl", sets: 3, reps: "10-15", defaultWeight: 90, muscles: ["hamstrings"], notes: "Control the negative" },
+        { id: "calf_raise", name: "Calf Raises", sets: 3, reps: "12-20", defaultWeight: 150, muscles: ["calves"], notes: "Full ROM, calves progress slowly" },
+        { id: "abs_tue", name: "Abs (any variation)", sets: 2, reps: "12-20", defaultWeight: 0, muscles: ["abs"], notes: "Pallof press, planks" }
+      ]},
+      day3: { name: "Upper Hypertrophy + Arms", focus: "Upper chest volume, arm hypertrophy", exercises: [
+        { id: "incline_bb", name: "Incline Barbell Press (30°)", sets: 4, reps: "8-10", defaultWeight: 115, muscles: ["upperChest", "shoulders", "triceps"], notes: "Controlled tempo" },
+        { id: "cable_row", name: "Cable Row", sets: 3, reps: "10-12", defaultWeight: 120, muscles: ["lats", "traps", "biceps"], notes: "High SFR", superset: true },
+        { id: "low_high_fly", name: "Low-to-High Cable Fly", sets: 3, reps: "12-15", defaultWeight: 25, muscles: ["upperChest"], notes: "Upper chest isolation" },
+        { id: "lat_pulldown", name: "Lat Pulldown", sets: 3, reps: "10-12", defaultWeight: 120, muscles: ["lats", "biceps"], notes: "Pull to upper chest", superset: true },
+        { id: "bayesian_curl", name: "Bayesian Cable Curl", sets: 3, reps: "10-15", defaultWeight: 25, muscles: ["biceps"], notes: "Face away, constant tension" },
+        { id: "overhead_tri", name: "Overhead Tricep Extension", sets: 3, reps: "10-15", defaultWeight: 50, muscles: ["triceps"], notes: "Long head emphasis", superset: true },
+        { id: "preacher_curl", name: "Preacher Curl", sets: 3, reps: "10-12", defaultWeight: 50, muscles: ["biceps"], notes: "Short head emphasis" },
+        { id: "pushdown", name: "Rope Pushdown", sets: 2, reps: "12-20", defaultWeight: 40, muscles: ["triceps"], notes: "Pump finisher", superset: true },
+        { id: "spider_curl", name: "Spider Curl", sets: 2, reps: "12-15", defaultWeight: 20, muscles: ["biceps"], notes: "Chest on incline bench" },
+        { id: "bent_lateral", name: "Bent + Side Lateral", sets: 2, reps: "12-20", defaultWeight: 12, muscles: ["rearDelts", "sideDelts"], notes: "Microplates for laterals" }
+      ]},
+      day4: { name: "Lower Hypertrophy + Volume", focus: "Squat volume, additional upper work", exercises: [
+        { id: "squat", name: "Barbell Squat", sets: 4, reps: "4-8", defaultWeight: 155, muscles: ["quads", "glutes", "hamstrings"], notes: "Ramp: 95→135→155→working" },
+        { id: "leg_press", name: "Leg Press", sets: 4, reps: "8-12", defaultWeight: 270, muscles: ["quads", "glutes"], notes: "Double progression" },
+        { id: "leg_ext", name: "Leg Extension", sets: 3, reps: "12-20", defaultWeight: 100, muscles: ["quads"], notes: "Higher reps protect knees" },
+        { id: "rdl", name: "Romanian Deadlift", sets: 3, reps: "10-12", defaultWeight: 135, muscles: ["hamstrings", "glutes", "lats"], notes: "Hamstring stretch > load" },
+        { id: "seated_row", name: "Seated Cable Row", sets: 4, reps: "10-12", defaultWeight: 130, muscles: ["lats", "traps", "biceps"], notes: "Back thickness" },
+        { id: "machine_chest", name: "Machine Chest Press", sets: 4, reps: "10-15", defaultWeight: 140, muscles: ["chest", "triceps"], notes: "Safe to push hard" },
+        { id: "seated_curl", name: "Seated DB Curl (both arms)", sets: 4, reps: "8-12", defaultWeight: 25, muscles: ["biceps"], notes: "No swinging" },
+        { id: "preacher_fri", name: "Preacher or Barbell Curl", sets: 3, reps: "8-10", defaultWeight: 55, muscles: ["biceps"], notes: "Short head emphasis" },
+        { id: "battle_rope", name: "Battle Rope", sets: 4, reps: "40-60", defaultWeight: 0, muscles: ["shoulders", "abs", "forearms"], notes: "Conditioning finisher" }
+      ]}
+    };
+
+    const workoutData3Day = {
+      day1: { name: "Lower Power + Upper Maintenance", focus: "Heavy glute loading, hip hinge strength", exercises: [
+        { id: "deadlift", name: "Sumo / Conventional Deadlift", sets: 4, reps: "4-6", defaultWeight: 185, muscles: ["glutes", "hamstrings", "lats", "traps"], notes: "Heavy, 2-3 min rest" },
+        { id: "hip_thrust", name: "Barbell Hip Thrust", sets: 4, reps: "5-8", defaultWeight: 135, muscles: ["glutes", "hamstrings"], notes: "Progress fast - squeeze at top" },
+        { id: "db_bench", name: "DB Bench Press", sets: 3, reps: "8-12", defaultWeight: 35, muscles: ["chest", "triceps"], notes: "Upper maintenance", superset: true },
+        { id: "cable_row", name: "Cable Row", sets: 3, reps: "10-12", defaultWeight: 100, muscles: ["lats", "traps", "biceps"], notes: "Upper maintenance" },
+        { id: "bulgarian_split", name: "Bulgarian Split Squat", sets: 3, reps: "8-12", defaultWeight: 30, muscles: ["glutes", "quads"], notes: "Balance before load" },
+        { id: "side_plank_abduction", name: "Side Plank Hip Abduction", sets: 2, reps: "8-12", defaultWeight: 0, muscles: ["glutes", "abs"], notes: "103% glute medius activation" },
+        { id: "cable_crunch", name: "Cable Crunch", sets: 3, reps: "12-15", defaultWeight: 70, muscles: ["abs"], notes: "Load-based ab work" }
+      ]},
+      day2: { name: "Full Body Hypertrophy + Core", focus: "Glute volume, unilateral work, ab priority", exercises: [
+        { id: "rdl", name: "Romanian Deadlift", sets: 4, reps: "10-12", defaultWeight: 95, muscles: ["hamstrings", "glutes"], notes: "Form > load, feel stretch" },
+        { id: "walking_lunge", name: "Walking Lunges", sets: 3, reps: "24-30 steps", defaultWeight: 25, muscles: ["glutes", "quads"], notes: "Per DB, metabolic stress" },
+        { id: "step_up", name: "Diagonal Step-Up", sets: 3, reps: "10-12", defaultWeight: 20, muscles: ["glutes", "quads"], notes: "Highest glute EMG activation" },
+        { id: "log_press", name: "Log Press / Standing DB Press", sets: 3, reps: "3-5", defaultWeight: 70, muscles: ["shoulders", "triceps"], notes: "Primary press - microplates!" },
+        { id: "lat_pulldown", name: "Lat Pulldown", sets: 3, reps: "10-12", defaultWeight: 100, muscles: ["lats", "biceps"], notes: "Upper maintenance", superset: true },
+        { id: "hanging_leg_raise", name: "Hanging Leg Raise", sets: 3, reps: "10-15", defaultWeight: 0, muscles: ["abs"], notes: "Progress: bent → straight legs" },
+        { id: "cable_kickback", name: "Cable Kickback", sets: 3, reps: "12-15", defaultWeight: 25, muscles: ["glutes"], notes: "Mind-muscle connection" },
+        { id: "ab_wheel", name: "Ab Wheel Rollout", sets: 3, reps: "8-15", defaultWeight: 0, muscles: ["abs"], notes: "Highest ab activation - extend ROM" }
+      ]},
+      day3: { name: "Lower Volume + Core Finisher", focus: "Glute pump, quad balance, ab definition", exercises: [
+        { id: "hip_thrust", name: "Hip Thrust (moderate)", sets: 3, reps: "12-15", defaultWeight: 115, muscles: ["glutes"], notes: "Focus on squeeze/contraction" },
+        { id: "leg_press", name: "Leg Press (feet high/wide)", sets: 3, reps: "8-12", defaultWeight: 200, muscles: ["glutes", "quads"], notes: "Glute-biased foot position" },
+        { id: "leg_curl", name: "Leg Curl", sets: 3, reps: "10-15", defaultWeight: 70, muscles: ["hamstrings"], notes: "Control negative", superset: true },
+        { id: "leg_ext", name: "Leg Extension", sets: 3, reps: "12-20", defaultWeight: 80, muscles: ["quads"], notes: "Higher reps for knee health" },
+        { id: "single_leg_rdl", name: "Single-Leg RDL", sets: 3, reps: "10-12", defaultWeight: 25, muscles: ["glutes", "hamstrings"], notes: "Balance first, then load" },
+        { id: "push_ups", name: "Push-ups", sets: 3, reps: "12-20", defaultWeight: 0, muscles: ["chest", "triceps"], notes: "Upper maintenance", superset: true },
+        { id: "face_pull", name: "Face Pulls", sets: 3, reps: "15-20", defaultWeight: 35, muscles: ["rearDelts", "traps"], notes: "Shoulder health > ego" },
+        { id: "reverse_crunch", name: "Reverse Crunch", sets: 3, reps: "12-20", defaultWeight: 0, muscles: ["abs"], notes: "Progress via decline/ankle weight" },
+        { id: "pallof_press", name: "Pallof Press", sets: 3, reps: "10-15", defaultWeight: 30, muscles: ["abs"], notes: "Anti-rotation" },
+        { id: "calf_raise", name: "Calf Raises", sets: 3, reps: "12-20", defaultWeight: 120, muscles: ["calves"], notes: "Full ROM, patient progression" }
+      ]}
+    };
+
+    const programConfigs = {
+      '4day': { name: "Strongman Hypertrophy", subtitle: "4-Day Power + Armor", data: workoutData4Day, dayCount: 4, icon: Dumbbell, gradient: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)', bgGradient: 'linear-gradient(180deg, #0a0a0f 0%, #0f0f18 100%)', dayAccents: { day1: '#3b82f6', day2: '#10b981', day3: '#8b5cf6', day4: '#f97316' } },
+      '3day': { name: "Peach Protocol", subtitle: "3-Day Glute & Core Sculpt", data: workoutData3Day, dayCount: 3, icon: Sparkles, gradient: 'linear-gradient(135deg, #f472b6 0%, #fb923c 100%)', bgGradient: 'linear-gradient(180deg, #0f0a0d 0%, #1a0f14 100%)', dayAccents: { day1: '#f472b6', day2: '#fb7185', day3: '#fb923c' } }
+    };
+
+    // Main App
+    function WorkoutApp() {
+      const [view, setView] = useState('programSelect');
+      const [selectedProgram, setSelectedProgram] = useState(null);
+      const [selectedDay, setSelectedDay] = useState(null);
+      const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0);
+      const [workoutLog4Day, setWorkoutLog4Day] = useState(() => { try { return JSON.parse(localStorage.getItem('workoutLog4Day')) || {}; } catch { return {}; } });
+      const [workoutLog3Day, setWorkoutLog3Day] = useState(() => { try { return JSON.parse(localStorage.getItem('workoutLog3Day')) || {}; } catch { return {}; } });
+      const [currentSets, setCurrentSets] = useState([]);
+
+      useEffect(() => { try { localStorage.setItem('workoutLog4Day', JSON.stringify(workoutLog4Day)); } catch {} }, [workoutLog4Day]);
+      useEffect(() => { try { localStorage.setItem('workoutLog3Day', JSON.stringify(workoutLog3Day)); } catch {} }, [workoutLog3Day]);
+
+      const getCurrentLog = () => selectedProgram === '4day' ? workoutLog4Day : workoutLog3Day;
+      const setCurrentLog = (newLog) => { if (selectedProgram === '4day') setWorkoutLog4Day(newLog); else setWorkoutLog3Day(newLog); };
+      const getLastWeekData = (exerciseId) => { const logs = getCurrentLog()[exerciseId] || []; return logs.length === 0 ? null : logs[logs.length - 1]; };
+
+      const calculateProgression = (exercise) => {
+        const lastData = getLastWeekData(exercise.id);
+        const config = progressionConfig[exercise.id] || defaultProgressionConfig;
+        if (!lastData) return { weight: exercise.defaultWeight, suggestion: null, action: 'start', icon: null, config };
+        const result = config.progressionLogic(lastData);
+        const lastWeight = lastData.weight;
+        let newWeight = lastWeight, icon = Minus;
+        if (result.action === 'increase') { newWeight = lastWeight + (result.amount || config.weightIncrement); icon = TrendingUp; }
+        else if (result.action === 'decrease') { newWeight = Math.max(0, lastWeight - (result.amount || config.weightIncrement)); icon = TrendingDown; }
+        else if (result.action === 'progress') icon = TrendingUp;
+        else if (result.action === 'regress') icon = TrendingDown;
+        return { weight: newWeight, suggestion: result.reason, action: result.action, icon, config, lastWeight };
+      };
+
+      const selectProgram = (program) => { setSelectedProgram(program); setView('home'); };
+      const startDay = (day) => { setSelectedDay(day); setView('dayOverview'); };
+
+      const startExercise = (index = 0) => {
+        setCurrentExerciseIndex(index);
+        const config = programConfigs[selectedProgram];
+        const exercise = config.data[selectedDay].exercises[index];
+        const progression = calculateProgression(exercise);
+        const exerciseConfig = progressionConfig[exercise.id] || defaultProgressionConfig;
+        const targetReps = exerciseConfig.repRange[1];
+        const numSets = typeof exercise.sets === 'number' ? exercise.sets : 3;
+        setCurrentSets(Array(numSets).fill(null).map(() => ({ weight: progression.weight, reps: targetReps, completed: false })));
+        setView('exercise');
+      };
+
+      const updateSet = (setIndex, field, value) => { const newSets = [...currentSets]; newSets[setIndex] = { ...newSets[setIndex], [field]: value }; setCurrentSets(newSets); };
+      const toggleSetComplete = (setIndex) => { const newSets = [...currentSets]; newSets[setIndex] = { ...newSets[setIndex], completed: !newSets[setIndex].completed }; setCurrentSets(newSets); };
+
+      const saveExercise = () => {
+        const config = programConfigs[selectedProgram];
+        const exercise = config.data[selectedDay].exercises[currentExerciseIndex];
+        const newLog = { ...getCurrentLog() };
+        if (!newLog[exercise.id]) newLog[exercise.id] = [];
+        newLog[exercise.id].push({ date: new Date().toISOString(), day: selectedDay, program: selectedProgram, weight: currentSets[0]?.weight || 0, sets: currentSets });
+        setCurrentLog(newLog);
+      };
+
+      const nextExercise = () => {
+        saveExercise();
+        const config = programConfigs[selectedProgram];
+        const exercises = config.data[selectedDay].exercises;
+        if (currentExerciseIndex < exercises.length - 1) startExercise(currentExerciseIndex + 1);
+        else setView('complete');
+      };
+
+      const prevExercise = () => { if (currentExerciseIndex > 0) { saveExercise(); startExercise(currentExerciseIndex - 1); } };
+
+      const resetData = () => { if (confirm('Clear all workout history for this program?')) { setCurrentLog({}); } };
+
+      const exportCSV = () => {
+        const log = getCurrentLog();
+        const config = programConfigs[selectedProgram];
+        let csv = 'Date,Day,Exercise,Set,Weight,Reps,Completed\n';
+        Object.entries(log).forEach(([exerciseId, entries]) => {
+          entries.forEach(entry => {
+            entry.sets.forEach((set, setIndex) => {
+              let name = exerciseId;
+              Object.values(config.data).forEach(day => { const f = day.exercises.find(e => e.id === exerciseId); if (f) name = f.name; });
+              csv += `${new Date(entry.date).toLocaleDateString()},Day ${entry.day.replace('day','')},${name},${setIndex+1},${set.weight},${set.reps},${set.completed?'Yes':'No'}\n`;
+            });
+          });
+        });
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `workout_${selectedProgram}_${new Date().toISOString().split('T')[0]}.csv`; a.click();
+      };
+
+      // PROGRAM SELECT
+      if (view === 'programSelect') {
+        return (
+          <div className="min-h-screen text-white p-4 flex items-center justify-center" style={{ background: 'linear-gradient(180deg, #0a0a0f 0%, #0f0f18 100%)' }}>
+            <div className="max-w-md mx-auto w-full">
+              <div className="text-center mb-10">
+                <h1 className="text-2xl font-bold tracking-tight mb-2">Choose Your Program</h1>
+                <p className="text-zinc-500 text-sm">Select a workout plan to get started</p>
+              </div>
+              <div className="space-y-4">
+                {Object.entries(programConfigs).map(([key, cfg]) => (
+                  <button key={key} onClick={() => selectProgram(key)} className="w-full rounded-2xl p-5 text-left transition-all active:scale-[0.98] border border-zinc-800/50" style={{ backgroundColor: '#12121a' }}>
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: cfg.gradient }}><cfg.icon className="w-6 h-6 text-white" /></div>
+                      <div className="flex-1">
+                        <div className="text-base font-semibold text-zinc-100">{cfg.name}</div>
+                        <div className="text-xs text-zinc-500">{cfg.subtitle}</div>
+                      </div>
+                      <ChevronRight className="w-5 h-5 text-zinc-600" />
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      const config = programConfigs[selectedProgram];
+      const workoutData = config.data;
+
+      // HOME
+      if (view === 'home') {
+        return (
+          <div className="min-h-screen text-white p-4" style={{ background: config.bgGradient }}>
+            <div className="max-w-md mx-auto">
+              <div className="text-center mb-8 pt-4">
+                <button onClick={() => setView('programSelect')} className="text-zinc-600 text-xs mb-3 hover:text-white transition-colors flex items-center justify-center gap-1 mx-auto"><ChevronLeft className="w-3 h-3" /> Switch</button>
+                <div className="w-14 h-14 mx-auto mb-3 rounded-xl flex items-center justify-center" style={{ background: config.gradient }}><config.icon className="w-7 h-7 text-white" /></div>
+                <h1 className="text-xl font-bold tracking-tight">{config.name}</h1>
+                <p className="text-zinc-500 text-xs mt-1">{config.subtitle}</p>
+              </div>
+              <div className="space-y-2">
+                {Object.entries(workoutData).map(([day, data]) => {
+                  const accent = config.dayAccents[day];
+                  return (
+                    <button key={day} onClick={() => startDay(day)} className="w-full rounded-xl p-4 text-left transition-all active:scale-[0.98] border border-zinc-800/50" style={{ backgroundColor: '#12121a' }}>
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <div className="text-[9px] font-semibold uppercase tracking-widest mb-0.5" style={{ color: accent }}>Day {day.replace('day','')}</div>
+                          <div className="text-sm font-semibold text-zinc-100">{data.name}</div>
+                          <div className="text-[10px] text-zinc-600">{data.exercises.length} exercises</div>
+                        </div>
+                        <ChevronRight className="w-4 h-4" style={{ color: accent }} />
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+              <div className="mt-8 flex gap-2 text-[10px]">
+                <button onClick={exportCSV} className="flex-1 text-zinc-600 flex items-center justify-center gap-1 py-2 border border-zinc-800 rounded-lg"><Download className="w-3 h-3" /> Export</button>
+                <button onClick={resetData} className="flex-1 text-zinc-700 flex items-center justify-center gap-1 py-2"><RotateCcw className="w-3 h-3" /> Reset</button>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      // DAY OVERVIEW
+      if (view === 'dayOverview') {
+        const dayData = workoutData[selectedDay];
+        const accent = config.dayAccents[selectedDay];
+        return (
+          <div className="min-h-screen text-white p-4 pb-24" style={{ background: config.bgGradient }}>
+            <div className="max-w-md mx-auto">
+              <button onClick={() => setView('home')} className="flex items-center text-zinc-500 mb-4 text-sm"><ChevronLeft className="w-4 h-4" /> Back</button>
+              <div className="mb-4">
+                <div className="text-[9px] font-semibold uppercase tracking-widest mb-0.5" style={{ color: accent }}>Day {selectedDay.replace('day','')}</div>
+                <h1 className="text-lg font-bold text-zinc-100">{dayData.name}</h1>
+                <p className="text-zinc-500 text-xs">{dayData.focus}</p>
+              </div>
+              <div className="space-y-1.5 mb-4">
+                {dayData.exercises.map((ex, i) => {
+                  const lastData = getLastWeekData(ex.id);
+                  const primaryColor = muscleColors[ex.muscles[0]] || '#6b7280';
+                  return (
+                    <div key={ex.id} onClick={() => startExercise(i)} className="rounded-lg p-3 flex items-center gap-2.5 cursor-pointer transition-all active:scale-[0.98] border border-zinc-800/50" style={{ backgroundColor: '#12121a' }}>
+                      <div className="w-7 h-7 rounded flex items-center justify-center text-xs font-bold" style={{ background: `${primaryColor}20`, color: primaryColor }}>{i + 1}</div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-medium text-zinc-200 truncate">{ex.name.split(' / ')[0]}</div>
+                        <div className="text-[10px] text-zinc-600">{ex.sets} × {ex.reps}{lastData ? ` · ${lastData.weight} lbs` : ''}</div>
+                      </div>
+                      <ChevronRight className="w-3.5 h-3.5 text-zinc-700" />
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="fixed bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-zinc-950 to-transparent">
+                <div className="max-w-md mx-auto"><button onClick={() => startExercise(0)} className="w-full text-white font-semibold py-3.5 rounded-xl text-sm transition-all active:scale-[0.98]" style={{ background: accent }}>Start Workout</button></div>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      // EXERCISE
+      if (view === 'exercise') {
+        const dayData = workoutData[selectedDay];
+        const exercise = dayData.exercises[currentExerciseIndex];
+        const progression = calculateProgression(exercise);
+        const exerciseConfig = progressionConfig[exercise.id] || defaultProgressionConfig;
+        const accent = config.dayAccents[selectedDay];
+        const weightIncrement = exerciseConfig.weightIncrement || 5;
+        const nameParts = exercise.name.split(' / ');
+        const hasAlt = nameParts.length > 1;
+        let suggestionColor = accent, suggestionBg = `${accent}15`;
+        if (progression.action === 'increase' || progression.action === 'progress') { suggestionColor = '#10b981'; suggestionBg = '#10b98115'; }
+        else if (progression.action === 'decrease' || progression.action === 'regress') { suggestionColor = '#f59e0b'; suggestionBg = '#f59e0b15'; }
+
+        const StepBtn = ({ onClick, children }) => (
+          <button onClick={onClick} className="w-11 h-11 rounded-lg flex items-center justify-center text-lg font-bold transition-all active:scale-90" style={{ background: `${accent}20`, color: accent }}>{children}</button>
+        );
+
+        return (
+          <div className="min-h-screen text-white p-3 pb-16" style={{ background: config.bgGradient }}>
+            <div className="max-w-md mx-auto">
+              <div className="flex justify-between items-center mb-2">
+                <button onClick={() => setView('dayOverview')} className="text-zinc-500 p-1"><ChevronLeft className="w-5 h-5" /></button>
+                <div className="text-[10px] text-zinc-600">{currentExerciseIndex + 1}/{dayData.exercises.length}</div>
+                <div className="w-7" />
+              </div>
+              <div className="h-0.5 bg-zinc-800 rounded-full mb-3 overflow-hidden"><div className="h-full rounded-full" style={{ width: `${((currentExerciseIndex + 1) / dayData.exercises.length) * 100}%`, background: accent }} /></div>
+              <h1 className="text-base font-bold text-zinc-100 mb-0.5">{nameParts[0]}</h1>
+              <p className="text-zinc-500 text-[10px] mb-2">{exercise.notes}</p>
+              <ExerciseAnimation exerciseId={exercise.id} accent={accent} />
+              {hasAlt && <button className="w-full py-1.5 mt-2 text-[9px] text-zinc-600 border-b border-zinc-800/50">Alt: {nameParts[1]} →</button>}
+              {progression.suggestion && (
+                <div className="rounded-lg px-2 py-1.5 text-[10px] mt-2 flex items-center gap-2" style={{ background: suggestionBg, color: suggestionColor }}>
+                  {progression.icon && <progression.icon className="w-3 h-3" />}
+                  <span>{progression.suggestion}</span>
+                </div>
+              )}
+              <div className="space-y-2 mt-3">
+                {currentSets.map((set, i) => (
+                  <div key={i} className={`rounded-lg p-2 border ${set.completed ? 'border-emerald-500/50 bg-emerald-500/10' : 'border-zinc-800/50 bg-zinc-900/30'}`}>
+                    <div className="flex items-center gap-2">
+                      <button onClick={() => toggleSetComplete(i)} className={`w-6 h-6 rounded flex items-center justify-center transition-all active:scale-90 flex-shrink-0 text-[10px] font-bold ${set.completed ? 'bg-emerald-500 text-white' : 'bg-zinc-800 text-zinc-500'}`}>
+                        {set.completed ? <Check className="w-3.5 h-3.5" /> : i + 1}
+                      </button>
+                      <div className="flex items-center gap-1 flex-1">
+                        <StepBtn onClick={() => updateSet(i, 'weight', Math.max(0, set.weight - weightIncrement))}>−</StepBtn>
+                        <div className="flex-1 text-center"><div className="text-base font-bold text-zinc-100">{set.weight}</div><div className="text-[7px] text-zinc-600 -mt-0.5">lbs</div></div>
+                        <StepBtn onClick={() => updateSet(i, 'weight', set.weight + weightIncrement)}>+</StepBtn>
+                      </div>
+                      <div className="w-px h-6 bg-zinc-800" />
+                      <div className="flex items-center gap-1 flex-1">
+                        <StepBtn onClick={() => updateSet(i, 'reps', Math.max(1, set.reps - 1))}>−</StepBtn>
+                        <div className="flex-1 text-center"><div className="text-base font-bold text-zinc-100">{set.reps}</div><div className="text-[7px] text-zinc-600 -mt-0.5">reps</div></div>
+                        <StepBtn onClick={() => updateSet(i, 'reps', set.reps + 1)}>+</StepBtn>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="fixed bottom-4 left-0 right-0 pointer-events-none">
+                <div className="max-w-md mx-auto px-4 flex justify-between">
+                  <button onClick={prevExercise} disabled={currentExerciseIndex === 0} className="pointer-events-auto w-12 h-12 flex items-center justify-center text-3xl text-zinc-600 disabled:opacity-20 active:scale-90">‹</button>
+                  <button onClick={nextExercise} className="pointer-events-auto w-12 h-12 flex items-center justify-center text-3xl active:scale-90" style={{ color: accent }}>›</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      // COMPLETE
+      if (view === 'complete') {
+        const dayData = workoutData[selectedDay];
+        const accent = config.dayAccents[selectedDay];
+        return (
+          <div className="min-h-screen text-white p-4 flex items-center justify-center" style={{ background: config.bgGradient }}>
+            <div className="max-w-md mx-auto text-center">
+              <div className="w-20 h-20 mx-auto rounded-2xl flex items-center justify-center mb-6" style={{ background: accent }}><Trophy className="w-9 h-9 text-white" /></div>
+              <h1 className="text-xl font-bold text-zinc-100 mb-1">Workout Complete</h1>
+              <p className="text-zinc-500 text-sm mb-8">{dayData.name}</p>
+              <button onClick={() => { setView('home'); setSelectedDay(null); }} className="w-full text-white font-semibold py-3.5 rounded-xl text-sm" style={{ background: accent }}>Done</button>
+            </div>
+          </div>
+        );
+      }
+
+      return null;
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<WorkoutApp />);
+  </script>
+</body>
+</html>
