@@ -4,82 +4,350 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Understory - NYC Wildflower Flashcards</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Georgia', 'Times New Roman', serif; }
-    .loading-spinner { width: 40px; height: 40px; border: 3px solid #d4cfc4; border-top-color: #5c6b4a; border-radius: 50%; animation: spin 1s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .toxicity-safe { background: #d4edda; color: #155724; }
-    .toxicity-caution { background: #fff3cd; color: #856404; }
-    .toxicity-toxic { background: #f8d7da; color: #721c24; }
-    .tag { display: inline-block; padding: 3px 8px; border-radius: 12px; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; margin-right: 6px; margin-bottom: 4px; }
-    .pollinator-tag { background: #e8f4ea; color: #2d5a3d; }
-    .family-tag { background: #f4e8f4; color: #5a2d5a; }
-    .sr-badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 12px; font-size: 0.7rem; background: #f0f0f0; }
-    .sr-new { background: #e3f2fd; color: #1565c0; }
-    .sr-learning { background: #fff8e1; color: #f57f17; }
-    .sr-familiar { background: #e8f5e9; color: #2e7d32; }
-    .sr-mastered { background: #f3e5f5; color: #7b1fa2; }
+    :root {
+      --cream: #faf8f3;
+      --cream-dark: #f0ebe0;
+      --paper: #f5f2eb;
+      --sage: #6b7c5e;
+      --sage-light: #8a9c7c;
+      --sage-dark: #4a5a40;
+      --earth: #8b7355;
+      --earth-dark: #5d4e3a;
+      --earth-light: #a89070;
+      --ink: #2d2a26;
+      --ink-light: #4a4642;
+      --ink-faded: #7a756d;
+      --corner-color: #3d3428;
+      --shadow-soft: rgba(45, 42, 38, 0.08);
+      --shadow-medium: rgba(45, 42, 38, 0.12);
+    }
 
-    /* Ornate gold picture frame */
-    .ornate-frame {
-      position: relative;
-      padding: 20px;
-      background: linear-gradient(135deg, #8B7355 0%, #D4AF37 10%, #FFD700 25%, #D4AF37 40%, #8B6914 50%, #D4AF37 60%, #FFD700 75%, #D4AF37 90%, #8B7355 100%);
-      border-radius: 6px;
-      box-shadow:
-        0 0 0 2px #5a4a2d,
-        0 0 0 4px #d4af37,
-        0 0 0 6px #8b6914,
-        0 0 0 10px #3d2914,
-        inset 0 0 20px rgba(0,0,0,0.4),
-        0 10px 30px rgba(0,0,0,0.4);
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--cream);
+      color: var(--ink);
+      line-height: 1.6;
     }
-    .ornate-frame::before {
-      content: '';
-      position: absolute;
-      top: 6px; left: 6px; right: 6px; bottom: 6px;
-      border: 3px solid;
-      border-image: linear-gradient(135deg, #FFD700, #8B6914, #FFD700, #D4AF37, #FFD700) 1;
-      pointer-events: none;
+
+    /* Typography */
+    .font-display {
+      font-family: 'Cormorant Garamond', Georgia, serif;
     }
-    .ornate-frame::after {
-      content: '';
-      position: absolute;
-      top: 12px; left: 12px; right: 12px; bottom: 12px;
-      border: 2px solid #3d2914;
-      box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
-      pointer-events: none;
-    }
-    .frame-inner {
-      position: relative;
-      background: #1a1714;
-      border: 3px solid #2a2218;
-      box-shadow: inset 0 0 30px rgba(0,0,0,0.8);
-      overflow: hidden;
-    }
-    /* Corner ornaments */
-    .corner-ornament {
-      position: absolute;
-      width: 24px;
-      height: 24px;
-      background: radial-gradient(circle, #FFD700 0%, #D4AF37 50%, #8B6914 100%);
+
+    /* Loading spinner */
+    .loading-spinner {
+      width: 32px;
+      height: 32px;
+      border: 2px solid var(--cream-dark);
+      border-top-color: var(--sage);
       border-radius: 50%;
-      box-shadow: 0 0 4px rgba(0,0,0,0.5), inset 0 0 4px rgba(255,255,255,0.3);
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Fade in animation */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .fade-in {
+      animation: fadeIn 0.4s ease-out;
+    }
+
+    /* Photo corner mounts - like a vintage album */
+    .photo-container {
+      position: relative;
+      background: var(--paper);
+      padding: 24px;
+      border-radius: 2px;
+    }
+
+    .photo-mount {
+      position: relative;
+      background: #1a1816;
+      box-shadow:
+        0 2px 8px rgba(0,0,0,0.2),
+        inset 0 0 40px rgba(0,0,0,0.3);
+    }
+
+    /* Corner mounts */
+    .corner {
+      position: absolute;
+      width: 28px;
+      height: 28px;
       z-index: 10;
     }
-    .corner-tl { top: 4px; left: 4px; }
-    .corner-tr { top: 4px; right: 4px; }
-    .corner-bl { bottom: 4px; left: 4px; }
-    .corner-br { bottom: 4px; right: 4px; }
+    .corner::before,
+    .corner::after {
+      content: '';
+      position: absolute;
+      background: var(--corner-color);
+      box-shadow: inset 0 1px 2px rgba(255,255,255,0.1), 0 1px 2px rgba(0,0,0,0.3);
+    }
+    /* Top-left corner */
+    .corner-tl { top: -4px; left: -4px; }
+    .corner-tl::before {
+      width: 28px; height: 8px;
+      top: 0; left: 0;
+      border-radius: 2px 2px 0 2px;
+    }
+    .corner-tl::after {
+      width: 8px; height: 28px;
+      top: 0; left: 0;
+      border-radius: 2px 0 2px 2px;
+    }
+    /* Top-right corner */
+    .corner-tr { top: -4px; right: -4px; }
+    .corner-tr::before {
+      width: 28px; height: 8px;
+      top: 0; right: 0;
+      border-radius: 2px 2px 2px 0;
+    }
+    .corner-tr::after {
+      width: 8px; height: 28px;
+      top: 0; right: 0;
+      border-radius: 0 2px 2px 2px;
+    }
+    /* Bottom-left corner */
+    .corner-bl { bottom: -4px; left: -4px; }
+    .corner-bl::before {
+      width: 28px; height: 8px;
+      bottom: 0; left: 0;
+      border-radius: 0 2px 2px 2px;
+    }
+    .corner-bl::after {
+      width: 8px; height: 28px;
+      bottom: 0; left: 0;
+      border-radius: 2px 2px 0 2px;
+    }
+    /* Bottom-right corner */
+    .corner-br { bottom: -4px; right: -4px; }
+    .corner-br::before {
+      width: 28px; height: 8px;
+      bottom: 0; right: 0;
+      border-radius: 2px 0 2px 2px;
+    }
+    .corner-br::after {
+      width: 8px; height: 28px;
+      bottom: 0; right: 0;
+      border-radius: 2px 2px 2px 0;
+    }
 
-    .lookalike-box { background: #fff5f5; border: 1px solid #f5c6c6; border-left: 3px solid #e57373; padding: 12px 16px; border-radius: 6px; margin-bottom: 16px; }
-    .lookalike-title { font-size: 0.75rem; color: #c62828; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px; }
-    .hint-reveal-btn { background: #f9f8f5; border: 1px dashed #d4a574; padding: 12px 16px; border-radius: 6px; width: 100%; cursor: pointer; font-family: inherit; font-size: 0.9rem; color: #8b7355; margin-bottom: 16px; transition: all 0.2s; }
-    .hint-reveal-btn:hover { background: #f5f0e8; border-style: solid; }
+    /* Tags and badges */
+    .tag {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 3px;
+      font-size: 0.7rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-right: 6px;
+      margin-bottom: 4px;
+    }
+    .toxicity-safe { background: #e8f0e4; color: #3d5a35; }
+    .toxicity-caution { background: #f5eedf; color: #7a6530; }
+    .toxicity-toxic { background: #f5e4e4; color: #8b4049; }
+    .pollinator-tag { background: #e8f0e4; color: #4a6342; }
+    .family-tag { background: var(--cream-dark); color: var(--ink-light); border: 1px solid #e0dbd0; }
+
+    .sr-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 5px 10px;
+      border-radius: 3px;
+      font-size: 0.7rem;
+      font-weight: 500;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(4px);
+      box-shadow: 0 1px 3px var(--shadow-soft);
+    }
+    .sr-new { color: var(--ink-faded); }
+    .sr-learning { color: #8b6914; }
+    .sr-familiar { color: var(--sage); }
+    .sr-mastered { color: #7b5ea7; }
+
+    /* Lookalike warning box */
+    .lookalike-box {
+      background: #fdf8f6;
+      border: 1px solid #e8d8d0;
+      border-left: 3px solid #c49a7a;
+      padding: 14px 18px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+    }
+    .lookalike-title {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: #9a6a50;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 6px;
+    }
+
+    /* Hint reveal button */
+    .hint-reveal-btn {
+      background: var(--cream);
+      border: 1px dashed #c5bfb0;
+      padding: 14px 18px;
+      border-radius: 4px;
+      width: 100%;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.9rem;
+      color: var(--ink-faded);
+      margin-bottom: 20px;
+      transition: all 0.2s ease;
+    }
+    .hint-reveal-btn:hover {
+      background: var(--cream-dark);
+      border-style: solid;
+      color: var(--ink-light);
+    }
+
+    /* Button base styles */
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 4px;
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .btn-primary {
+      background: var(--sage);
+      color: white;
+    }
+    .btn-primary:hover {
+      background: var(--sage-dark);
+    }
+    .btn-secondary {
+      background: var(--cream-dark);
+      color: var(--ink-light);
+    }
+    .btn-secondary:hover {
+      background: #e5e0d5;
+    }
+    .btn-ghost {
+      background: transparent;
+      border: 1px solid #d5d0c5;
+      color: var(--ink-light);
+    }
+    .btn-ghost:hover {
+      background: var(--cream-dark);
+      border-color: #c5c0b5;
+    }
+
+    /* Mode tabs */
+    .mode-tab {
+      padding: 10px 28px;
+      border: none;
+      background: transparent;
+      font-family: inherit;
+      font-size: 0.8rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ink-faded);
+      cursor: pointer;
+      position: relative;
+      transition: color 0.2s ease;
+    }
+    .mode-tab:hover {
+      color: var(--ink-light);
+    }
+    .mode-tab.active {
+      color: var(--sage-dark);
+    }
+    .mode-tab.active::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 24px;
+      height: 2px;
+      background: var(--sage);
+      border-radius: 1px;
+    }
+
+    /* Progress bar */
+    .progress-track {
+      background: var(--cream-dark);
+      border-radius: 2px;
+      height: 4px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: var(--sage);
+      border-radius: 2px;
+      transition: width 0.4s ease;
+    }
+
+    /* Input field */
+    .text-input {
+      width: 100%;
+      padding: 14px 18px;
+      font-family: inherit;
+      font-size: 1rem;
+      border: 1px solid #d5d0c5;
+      border-radius: 4px;
+      background: white;
+      color: var(--ink);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .text-input:focus {
+      outline: none;
+      border-color: var(--sage-light);
+      box-shadow: 0 0 0 3px rgba(107, 124, 94, 0.1);
+    }
+    .text-input::placeholder {
+      color: #b0a898;
+    }
+
+    /* Expandable section button */
+    .expand-btn {
+      width: 100%;
+      background: none;
+      border: 1px solid #e5e0d5;
+      border-radius: 4px;
+      padding: 14px 18px;
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: inherit;
+      font-size: 0.9rem;
+      color: var(--ink-light);
+      transition: all 0.2s ease;
+    }
+    .expand-btn:hover {
+      background: var(--cream);
+      border-color: #d5d0c5;
+    }
+
+    /* Card styling */
+    .card {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 12px var(--shadow-soft), 0 8px 24px var(--shadow-medium);
+      overflow: hidden;
+    }
   </style>
 </head>
 <body>
@@ -166,18 +434,34 @@
     }
 
     function ToxicityBadge({ level, note }) {
-      const labels = { safe: '✓ Safe', caution: '⚠ Caution', toxic: '☠ Toxic' };
-      return (<div style={{ marginBottom: '12px' }}><span className={`tag toxicity-${level}`}>{labels[level]}</span><p style={{ fontSize: '0.8rem', color: '#666', marginTop: '6px', lineHeight: '1.4' }}>{note}</p></div>);
+      const labels = { safe: 'Safe to touch', caution: 'Use caution', toxic: 'Toxic' };
+      const icons = { safe: '', caution: '', toxic: '' };
+      return (
+        <div style={{ marginBottom: '16px' }}>
+          <span className={`tag toxicity-${level}`}>{icons[level]} {labels[level]}</span>
+          <p style={{ fontSize: '0.85rem', color: 'var(--ink-faded)', marginTop: '8px', lineHeight: '1.5' }}>{note}</p>
+        </div>
+      );
     }
 
     function SRBadge({ level, timesCorrect, lastSeen }) {
-      const labels = { new: '🆕 New', learning: '📖 Learning', familiar: '👍 Familiar', mastered: '⭐ Mastered' };
-      return (<div className={`sr-badge sr-${level}`} title={lastSeen ? `Last: ${new Date(lastSeen).toLocaleDateString()}` : 'Not studied'}>{labels[level]} {timesCorrect > 0 && `(${timesCorrect}×)`}</div>);
+      const labels = { new: 'New', learning: 'Learning', familiar: 'Familiar', mastered: 'Mastered' };
+      const icons = { new: '', learning: '', familiar: '', mastered: '' };
+      return (
+        <div className={`sr-badge sr-${level}`} title={lastSeen ? `Last reviewed: ${new Date(lastSeen).toLocaleDateString()}` : 'Not yet studied'}>
+          {icons[level]} {labels[level]} {timesCorrect > 0 && <span style={{ opacity: 0.7 }}>({timesCorrect})</span>}
+        </div>
+      );
     }
 
     function LookalikeWarning({ text }) {
       if (!text) return null;
-      return (<div className="lookalike-box"><p className="lookalike-title">⚠️ Frequently Misidentified</p><p style={{ fontSize: '0.85rem', color: '#5d4037', lineHeight: '1.5', margin: 0 }}>{text}</p></div>);
+      return (
+        <div className="lookalike-box">
+          <p className="lookalike-title">Frequently Confused With</p>
+          <p style={{ fontSize: '0.85rem', color: 'var(--earth-dark)', lineHeight: '1.6', margin: 0 }}>{text}</p>
+        </div>
+      );
     }
 
     function App() {
@@ -195,6 +479,7 @@
       const [photoCache, setPhotoCache] = React.useState({});
       const [loadingPhotos, setLoadingPhotos] = React.useState(false);
       const [regionalCache, setRegionalCache] = React.useState({});
+      const [transitioning, setTransitioning] = React.useState(false);
 
       // Get current flower based on mode
       const displayOrder = (mode === 'learn' || !shuffledOrder) ? WILDFLOWERS : shuffledOrder;
@@ -239,8 +524,25 @@
       React.useEffect(() => { saveProgress(progress); }, [progress]);
 
       const getDueCards = () => WILDFLOWERS.filter(f => isDue(progress[f.id]));
-      const nextFlower = () => { setShowAnswer(false); setShowHint(false); setUserGuess(''); setFeedback(null); setImageError(false); setPhotoIndex(0); setExpandedSection(null); setCurrentIndex((prev) => (prev + 1) % displayOrder.length); };
-      const prevFlower = () => { setShowAnswer(false); setShowHint(false); setUserGuess(''); setFeedback(null); setImageError(false); setPhotoIndex(0); setExpandedSection(null); setCurrentIndex((prev) => (prev - 1 + displayOrder.length) % displayOrder.length); };
+
+      const navigateFlower = (direction) => {
+        setTransitioning(true);
+        setTimeout(() => {
+          setShowAnswer(false);
+          setShowHint(false);
+          setUserGuess('');
+          setFeedback(null);
+          setImageError(false);
+          setPhotoIndex(0);
+          setExpandedSection(null);
+          if (direction === 'next') {
+            setCurrentIndex((prev) => (prev + 1) % displayOrder.length);
+          } else {
+            setCurrentIndex((prev) => (prev - 1 + displayOrder.length) % displayOrder.length);
+          }
+          setTransitioning(false);
+        }, 150);
+      };
 
       const recordAnswer = (correct) => {
         setProgress(prev => ({ ...prev, [currentFlower.id]: { timesCorrect: (prev[currentFlower.id]?.timesCorrect || 0) + (correct ? 1 : 0), timesIncorrect: (prev[currentFlower.id]?.timesIncorrect || 0) + (correct ? 0 : 1), lastSeen: Date.now() } }));
@@ -265,163 +567,350 @@
       const masteredCount = WILDFLOWERS.filter(f => getSRLevel(progress[f.id]) === 'mastered').length;
 
       return (
-        <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #f5f5f0 0%, #e8e4d9 100%)', fontFamily: "'Georgia', 'Times New Roman', serif", padding: '20px' }}>
-          <header style={{ textAlign: 'center', marginBottom: '24px', paddingBottom: '16px', borderBottom: '2px solid #a8a090' }}>
-            <h1 style={{ fontSize: '2.5rem', fontWeight: '400', letterSpacing: '0.3em', color: '#3d3d3d', margin: '0 0 8px 0', textTransform: 'uppercase' }}>Understory</h1>
-            <p style={{ fontSize: '0.9rem', color: '#6b6b6b', letterSpacing: '0.15em', margin: 0 }}>NYC Regional Wildflowers • {WILDFLOWERS.length} Species</p>
+        <div style={{ minHeight: '100vh', background: 'var(--cream)', padding: '24px 16px 48px' }}>
+          {/* Header */}
+          <header style={{ textAlign: 'center', marginBottom: '32px', maxWidth: '600px', margin: '0 auto 32px' }}>
+            <h1 className="font-display" style={{
+              fontSize: '2.2rem',
+              fontWeight: '500',
+              letterSpacing: '0.12em',
+              color: 'var(--ink)',
+              margin: '0 0 6px 0',
+              textTransform: 'uppercase'
+            }}>Understory</h1>
+            <p style={{
+              fontSize: '0.8rem',
+              color: 'var(--ink-faded)',
+              letterSpacing: '0.08em',
+              textTransform: 'uppercase'
+            }}>NYC Regional Wildflowers</p>
           </header>
 
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', marginBottom: '24px' }}>
+          {/* Mode Tabs */}
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginBottom: '24px', borderBottom: '1px solid #e5e0d5', paddingBottom: '12px', maxWidth: '400px', margin: '0 auto 24px' }}>
             {['learn', 'practice', 'test'].map((m) => (
-              <button key={m} onClick={() => handleModeChange(m)}
-                style={{ padding: '10px 24px', border: 'none', borderRadius: '4px', fontSize: '0.85rem', fontFamily: 'inherit', letterSpacing: '0.1em', textTransform: 'uppercase', cursor: 'pointer', background: mode === m ? '#5c6b4a' : '#d4cfc4', color: mode === m ? '#fff' : '#4a4a4a' }}
+              <button
+                key={m}
+                onClick={() => handleModeChange(m)}
+                className={`mode-tab ${mode === m ? 'active' : ''}`}
               >{m}</button>
             ))}
           </div>
 
-          <div style={{ maxWidth: '600px', margin: '0 auto 16px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: '#6b6b6b', marginBottom: '6px' }}>
-              <span>{masteredCount} mastered</span>
+          {/* Progress Bar */}
+          <div style={{ maxWidth: '500px', margin: '0 auto 20px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: 'var(--ink-faded)', marginBottom: '8px' }}>
+              <span>{masteredCount} of {WILDFLOWERS.length} mastered</span>
               <span>{dueCount} due for review</span>
             </div>
-            <div style={{ background: '#d4cfc4', borderRadius: '4px', height: '6px', overflow: 'hidden' }}>
-              <div style={{ width: `${(masteredCount / WILDFLOWERS.length) * 100}%`, height: '100%', background: '#5c6b4a', transition: 'width 0.3s ease' }} />
+            <div className="progress-track">
+              <div className="progress-fill" style={{ width: `${(masteredCount / WILDFLOWERS.length) * 100}%` }} />
             </div>
           </div>
 
+          {/* Shuffle indicator */}
           {(mode !== 'learn' && shuffledOrder) && (
-            <p style={{ textAlign: 'center', fontSize: '0.75rem', color: '#888', marginBottom: '16px', fontStyle: 'italic' }}>
-              🔀 Order shuffled for {mode} mode
+            <p style={{ textAlign: 'center', fontSize: '0.75rem', color: 'var(--ink-faded)', marginBottom: '20px', fontStyle: 'italic' }}>
+              Cards shuffled for {mode} mode
             </p>
           )}
 
-          <div style={{ maxWidth: '700px', margin: '0 auto', background: '#fff', borderRadius: '8px', boxShadow: '0 4px 20px rgba(0,0,0,0.08)', overflow: 'hidden' }}>
-            {/* Ornate Gold Frame Photo Section */}
-            <div className="ornate-frame" style={{ margin: '16px', marginBottom: '0' }}>
-              <div className="corner-ornament corner-tl"></div>
-              <div className="corner-ornament corner-tr"></div>
-              <div className="corner-ornament corner-bl"></div>
-              <div className="corner-ornament corner-br"></div>
-              <div className="frame-inner" onClick={cyclePhoto} style={{ aspectRatio: '4/3', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: currentPhotos?.length > 1 ? 'pointer' : 'default' }}>
-                {loadingPhotos ? (
-                  <div style={{ textAlign: 'center', color: '#a0a0a0' }}>
-                    <div className="loading-spinner" style={{ margin: '0 auto 16px', borderColor: '#555', borderTopColor: '#c9a227' }}></div>
-                    <p style={{ fontSize: '0.9rem' }}>Loading from iNaturalist...</p>
+          {/* Main Card */}
+          <div className="card" style={{
+            maxWidth: '520px',
+            margin: '0 auto',
+            opacity: transitioning ? 0.5 : 1,
+            transform: transitioning ? 'scale(0.98)' : 'scale(1)',
+            transition: 'opacity 0.15s ease, transform 0.15s ease'
+          }}>
+            {/* Photo Section with Corner Mounts */}
+            <div className="photo-container">
+              <div className="photo-mount" style={{ aspectRatio: '4/3', position: 'relative' }}>
+                {/* Corner mounts */}
+                <div className="corner corner-tl"></div>
+                <div className="corner corner-tr"></div>
+                <div className="corner corner-bl"></div>
+                <div className="corner corner-br"></div>
+
+                {/* Photo content */}
+                <div
+                  onClick={cyclePhoto}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: currentPhotos?.length > 1 ? 'pointer' : 'default',
+                    position: 'relative'
+                  }}
+                >
+                  {loadingPhotos ? (
+                    <div style={{ textAlign: 'center', color: '#a0a0a0' }}>
+                      <div className="loading-spinner" style={{ margin: '0 auto 12px' }}></div>
+                      <p style={{ fontSize: '0.8rem' }}>Loading photo...</p>
+                    </div>
+                  ) : currentPhoto && !imageError ? (
+                    <img
+                      src={currentPhoto.url}
+                      alt={currentFlower.commonName}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      onError={() => setImageError(true)}
+                    />
+                  ) : (
+                    <div style={{ textAlign: 'center', padding: '40px', color: '#888' }}>
+                      <div style={{
+                        width: '64px',
+                        height: '64px',
+                        borderRadius: '50%',
+                        background: currentFlower.color,
+                        margin: '0 auto 12px',
+                        border: '2px solid rgba(255,255,255,0.3)'
+                      }} />
+                      <p className="font-display" style={{ margin: 0, fontStyle: 'italic', fontSize: '0.95rem' }}>{currentFlower.latinName}</p>
+                    </div>
+                  )}
+
+                  {/* SR Badge overlay */}
+                  <div style={{ position: 'absolute', top: '12px', left: '12px' }}>
+                    <SRBadge level={getSRLevel(cardProgress)} timesCorrect={cardProgress.timesCorrect} lastSeen={cardProgress.lastSeen} />
                   </div>
-                ) : currentPhoto && !imageError ? (
-                  <img src={currentPhoto.url} alt={currentFlower.commonName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={() => setImageError(true)} />
-                ) : (
-                  <div style={{ textAlign: 'center', padding: '40px', color: '#a0a0a0' }}>
-                    <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: currentFlower.color, margin: '0 auto 16px', border: '3px solid #555' }} />
-                    <p style={{ margin: '0 0 8px 0', fontStyle: 'italic' }}>{currentFlower.latinName}</p>
-                  </div>
-                )}
-                <div style={{ position: 'absolute', top: '12px', left: '12px' }}><SRBadge level={getSRLevel(cardProgress)} timesCorrect={cardProgress.timesCorrect} lastSeen={cardProgress.lastSeen} /></div>
-                {currentPhotos?.length > 1 && !loadingPhotos && (<div style={{ position: 'absolute', top: '12px', right: '12px', background: 'rgba(0,0,0,0.6)', color: '#fff', padding: '4px 10px', borderRadius: '12px', fontSize: '0.75rem' }}>{photoIndex + 1} / {currentPhotos.length} • tap</div>)}
-                {currentPhoto && !loadingPhotos && (
-                  <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'linear-gradient(transparent, rgba(0,0,0,0.8))', padding: '30px 12px 8px' }}>
-                    <p style={{ margin: 0, fontSize: '0.65rem', color: 'rgba(255,255,255,0.9)', textAlign: 'right' }}>{currentPhoto.attribution}</p>
-                    <p style={{ margin: '4px 0 0 0', fontSize: '0.6rem', textAlign: 'right' }}><a href={currentPhoto.observationUrl} target="_blank" rel="noopener noreferrer" style={{ color: 'rgba(255,255,255,0.7)' }}>View on iNaturalist →</a></p>
-                  </div>
-                )}
+
+                  {/* Photo counter */}
+                  {currentPhotos?.length > 1 && !loadingPhotos && (
+                    <div style={{
+                      position: 'absolute',
+                      top: '12px',
+                      right: '12px',
+                      background: 'rgba(0,0,0,0.6)',
+                      color: '#fff',
+                      padding: '4px 10px',
+                      borderRadius: '3px',
+                      fontSize: '0.7rem',
+                      fontWeight: '500'
+                    }}>{photoIndex + 1} / {currentPhotos.length}</div>
+                  )}
+
+                  {/* Attribution */}
+                  {currentPhoto && !loadingPhotos && (
+                    <div style={{
+                      position: 'absolute',
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      background: 'linear-gradient(transparent, rgba(0,0,0,0.7))',
+                      padding: '24px 12px 10px'
+                    }}>
+                      <p style={{ margin: 0, fontSize: '0.65rem', color: 'rgba(255,255,255,0.8)', textAlign: 'right' }}>{currentPhoto.attribution}</p>
+                      <p style={{ margin: '2px 0 0 0', fontSize: '0.6rem', textAlign: 'right' }}>
+                        <a href={currentPhoto.observationUrl} target="_blank" rel="noopener noreferrer" style={{ color: 'rgba(255,255,255,0.6)' }}>View on iNaturalist</a>
+                      </p>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 
-            <div style={{ padding: '24px' }}>
+            {/* Content Section */}
+            <div style={{ padding: '28px 24px 24px' }}>
               {mode === 'learn' && (
-                <>
-                  <div style={{ textAlign: 'center', marginBottom: '16px' }}>
-                    <h2 style={{ fontSize: '1.8rem', fontWeight: '400', color: '#3d3d3d', margin: '0 0 4px 0' }}>{currentFlower.commonName}</h2>
-                    <p style={{ fontSize: '1rem', fontStyle: 'italic', color: '#6b6b6b', margin: '0 0 8px 0' }}>{currentFlower.latinName}</p>
+                <div className="fade-in">
+                  {/* Species name */}
+                  <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+                    <h2 className="font-display" style={{
+                      fontSize: '1.75rem',
+                      fontWeight: '500',
+                      color: 'var(--ink)',
+                      margin: '0 0 4px 0'
+                    }}>{currentFlower.commonName}</h2>
+                    <p className="font-display" style={{
+                      fontSize: '1.05rem',
+                      fontStyle: 'italic',
+                      color: 'var(--ink-faded)',
+                      margin: '0 0 12px 0'
+                    }}>{currentFlower.latinName}</p>
                     <span className="tag family-tag">{currentFlower.family}</span>
                   </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
-                    <div><p style={{ margin: '0 0 4px 0', fontSize: '0.75rem', color: '#888', textTransform: 'uppercase' }}>Habitat</p><p style={{ margin: 0, fontSize: '0.95rem', color: '#4a4a4a' }}>{currentFlower.habitat}</p></div>
-                    <div><p style={{ margin: '0 0 4px 0', fontSize: '0.75rem', color: '#888', textTransform: 'uppercase' }}>Season</p><p style={{ margin: 0, fontSize: '0.95rem', color: '#4a4a4a' }}>{currentFlower.season}</p></div>
+
+                  {/* Quick facts */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
+                    <div>
+                      <p style={{ margin: '0 0 4px 0', fontSize: '0.7rem', color: 'var(--ink-faded)', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: '500' }}>Habitat</p>
+                      <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--ink-light)' }}>{currentFlower.habitat}</p>
+                    </div>
+                    <div>
+                      <p style={{ margin: '0 0 4px 0', fontSize: '0.7rem', color: 'var(--ink-faded)', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: '500' }}>Season</p>
+                      <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--ink-light)' }}>{currentFlower.season}</p>
+                    </div>
                   </div>
-                  <div style={{ background: '#f9f8f5', padding: '16px', borderRadius: '6px', borderLeft: '3px solid #5c6b4a', marginBottom: '16px' }}>
-                    <p style={{ margin: '0 0 4px 0', fontSize: '0.75rem', color: '#888', textTransform: 'uppercase' }}>Key ID Features</p>
-                    <p style={{ margin: 0, fontSize: '0.95rem', color: '#4a4a4a', lineHeight: '1.5' }}>{currentFlower.hint}</p>
+
+                  {/* Key ID features */}
+                  <div style={{
+                    background: 'var(--cream)',
+                    padding: '16px 18px',
+                    borderRadius: '4px',
+                    borderLeft: '3px solid var(--sage)',
+                    marginBottom: '20px'
+                  }}>
+                    <p style={{ margin: '0 0 6px 0', fontSize: '0.7rem', color: 'var(--ink-faded)', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: '500' }}>Key Identification Features</p>
+                    <p style={{ margin: 0, fontSize: '0.95rem', color: 'var(--ink-light)', lineHeight: '1.6' }}>{currentFlower.hint}</p>
                   </div>
+
                   <ToxicityBadge level={currentFlower.toxicity} note={currentFlower.toxicityNote} />
                   <LookalikeWarning text={currentFlower.lookalikes} />
-                  <div style={{ borderTop: '1px solid #e8e4d9', paddingTop: '16px' }}>
-                    <button onClick={() => setExpandedSection(expandedSection === 'ecology' ? null : 'ecology')} style={{ width: '100%', background: 'none', border: '1px solid #d4cfc4', borderRadius: '6px', padding: '12px 16px', textAlign: 'left', cursor: 'pointer', marginBottom: '8px', display: 'flex', justifyContent: 'space-between', fontFamily: 'inherit' }}>
-                      <span style={{ fontWeight: '500', color: '#4a4a4a' }}>🐝 Ecology & Wildlife</span><span>{expandedSection === 'ecology' ? '−' : '+'}</span>
+
+                  {/* Expandable sections */}
+                  <div style={{ borderTop: '1px solid #e8e4da', paddingTop: '20px' }}>
+                    <button
+                      onClick={() => setExpandedSection(expandedSection === 'ecology' ? null : 'ecology')}
+                      className="expand-btn"
+                      style={{ marginBottom: '10px' }}
+                    >
+                      <span>Ecology & Wildlife</span>
+                      <span style={{ fontSize: '1.1rem', color: 'var(--ink-faded)' }}>{expandedSection === 'ecology' ? '−' : '+'}</span>
                     </button>
+
                     {expandedSection === 'ecology' && (
-                      <div style={{ padding: '12px 16px', background: '#fafafa', borderRadius: '6px', marginBottom: '12px' }}>
-                        <p style={{ margin: '0 0 8px 0', fontSize: '0.75rem', color: '#888', textTransform: 'uppercase' }}>Pollinators</p>
-                        <div style={{ marginBottom: '12px' }}>{currentFlower.pollinators.map((p, i) => (<span key={i} className="tag pollinator-tag">{p}</span>))}</div>
-                        <p style={{ margin: '0 0 8px 0', fontSize: '0.75rem', color: '#888', textTransform: 'uppercase' }}>Wildlife Value</p>
-                        <p style={{ margin: 0, fontSize: '0.9rem', color: '#4a4a4a', lineHeight: '1.5' }}>{currentFlower.wildlife}</p>
+                      <div className="fade-in" style={{ padding: '16px 18px', background: 'var(--cream)', borderRadius: '4px', marginBottom: '10px' }}>
+                        <p style={{ margin: '0 0 10px 0', fontSize: '0.7rem', color: 'var(--ink-faded)', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: '500' }}>Pollinators</p>
+                        <div style={{ marginBottom: '16px' }}>
+                          {currentFlower.pollinators.map((p, i) => (<span key={i} className="tag pollinator-tag">{p}</span>))}
+                        </div>
+                        <p style={{ margin: '0 0 8px 0', fontSize: '0.7rem', color: 'var(--ink-faded)', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: '500' }}>Wildlife Value</p>
+                        <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--ink-light)', lineHeight: '1.6' }}>{currentFlower.wildlife}</p>
                       </div>
                     )}
-                    <button onClick={() => setExpandedSection(expandedSection === 'region' ? null : 'region')} style={{ width: '100%', background: 'none', border: '1px solid #d4cfc4', borderRadius: '6px', padding: '12px 16px', textAlign: 'left', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', fontFamily: 'inherit' }}>
-                      <span style={{ fontWeight: '500', color: '#4a4a4a' }}>🗺️ Range & Observations</span><span>{expandedSection === 'region' ? '−' : '+'}</span>
+
+                    <button
+                      onClick={() => setExpandedSection(expandedSection === 'region' ? null : 'region')}
+                      className="expand-btn"
+                    >
+                      <span>Range & Observations</span>
+                      <span style={{ fontSize: '1.1rem', color: 'var(--ink-faded)' }}>{expandedSection === 'region' ? '−' : '+'}</span>
                     </button>
+
                     {expandedSection === 'region' && (
-                      <div style={{ padding: '12px 16px', background: '#fafafa', borderRadius: '6px', marginTop: '8px' }}>
-                        <p style={{ margin: '0 0 8px 0', fontSize: '0.75rem', color: '#888', textTransform: 'uppercase' }}>Native Status</p>
-                        <p style={{ margin: '0 0 12px 0', fontSize: '0.9rem', color: '#4a4a4a' }}>{currentFlower.nativeStatus}</p>
-                        <p style={{ margin: '0 0 8px 0', fontSize: '0.75rem', color: '#888', textTransform: 'uppercase' }}>iNaturalist Observations</p>
-                        {currentRegional ? (<div style={{ display: 'flex', gap: '16px' }}><div><span style={{ fontSize: '1.5rem', fontWeight: '500', color: '#5c6b4a' }}>{currentRegional.northeastCount.toLocaleString()}</span><p style={{ margin: 0, fontSize: '0.75rem', color: '#888' }}>Northeast US</p></div><div><span style={{ fontSize: '1.5rem', fontWeight: '500', color: '#4a4a4a' }}>{currentRegional.totalCount.toLocaleString()}</span><p style={{ margin: 0, fontSize: '0.75rem', color: '#888' }}>worldwide</p></div></div>) : (<p style={{ color: '#888' }}>Loading...</p>)}
+                      <div className="fade-in" style={{ padding: '16px 18px', background: 'var(--cream)', borderRadius: '4px', marginTop: '10px' }}>
+                        <p style={{ margin: '0 0 8px 0', fontSize: '0.7rem', color: 'var(--ink-faded)', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: '500' }}>Native Status</p>
+                        <p style={{ margin: '0 0 16px 0', fontSize: '0.9rem', color: 'var(--ink-light)' }}>{currentFlower.nativeStatus}</p>
+                        <p style={{ margin: '0 0 10px 0', fontSize: '0.7rem', color: 'var(--ink-faded)', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: '500' }}>iNaturalist Observations</p>
+                        {currentRegional ? (
+                          <div style={{ display: 'flex', gap: '24px' }}>
+                            <div>
+                              <span className="font-display" style={{ fontSize: '1.5rem', fontWeight: '500', color: 'var(--sage-dark)' }}>{currentRegional.northeastCount.toLocaleString()}</span>
+                              <p style={{ margin: '2px 0 0 0', fontSize: '0.75rem', color: 'var(--ink-faded)' }}>Northeast US</p>
+                            </div>
+                            <div>
+                              <span className="font-display" style={{ fontSize: '1.5rem', fontWeight: '500', color: 'var(--ink-light)' }}>{currentRegional.totalCount.toLocaleString()}</span>
+                              <p style={{ margin: '2px 0 0 0', fontSize: '0.75rem', color: 'var(--ink-faded)' }}>Worldwide</p>
+                            </div>
+                          </div>
+                        ) : (
+                          <p style={{ color: 'var(--ink-faded)', fontSize: '0.85rem' }}>Loading...</p>
+                        )}
                       </div>
                     )}
                   </div>
-                </>
+                </div>
               )}
 
               {(mode === 'practice' || mode === 'test') && (
-                <>
+                <div className="fade-in">
                   {!showAnswer && mode === 'practice' && (
                     showHint ? (
-                      <div style={{ background: '#f9f8f5', padding: '16px', borderRadius: '6px', marginBottom: '16px', borderLeft: '3px solid #d4a574' }}>
-                        <p style={{ margin: '0 0 4px 0', fontSize: '0.75rem', color: '#888', textTransform: 'uppercase' }}>Hint</p>
-                        <p style={{ margin: 0, fontSize: '0.95rem', color: '#4a4a4a', lineHeight: '1.5' }}>{currentFlower.hint}</p>
+                      <div style={{
+                        background: 'var(--cream)',
+                        padding: '16px 18px',
+                        borderRadius: '4px',
+                        marginBottom: '20px',
+                        borderLeft: '3px solid var(--earth-light)'
+                      }}>
+                        <p style={{ margin: '0 0 6px 0', fontSize: '0.7rem', color: 'var(--ink-faded)', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: '500' }}>Hint</p>
+                        <p style={{ margin: 0, fontSize: '0.95rem', color: 'var(--ink-light)', lineHeight: '1.6' }}>{currentFlower.hint}</p>
                       </div>
                     ) : (
                       <button className="hint-reveal-btn" onClick={() => setShowHint(true)}>
-                        💡 Tap to reveal hint
+                        Tap to reveal hint
                       </button>
                     )
                   )}
-                  {!showAnswer && mode === 'test' && (<p style={{ textAlign: 'center', fontSize: '0.9rem', color: '#6b6b6b', marginBottom: '16px' }}>Identify this wildflower</p>)}
+
+                  {!showAnswer && mode === 'test' && (
+                    <p style={{ textAlign: 'center', fontSize: '0.9rem', color: 'var(--ink-faded)', marginBottom: '20px' }}>Identify this wildflower</p>
+                  )}
+
                   {!showAnswer ? (
                     <div>
-                      <input type="text" value={userGuess} onChange={(e) => setUserGuess(e.target.value)} onKeyPress={(e) => e.key === 'Enter' && checkGuess()} placeholder="Enter flower name..." style={{ width: '100%', padding: '12px 16px', fontSize: '1rem', fontFamily: 'inherit', border: '2px solid #d4cfc4', borderRadius: '6px', marginBottom: '12px' }} />
-                      {feedback && <p style={{ margin: '0 0 12px 0', color: feedback.correct ? '#5c6b4a' : '#b85c5c', fontSize: '0.9rem' }}>{feedback.message}</p>}
+                      <input
+                        type="text"
+                        value={userGuess}
+                        onChange={(e) => setUserGuess(e.target.value)}
+                        onKeyPress={(e) => e.key === 'Enter' && checkGuess()}
+                        placeholder="Enter flower name..."
+                        className="text-input"
+                        style={{ marginBottom: '12px' }}
+                      />
+                      {feedback && (
+                        <p style={{
+                          margin: '0 0 12px 0',
+                          color: feedback.correct ? 'var(--sage-dark)' : '#a65858',
+                          fontSize: '0.9rem'
+                        }}>{feedback.message}</p>
+                      )}
                       <div style={{ display: 'flex', gap: '12px' }}>
-                        <button onClick={checkGuess} style={{ flex: 1, padding: '12px', background: '#5c6b4a', color: '#fff', border: 'none', borderRadius: '6px', fontSize: '0.9rem', fontFamily: 'inherit', cursor: 'pointer' }}>Check</button>
-                        <button onClick={giveUp} style={{ flex: 1, padding: '12px', background: '#d4cfc4', color: '#4a4a4a', border: 'none', borderRadius: '6px', fontSize: '0.9rem', fontFamily: 'inherit', cursor: 'pointer' }}>{mode === 'test' ? 'Give Up' : 'Reveal'}</button>
+                        <button onClick={checkGuess} className="btn btn-primary" style={{ flex: 1 }}>Check</button>
+                        <button onClick={giveUp} className="btn btn-secondary" style={{ flex: 1 }}>{mode === 'test' ? 'Give Up' : 'Reveal'}</button>
                       </div>
                     </div>
                   ) : (
                     <div>
-                      <div style={{ textAlign: 'center', marginBottom: '16px' }}>
-                        <h2 style={{ fontSize: '1.8rem', fontWeight: '400', color: '#3d3d3d', margin: '0 0 4px 0' }}>{currentFlower.commonName}</h2>
-                        <p style={{ fontSize: '1rem', fontStyle: 'italic', color: '#6b6b6b', margin: '0 0 8px 0' }}>{currentFlower.latinName}</p>
+                      <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+                        <h2 className="font-display" style={{
+                          fontSize: '1.75rem',
+                          fontWeight: '500',
+                          color: 'var(--ink)',
+                          margin: '0 0 4px 0'
+                        }}>{currentFlower.commonName}</h2>
+                        <p className="font-display" style={{
+                          fontSize: '1.05rem',
+                          fontStyle: 'italic',
+                          color: 'var(--ink-faded)',
+                          margin: '0 0 12px 0'
+                        }}>{currentFlower.latinName}</p>
                         <span className="tag family-tag">{currentFlower.family}</span>
                       </div>
-                      <p style={{ margin: '0 0 12px 0', fontSize: '0.9rem', color: '#4a4a4a', textAlign: 'center' }}>{currentFlower.habitat} • {currentFlower.season}</p>
+                      <p style={{ margin: '0 0 16px 0', fontSize: '0.9rem', color: 'var(--ink-light)', textAlign: 'center' }}>{currentFlower.habitat} • {currentFlower.season}</p>
                       <ToxicityBadge level={currentFlower.toxicity} note={currentFlower.toxicityNote} />
                       <LookalikeWarning text={currentFlower.lookalikes} />
                     </div>
                   )}
-                </>
+                </div>
               )}
 
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '24px', paddingTop: '20px', borderTop: '1px solid #e8e4d9' }}>
-                <button onClick={prevFlower} style={{ padding: '10px 20px', background: 'transparent', border: '1px solid #d4cfc4', borderRadius: '4px', fontSize: '0.85rem', fontFamily: 'inherit', cursor: 'pointer', color: '#4a4a4a' }}>← Prev</button>
-                <span style={{ fontSize: '0.85rem', color: '#6b6b6b' }}>{currentIndex + 1} / {displayOrder.length}</span>
-                <button onClick={nextFlower} style={{ padding: '10px 20px', background: 'transparent', border: '1px solid #d4cfc4', borderRadius: '4px', fontSize: '0.85rem', fontFamily: 'inherit', cursor: 'pointer', color: '#4a4a4a' }}>Next →</button>
+              {/* Navigation */}
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginTop: '28px',
+                paddingTop: '20px',
+                borderTop: '1px solid #e8e4da'
+              }}>
+                <button onClick={() => navigateFlower('prev')} className="btn btn-ghost">Prev</button>
+                <span style={{ fontSize: '0.85rem', color: 'var(--ink-faded)', fontWeight: '500' }}>{currentIndex + 1} / {displayOrder.length}</span>
+                <button onClick={() => navigateFlower('next')} className="btn btn-ghost">Next</button>
               </div>
             </div>
           </div>
 
-          <footer style={{ textAlign: 'center', marginTop: '32px', padding: '16px', color: '#888', fontSize: '0.75rem' }}>
-            <p style={{ margin: '0 0 8px 0' }}>Photos from <a href="https://www.inaturalist.org" target="_blank" style={{ color: '#5c6b4a' }}>iNaturalist</a> • Research-grade observations</p>
-            <p style={{ margin: 0 }}>Species from <a href="https://www.nycgovparks.org/learn/trees-and-plants/native-plants-of-new-york-city-spring-ephemerals" target="_blank" style={{ color: '#5c6b4a' }}>NYC Parks</a> native plant guides</p>
+          {/* Footer */}
+          <footer style={{ textAlign: 'center', marginTop: '40px', padding: '16px', color: 'var(--ink-faded)', fontSize: '0.75rem' }}>
+            <p style={{ margin: '0 0 6px 0' }}>
+              Photos from <a href="https://www.inaturalist.org" target="_blank" style={{ color: 'var(--sage)' }}>iNaturalist</a> • Research-grade observations
+            </p>
+            <p style={{ margin: 0 }}>
+              Species from <a href="https://www.nycgovparks.org/learn/trees-and-plants/native-plants-of-new-york-city-spring-ephemerals" target="_blank" style={{ color: 'var(--sage)' }}>NYC Parks</a> native plant guides
+            </p>
           </footer>
         </div>
       );
