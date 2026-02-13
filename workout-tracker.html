@@ -56,49 +56,60 @@
       { id: 'dead_bug', name: 'Dead Bug', hasWeight: false },
     ];
 
-    // Exercise media - images and YouTube videos
+    // Exercise media - images from free-exercise-db and YouTube form videos
+    const imgBase = 'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises';
     const exerciseMedia = {
-      deadlift: { image: 'https://images.unsplash.com/photo-1566241142559-40e1dab266c6?w=400&h=300&fit=crop', youtube: 'https://www.youtube.com/watch?v=op9kVnSso6Q' },
-      squat: { image: 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=400&h=300&fit=crop', youtube: 'https://www.youtube.com/watch?v=bEv6CCg2BC8' },
-      hip_thrust: { image: 'https://images.unsplash.com/photo-1434682881908-b43d0467b798?w=400&h=300&fit=crop', youtube: 'https://www.youtube.com/watch?v=SEdqd1n0cvg' },
-      log_press: { image: null, youtube: 'https://www.youtube.com/watch?v=SE7f8TtMOco' },
-      incline_db: { image: null, youtube: 'https://www.youtube.com/watch?v=8iPEnn-ltC8' },
-      incline_bb: { image: null, youtube: 'https://www.youtube.com/watch?v=SrqOu55lrYU' },
-      barbell_row: { image: null, youtube: 'https://www.youtube.com/watch?v=FWJR5Ve8bnQ' },
-      lat_pulldown: { image: null, youtube: 'https://www.youtube.com/watch?v=CAwf7n6Luuc' },
-      cable_row: { image: null, youtube: 'https://www.youtube.com/watch?v=GZbfZ033f74' },
-      seated_row: { image: null, youtube: 'https://www.youtube.com/watch?v=GZbfZ033f74' },
-      lateral_raise: { image: null, youtube: 'https://www.youtube.com/watch?v=3VcKaXpzqRo' },
-      face_pull: { image: null, youtube: 'https://www.youtube.com/watch?v=rep-qVOkqgk' },
-      incline_curl: { image: null, youtube: 'https://www.youtube.com/watch?v=soxrZlIl35U' },
-      hammer_curl: { image: null, youtube: 'https://www.youtube.com/watch?v=zC3nLlEvin4' },
-      bayesian_curl: { image: null, youtube: 'https://www.youtube.com/watch?v=NFzwT3CEPM4' },
-      preacher_curl: { image: null, youtube: 'https://www.youtube.com/watch?v=fIWP-FRFNU0' },
-      spider_curl: { image: null, youtube: 'https://www.youtube.com/watch?v=ke3ttM3pPMI' },
-      overhead_tri: { image: null, youtube: 'https://www.youtube.com/watch?v=YbX7Wd8jQ-Q' },
-      pushdown: { image: null, youtube: 'https://www.youtube.com/watch?v=2-LAMcpzODU' },
-      hack_squat: { image: null, youtube: 'https://www.youtube.com/watch?v=0tn5K9NlCfo' },
-      leg_press: { image: null, youtube: 'https://www.youtube.com/watch?v=IZxyjW7MPJQ' },
-      leg_curl: { image: null, youtube: 'https://www.youtube.com/watch?v=1Tq3QdYUuHs' },
-      leg_ext: { image: null, youtube: 'https://www.youtube.com/watch?v=YyvSfVjQeL0' },
-      rdl: { image: null, youtube: 'https://www.youtube.com/watch?v=jEy_czb3RKA' },
-      bulgarian_split: { image: null, youtube: 'https://www.youtube.com/watch?v=2C-uNgKwPLE' },
-      walking_lunge: { image: null, youtube: 'https://www.youtube.com/watch?v=L8fvypPrzzs' },
-      calf_raise: { image: null, youtube: 'https://www.youtube.com/watch?v=gwLzBJYoWlI' },
-      farmers_walk: { image: null, youtube: 'https://www.youtube.com/watch?v=Fkzk_RqlYig' },
-      cable_kickback: { image: null, youtube: 'https://www.youtube.com/watch?v=KUF9yHbVsK8' },
-      low_high_fly: { image: null, youtube: 'https://www.youtube.com/watch?v=Iwe6AmxVf7o' },
-      machine_chest: { image: null, youtube: 'https://www.youtube.com/watch?v=xUm0BiZCWlQ' },
-      db_bench: { image: null, youtube: 'https://www.youtube.com/watch?v=VmB1G1K7v94' },
-      bent_lateral: { image: null, youtube: 'https://www.youtube.com/watch?v=EA7u4Q_8HQ0' },
-      step_up: { image: null, youtube: 'https://www.youtube.com/watch?v=WCFCdxzFBa4' },
-      single_leg_rdl: { image: null, youtube: 'https://www.youtube.com/watch?v=_Po3o18B0JY' },
-      push_ups: { image: null, youtube: 'https://www.youtube.com/watch?v=IODxDxX7oi4' },
-      cable_crunch: { image: null, youtube: 'https://www.youtube.com/watch?v=AV5PmZJIrrw' },
-      hanging_leg_raise: { image: null, youtube: 'https://www.youtube.com/watch?v=Pr1ieGZ5atk' },
-      ab_wheel: { image: null, youtube: 'https://www.youtube.com/watch?v=rqiTPdK1c_I' },
-      pallof_press: { image: null, youtube: 'https://www.youtube.com/watch?v=AH_QZLm_0-s' },
-      battle_rope: { image: null, youtube: 'https://www.youtube.com/watch?v=a9Rp2YBg2IY' },
+      // Compound lifts
+      deadlift: { image: `${imgBase}/Barbell_Deadlift/0.jpg`, youtube: 'https://www.youtube.com/watch?v=r4MzxtBKyNE' },
+      squat: { image: `${imgBase}/Barbell_Squat/0.jpg`, youtube: 'https://www.youtube.com/watch?v=ultWZbUMPL8' },
+      hip_thrust: { image: `${imgBase}/Barbell_Hip_Thrust/0.jpg`, youtube: 'https://www.youtube.com/watch?v=xDmFkJxPzeM' },
+      log_press: { image: `${imgBase}/Push_Press/0.jpg`, youtube: 'https://www.youtube.com/watch?v=iDKmj2fvRbM' },
+      // Chest
+      incline_db: { image: `${imgBase}/Dumbbell_Incline_Bench_Press/0.jpg`, youtube: 'https://www.youtube.com/watch?v=8iPEnn-ltC8' },
+      incline_bb: { image: `${imgBase}/Barbell_Incline_Bench_Press_-_Medium_Grip/0.jpg`, youtube: 'https://www.youtube.com/watch?v=SrqOu55lrYU' },
+      db_bench: { image: `${imgBase}/Dumbbell_Bench_Press/0.jpg`, youtube: 'https://www.youtube.com/watch?v=VmB1G1K7v94' },
+      low_high_fly: { image: `${imgBase}/Cable_Crossover/0.jpg`, youtube: 'https://www.youtube.com/watch?v=taI4XduLpTk' },
+      machine_chest: { image: `${imgBase}/Butterfly/0.jpg`, youtube: 'https://www.youtube.com/watch?v=xUm0BiZCWlQ' },
+      push_ups: { image: `${imgBase}/Pushups/0.jpg`, youtube: 'https://www.youtube.com/watch?v=IODxDxX7oi4' },
+      // Back
+      barbell_row: { image: `${imgBase}/Bent_Over_Barbell_Row/0.jpg`, youtube: 'https://www.youtube.com/watch?v=FWJR5Ve8bnQ' },
+      lat_pulldown: { image: `${imgBase}/Wide-Grip_Lat_Pulldown/0.jpg`, youtube: 'https://www.youtube.com/watch?v=CAwf7n6Luuc' },
+      cable_row: { image: `${imgBase}/Seated_Cable_Rows/0.jpg`, youtube: 'https://www.youtube.com/watch?v=GZbfZ033f74' },
+      seated_row: { image: `${imgBase}/Seated_Cable_Rows/0.jpg`, youtube: 'https://www.youtube.com/watch?v=GZbfZ033f74' },
+      // Shoulders
+      lateral_raise: { image: `${imgBase}/Side_Lateral_Raise/0.jpg`, youtube: 'https://www.youtube.com/watch?v=3VcKaXpzqRo' },
+      face_pull: { image: `${imgBase}/Face_Pull/0.jpg`, youtube: 'https://www.youtube.com/watch?v=rep-qVOkqgk' },
+      bent_lateral: { image: `${imgBase}/Seated_Bent-Over_Rear_Delt_Raise/0.jpg`, youtube: 'https://www.youtube.com/watch?v=EA7u4Q_8HQ0' },
+      // Biceps
+      incline_curl: { image: `${imgBase}/Incline_Dumbbell_Curl/0.jpg`, youtube: 'https://www.youtube.com/watch?v=soxrZlIl35U' },
+      hammer_curl: { image: `${imgBase}/Hammer_Curls/0.jpg`, youtube: 'https://www.youtube.com/watch?v=zC3nLlEvin4' },
+      bayesian_curl: { image: `${imgBase}/Cable_Hammer_Curls_-_Rope_Attachment/0.jpg`, youtube: 'https://www.youtube.com/watch?v=NFzwT3CEPM4' },
+      preacher_curl: { image: `${imgBase}/Preacher_Curl/0.jpg`, youtube: 'https://www.youtube.com/watch?v=fIWP-FRFNU0' },
+      spider_curl: { image: `${imgBase}/Spider_Curl/0.jpg`, youtube: 'https://www.youtube.com/watch?v=ke3ttM3pPMI' },
+      // Triceps
+      overhead_tri: { image: `${imgBase}/Standing_Dumbbell_Triceps_Extension/0.jpg`, youtube: 'https://www.youtube.com/watch?v=YbX7Wd8jQ-Q' },
+      pushdown: { image: `${imgBase}/Triceps_Pushdown/0.jpg`, youtube: 'https://www.youtube.com/watch?v=2-LAMcpzODU' },
+      // Legs
+      hack_squat: { image: `${imgBase}/Barbell_Hack_Squat/0.jpg`, youtube: 'https://www.youtube.com/watch?v=0tn5K9NlCfo' },
+      leg_press: { image: `${imgBase}/Leg_Press/0.jpg`, youtube: 'https://www.youtube.com/watch?v=IZxyjW7MPJQ' },
+      leg_curl: { image: `${imgBase}/Lying_Leg_Curls/0.jpg`, youtube: 'https://www.youtube.com/watch?v=1Tq3QdYUuHs' },
+      leg_ext: { image: `${imgBase}/Leg_Extensions/0.jpg`, youtube: 'https://www.youtube.com/watch?v=YyvSfVjQeL0' },
+      rdl: { image: `${imgBase}/Romanian_Deadlift_With_Dumbbells/0.jpg`, youtube: 'https://www.youtube.com/watch?v=jEy_czb3RKA' },
+      bulgarian_split: { image: `${imgBase}/Dumbbell_Single_Leg_Split_Squat/0.jpg`, youtube: 'https://www.youtube.com/watch?v=2C-uNgKwPLE' },
+      walking_lunge: { image: `${imgBase}/Dumbbell_Lunges/0.jpg`, youtube: 'https://www.youtube.com/watch?v=L8fvypPrzzs' },
+      step_up: { image: `${imgBase}/Barbell_Step_Ups/0.jpg`, youtube: 'https://www.youtube.com/watch?v=WCFCdxzFBa4' },
+      single_leg_rdl: { image: `${imgBase}/Single_Leg_Deadlift/0.jpg`, youtube: 'https://www.youtube.com/watch?v=_Po3o18B0JY' },
+      calf_raise: { image: `${imgBase}/Standing_Calf_Raises/0.jpg`, youtube: 'https://www.youtube.com/watch?v=gwLzBJYoWlI' },
+      // Glutes
+      cable_kickback: { image: `${imgBase}/Glute_Kickback/0.jpg`, youtube: 'https://www.youtube.com/watch?v=KUF9yHbVsK8' },
+      // Strongman
+      farmers_walk: { image: `${imgBase}/Farmer%27s_Walk/0.jpg`, youtube: 'https://www.youtube.com/watch?v=Fkzk_RqlYig' },
+      // Abs
+      cable_crunch: { image: `${imgBase}/Cable_Crunch/0.jpg`, youtube: 'https://www.youtube.com/watch?v=AV5PmZJIrrw' },
+      hanging_leg_raise: { image: `${imgBase}/Hanging_Leg_Raise/0.jpg`, youtube: 'https://www.youtube.com/watch?v=Pr1ieGZ5atk' },
+      ab_wheel: { image: `${imgBase}/Ab_Roller/0.jpg`, youtube: 'https://www.youtube.com/watch?v=rqiTPdK1c_I' },
+      pallof_press: { image: `${imgBase}/Cable_Crunch/0.jpg`, youtube: 'https://www.youtube.com/watch?v=AH_QZLm_0-s' },
+      battle_rope: { image: `${imgBase}/Rope_Jumping/0.jpg`, youtube: 'https://www.youtube.com/watch?v=a9Rp2YBg2IY' },
     };
 
     // Progression configs - updated rep ranges for strength exercises
