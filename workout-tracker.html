@@ -178,7 +178,7 @@
       const config = progressionConfig[exerciseId] || defaultProgressionConfig;
 
       const FallbackSVG = () => (
-        <svg viewBox="0 0 200 160" className="w-full h-32">
+        <svg viewBox="0 0 200 160" className="w-full h-44">
           <style>{`@keyframes pls{0%,100%{transform:scale(1);opacity:0.8}50%{transform:scale(1.05);opacity:1}}.pls-f{animation:pls 2s ease-in-out infinite;transform-origin:center}`}</style>
           <line x1="20" y1="145" x2="180" y2="145" stroke="#27272a" strokeWidth="2"/>
           <g className="pls-f">
@@ -198,7 +198,7 @@
             <img
               src={media.image}
               alt="Exercise"
-              className="w-full h-32 object-cover"
+              className="w-full h-44 object-cover"
               onError={() => setImageError(true)}
             />
           ) : (
