@@ -804,19 +804,20 @@
               {hasAlt && (
                 <button
                   onClick={toggleAltExercise}
-                  className="w-full mb-2 py-2 px-3 rounded-lg flex items-center justify-between text-sm border transition-all"
+                  className="w-full mb-3 py-3 px-4 rounded-xl flex items-center justify-between text-sm border-2 transition-all active:scale-[0.98]"
                   style={{
-                    borderColor: isUsingAlt ? accent : '#27272a',
-                    background: isUsingAlt ? `${accent}15` : 'transparent'
+                    borderColor: accent,
+                    background: `${accent}20`
                   }}
                 >
-                  <span className="text-zinc-400 text-xs">
-                    {isUsingAlt ? 'Using:' : 'Main:'}
-                  </span>
-                  <span className="font-medium" style={{ color: isUsingAlt ? accent : '#fff' }}>
-                    {displayName}
-                  </span>
-                  <Swap className="w-4 h-4" style={{ color: accent }} />
+                  <div className="flex items-center gap-2">
+                    <Swap className="w-5 h-5" style={{ color: accent }} />
+                    <span className="text-zinc-300 text-xs font-medium">TAP TO SWAP</span>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-[10px] text-zinc-500">{isUsingAlt ? 'ALT' : 'MAIN'}</div>
+                    <div className="font-semibold text-white">{displayName}</div>
+                  </div>
                 </button>
               )}
 
