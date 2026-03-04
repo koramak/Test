@@ -16,7 +16,7 @@ const EMPTY_LEAD = {
 }
 
 export default function LeadFinder({ prospects, onAdd, onUpdate }) {
-  const [tab, setTab] = useState('queue')
+  const [tab, setTab] = useState('discover')
   const [form, setForm] = useState({ ...EMPTY_LEAD })
   const [bulkText, setBulkText] = useState('')
   const [showBulk, setShowBulk] = useState(false)
