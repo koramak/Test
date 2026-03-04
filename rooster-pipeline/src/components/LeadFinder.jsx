@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react'
-import { hasApiKey, generateBio, generateEmail } from '../utils/ai'
+import { hasApiKey, generateBio, generateEmail, generateLeads, refineEmail } from '../utils/ai'
 import { COMPANY_SIZES, SOURCES } from '../data/sampleData'
 
 const EMPTY_LEAD = {
@@ -21,9 +21,19 @@ export default function LeadFinder({ prospects, onAdd, onUpdate }) {
   const [bulkText, setBulkText] = useState('')
   const [showBulk, setShowBulk] = useState(false)
 
+  // AI Discovery state
+  const [discoverFocus, setDiscoverFocus] = useState('')
+  const [discoverLoading, setDiscoverLoading] = useState(false)
+  const [discoverResults, setDiscoverResults] = useState([])
+  const [discoverError, setDiscoverError] = useState(null)
+
   // Track AI state per prospect id
   const [aiState, setAiState] = useState({})
   // aiState[id] = { loading, bio, email, error, phase }
+
+  // Track refine (Edit with AI) state per prospect id
+  const [refineState, setRefineState] = useState({})
+  // refineState[id] = { open, feedback, loading, error }
 
   const queue = prospects.filter(p => p.status === 'Identified')
   const reviewed = prospects.filter(p => p.status === 'Researched' && p.generatedEmail)
@@ -80,6 +90,54 @@ export default function LeadFinder({ prospects, onAdd, onUpdate }) {
     setShowBulk(false)
   }
 
+  async function handleDiscover() {
+    if (!hasApiKey()) {
+      setDiscoverError('No API key. Go to Settings to add your Anthropic API key.')
+      return
+    }
+    setDiscoverLoading(true)
+    setDiscoverError(null)
+    setDiscoverResults([])
+    try {
+      const leads = await generateLeads(discoverFocus)
+      setDiscoverResults(leads)
+    } catch (err) {
+      setDiscoverError(err.message)
+    } finally {
+      setDiscoverLoading(false)
+    }
+  }
+
+  function handleAddDiscoveredLead(lead, index) {
+    onAdd({
+      ...EMPTY_LEAD,
+      ...lead,
+      status: 'Identified',
+      priority: false,
+      snapshotTier: 'Unknown',
+      outreachLog: [],
+      nextAction: 'AI Research',
+      nextActionDate: '',
+    })
+    setDiscoverResults(prev => prev.filter((_, i) => i !== index))
+  }
+
+  function handleAddAllDiscovered() {
+    for (const lead of discoverResults) {
+      onAdd({
+        ...EMPTY_LEAD,
+        ...lead,
+        status: 'Identified',
+        priority: false,
+        snapshotTier: 'Unknown',
+        outreachLog: [],
+        nextAction: 'AI Research',
+        nextActionDate: '',
+      })
+    }
+    setDiscoverResults([])
+  }
+
   const handleApprove = useCallback(async (prospect) => {
     if (!hasApiKey()) {
       setAiState(s => ({ ...s, [prospect.id]: { error: 'No API key. Go to Settings to add your Anthropic API key.', loading: false } }))
@@ -89,16 +147,45 @@ export default function LeadFinder({ prospects, onAdd, onUpdate }) {
     setAiState(s => ({ ...s, [prospect.id]: { loading: true, phase: 'bio', bio: null, email: null, error: null } }))
 
     try {
-      // Step 1: Generate bio
+      // Step 1: Generate bio (also identifies contact if missing)
       const bio = await generateBio(prospect)
       setAiState(s => ({ ...s, [prospect.id]: { ...s[prospect.id], bio, phase: 'email' } }))
 
-      // Step 2: Generate email (no user interaction needed)
-      const emailText = await generateEmail(prospect, bio)
+      // Step 1.5: Parse contact info from bio if we're missing it
+      const contactUpdates = {}
+      if (!prospect.contactName || prospect.contactName === 'Unknown') {
+        const nameMatch = bio.match(/RECOMMENDED CONTACT:\s*([^,\n]+),\s*([^\n]+)/)
+        if (nameMatch) {
+          contactUpdates.contactName = nameMatch[1].trim()
+          contactUpdates.contactTitle = nameMatch[2].trim()
+        }
+      }
+      if (!prospect.contactEmail) {
+        const emailMatch = bio.match(/EMAIL:\s*([^\s\n]+@[^\s\n]+)/)
+        if (emailMatch) {
+          contactUpdates.contactEmail = emailMatch[1].trim()
+        }
+      }
+      if (!prospect.contactLinkedIn) {
+        const linkedInMatch = bio.match(/LINKEDIN:\s*(https?:\/\/[^\s\n]+)/)
+        if (linkedInMatch) {
+          contactUpdates.contactLinkedIn = linkedInMatch[1].trim()
+        }
+      }
+
+      // Apply contact updates immediately so the email step uses them
+      if (Object.keys(contactUpdates).length > 0) {
+        onUpdate(prospect.id, contactUpdates)
+      }
+      const enrichedProspect = { ...prospect, ...contactUpdates }
+
+      // Step 2: Generate email using enriched prospect
+      const emailText = await generateEmail(enrichedProspect, bio)
       setAiState(s => ({ ...s, [prospect.id]: { ...s[prospect.id], email: emailText, loading: false, phase: 'done' } }))
 
       // Step 3: Update prospect in storage
       onUpdate(prospect.id, {
+        ...contactUpdates,
         status: 'Researched',
         aiBio: bio,
         generatedEmail: emailText,
@@ -123,6 +210,26 @@ export default function LeadFinder({ prospects, onAdd, onUpdate }) {
     setAiState(s => ({ ...s, [prospect.id]: { loading: true, phase: 'bio', bio: null, email: null, error: null } }))
     generateBio(prospect)
       .then(bio => {
+        // Parse contact info from bio if missing
+        const contactUpdates = {}
+        if (!prospect.contactName || prospect.contactName === 'Unknown') {
+          const nameMatch = bio.match(/RECOMMENDED CONTACT:\s*([^,\n]+),\s*([^\n]+)/)
+          if (nameMatch) {
+            contactUpdates.contactName = nameMatch[1].trim()
+            contactUpdates.contactTitle = nameMatch[2].trim()
+          }
+        }
+        if (!prospect.contactEmail) {
+          const emailMatch = bio.match(/EMAIL:\s*([^\s\n]+@[^\s\n]+)/)
+          if (emailMatch) contactUpdates.contactEmail = emailMatch[1].trim()
+        }
+        if (!prospect.contactLinkedIn) {
+          const linkedInMatch = bio.match(/LINKEDIN:\s*(https?:\/\/[^\s\n]+)/)
+          if (linkedInMatch) contactUpdates.contactLinkedIn = linkedInMatch[1].trim()
+        }
+        if (Object.keys(contactUpdates).length > 0) {
+          onUpdate(prospect.id, contactUpdates)
+        }
         setAiState(s => ({ ...s, [prospect.id]: { ...s[prospect.id], bio, loading: false, phase: 'preview' } }))
       })
       .catch(err => {
@@ -135,12 +242,54 @@ export default function LeadFinder({ prospects, onAdd, onUpdate }) {
   }
 
   const ai = (id) => aiState[id] || {}
+  const rf = (id) => refineState[id] || {}
+
+  function toggleRefine(id) {
+    setRefineState(s => ({
+      ...s,
+      [id]: { open: !s[id]?.open, feedback: s[id]?.feedback || '', loading: false, error: null }
+    }))
+  }
+
+  async function handleRefineEmail(prospect) {
+    const rs = refineState[prospect.id]
+    if (!rs?.feedback?.trim()) return
+
+    setRefineState(s => ({
+      ...s,
+      [prospect.id]: { ...s[prospect.id], loading: true, error: null }
+    }))
+
+    try {
+      const currentEmail = prospect.generatedEmail || ai(prospect.id).email
+      const revised = await refineEmail(currentEmail, rs.feedback.trim(), prospect)
+
+      setAiState(s => ({
+        ...s,
+        [prospect.id]: { ...s[prospect.id], email: revised }
+      }))
+      onUpdate(prospect.id, { generatedEmail: revised })
+
+      setRefineState(s => ({
+        ...s,
+        [prospect.id]: { open: false, feedback: '', loading: false, error: null }
+      }))
+    } catch (err) {
+      setRefineState(s => ({
+        ...s,
+        [prospect.id]: { ...s[prospect.id], loading: false, error: err.message }
+      }))
+    }
+  }
 
   return (
     <div className="lead-finder">
       <div className="lf-header">
         <h2>Lead Discovery</h2>
         <div className="lf-tabs">
+          <button className={`lf-tab ${tab === 'discover' ? 'active' : ''}`} onClick={() => setTab('discover')}>
+            AI Search
+          </button>
           <button className={`lf-tab ${tab === 'queue' ? 'active' : ''}`} onClick={() => setTab('queue')}>
             Review Queue {queue.length > 0 && <span className="lf-badge">{queue.length}</span>}
           </button>
@@ -152,6 +301,95 @@ export default function LeadFinder({ prospects, onAdd, onUpdate }) {
           </button>
         </div>
       </div>
+
+      {/* ===== AI DISCOVER TAB ===== */}
+      {tab === 'discover' && (
+        <div className="lf-discover">
+          <div className="lf-discover-header">
+            <h3>AI Lead Discovery</h3>
+            <p className="settings-desc">
+              Generate 10 leads matching Rooster's ideal customer profile — mid-size companies showing early social impact interest without a mature CSR program.
+            </p>
+          </div>
+
+          <div className="lf-discover-controls">
+            <input
+              type="text"
+              placeholder="Optional focus — e.g. 'fintech in NYC', 'healthcare companies hiring CPO', 'retail brands post-rebrand'"
+              value={discoverFocus}
+              onChange={e => setDiscoverFocus(e.target.value)}
+              className="lf-discover-input"
+            />
+            <button
+              className="btn btn-primary"
+              onClick={handleDiscover}
+              disabled={discoverLoading || !hasApiKey()}
+            >
+              {discoverLoading ? 'Searching...' : 'Find 10 Leads'}
+            </button>
+          </div>
+
+          {!hasApiKey() && (
+            <div className="lf-warning">
+              AI features require an API key. Go to <strong>Settings</strong> to add your Anthropic API key.
+            </div>
+          )}
+
+          {discoverLoading && (
+            <div className="lf-loading">
+              <div className="lf-spinner" />
+              Searching for prospects matching Rooster's ICP...
+            </div>
+          )}
+
+          {discoverError && (
+            <div className="lf-error">{discoverError}</div>
+          )}
+
+          {discoverResults.length > 0 && (
+            <div className="lf-discover-results">
+              <div className="lf-discover-results-header">
+                <span>{discoverResults.length} lead{discoverResults.length !== 1 ? 's' : ''} found</span>
+                <button className="btn btn-primary btn-sm" onClick={handleAddAllDiscovered}>
+                  Add All to Queue
+                </button>
+              </div>
+              <div className="lf-cards">
+                {discoverResults.map((lead, i) => (
+                  <div key={i} className="lf-card">
+                    <div className="lf-card-header">
+                      <div className="lf-card-info">
+                        <h4>{lead.contactName}</h4>
+                        <span className="lf-company">{lead.contactTitle} at {lead.companyName}</span>
+                        <div className="lf-card-meta">
+                          {lead.industry && <span className="lf-meta-tag">{lead.industry}</span>}
+                          {lead.companySize && <span className="lf-meta-tag">{lead.companySize}</span>}
+                          <span className="lf-meta-tag">AI Discovery</span>
+                        </div>
+                      </div>
+                      <div className="lf-card-links">
+                        {lead.companyWebsite && (
+                          <a href={lead.companyWebsite} target="_blank" rel="noopener noreferrer" className="lf-link website">
+                            Website
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                    {lead.fitNotes && (
+                      <div className="lf-notes">{lead.fitNotes}</div>
+                    )}
+                    <div className="lf-card-actions">
+                      <button className="btn btn-primary btn-sm" onClick={() => handleAddDiscoveredLead(lead, i)}>
+                        Add to Queue
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* ===== ADD TAB ===== */}
       {tab === 'add' && (
@@ -279,9 +517,48 @@ export default function LeadFinder({ prospects, onAdd, onUpdate }) {
                       <div className="lf-email-result">
                         <div className="lf-bio-label">Generated Email</div>
                         <pre className="lf-email-text">{state.email}</pre>
-                        <button className="btn btn-sm btn-primary" onClick={() => copyToClipboard(state.email)}>
-                          Copy Email
-                        </button>
+                        <div className="lf-email-actions">
+                          <button className="btn btn-sm btn-primary" onClick={() => copyToClipboard(state.email)}>
+                            Copy Email
+                          </button>
+                          <button className="btn btn-sm btn-secondary" onClick={() => toggleRefine(prospect.id)}>
+                            {rf(prospect.id).open ? 'Cancel' : 'Edit with AI'}
+                          </button>
+                        </div>
+                        {rf(prospect.id).open && (
+                          <div className="lf-refine">
+                            <div className="lf-refine-input-row">
+                              <input
+                                type="text"
+                                className="lf-refine-input"
+                                placeholder="e.g. make the opener shorter, mention their recent acquisition..."
+                                value={rf(prospect.id).feedback || ''}
+                                onChange={e => setRefineState(s => ({
+                                  ...s,
+                                  [prospect.id]: { ...s[prospect.id], feedback: e.target.value }
+                                }))}
+                                disabled={rf(prospect.id).loading}
+                                onKeyDown={e => { if (e.key === 'Enter') handleRefineEmail(prospect) }}
+                              />
+                              <button
+                                className="btn btn-sm btn-primary"
+                                onClick={() => handleRefineEmail(prospect)}
+                                disabled={rf(prospect.id).loading || !rf(prospect.id).feedback?.trim()}
+                              >
+                                {rf(prospect.id).loading ? 'Refining...' : 'Refine'}
+                              </button>
+                            </div>
+                            {rf(prospect.id).loading && (
+                              <div className="lf-loading" style={{ marginTop: '8px' }}>
+                                <div className="lf-spinner" />
+                                Thinking and revising email...
+                              </div>
+                            )}
+                            {rf(prospect.id).error && (
+                              <div className="lf-error">{rf(prospect.id).error}</div>
+                            )}
+                          </div>
+                        )}
                       </div>
                     )}
 
@@ -358,6 +635,45 @@ export default function LeadFinder({ prospects, onAdd, onUpdate }) {
                     </details>
                   )}
                   <pre className="lf-email-text">{prospect.generatedEmail}</pre>
+                  <div className="lf-email-actions" style={{ marginBottom: '10px' }}>
+                    <button className="btn btn-sm btn-secondary" onClick={() => toggleRefine(prospect.id)}>
+                      {rf(prospect.id).open ? 'Cancel' : 'Edit with AI'}
+                    </button>
+                  </div>
+                  {rf(prospect.id).open && (
+                    <div className="lf-refine" style={{ marginBottom: '10px' }}>
+                      <div className="lf-refine-input-row">
+                        <input
+                          type="text"
+                          className="lf-refine-input"
+                          placeholder="e.g. make the opener shorter, mention their recent acquisition..."
+                          value={rf(prospect.id).feedback || ''}
+                          onChange={e => setRefineState(s => ({
+                            ...s,
+                            [prospect.id]: { ...s[prospect.id], feedback: e.target.value }
+                          }))}
+                          disabled={rf(prospect.id).loading}
+                          onKeyDown={e => { if (e.key === 'Enter') handleRefineEmail(prospect) }}
+                        />
+                        <button
+                          className="btn btn-sm btn-primary"
+                          onClick={() => handleRefineEmail(prospect)}
+                          disabled={rf(prospect.id).loading || !rf(prospect.id).feedback?.trim()}
+                        >
+                          {rf(prospect.id).loading ? 'Refining...' : 'Refine'}
+                        </button>
+                      </div>
+                      {rf(prospect.id).loading && (
+                        <div className="lf-loading" style={{ marginTop: '8px' }}>
+                          <div className="lf-spinner" />
+                          Thinking and revising email...
+                        </div>
+                      )}
+                      {rf(prospect.id).error && (
+                        <div className="lf-error">{rf(prospect.id).error}</div>
+                      )}
+                    </div>
+                  )}
                   <div className="lf-ready-actions">
                     <button className="btn btn-primary btn-sm" onClick={() => copyToClipboard(prospect.generatedEmail)}>
                       Copy Email
