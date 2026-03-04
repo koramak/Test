@@ -244,3 +244,61 @@ ${bio}`
 
   return callClaude(prompt, apiKey)
 }
+
+export async function refineEmail(currentEmail, feedback, prospect) {
+  const apiKey = getApiKey()
+  if (!apiKey) throw new Error('No API key configured. Go to Settings to add your Anthropic API key.')
+
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2025-01-24',
+      'anthropic-dangerous-direct-browser-access': 'true',
+    },
+    body: JSON.stringify({
+      model: 'claude-opus-4-6',
+      max_tokens: 16000,
+      thinking: {
+        type: 'enabled',
+        budget_tokens: 10000,
+      },
+      messages: [{
+        role: 'user',
+        content: `You are an email editor for Rooster Partners, a corporate social impact consultancy. Below is a cold outreach email that was already drafted on behalf of Zane Miller.
+
+CURRENT EMAIL:
+---
+${currentEmail}
+---
+
+REVISION REQUEST: ${feedback}
+
+CONTEXT: This email is for ${prospect.contactName || 'Unknown'} at ${prospect.companyName || 'Unknown'}.
+
+RULES (non-negotiable):
+- Keep Rooster's voice: conversational, short sentences, no jargon, contractions preferred
+- Never use em dashes. Use commas, periods, or restructure.
+- Never use "I came across your profile," "It's clear that you," or "At a glance"
+- Never mention environmental, sustainability, climate, carbon, or ESG work
+- Under 200 words total
+- Subject line under 7 words, not salesy, no colons
+- Sign off as Zane Miller, Rooster Partners
+- The close should ask to listen, not to pitch
+
+Return ONLY the revised email in the exact same format: Subject line first, then blank line, then body. No commentary, no explanation.`,
+      }],
+    }),
+  })
+
+  if (!res.ok) {
+    const err = await res.text()
+    throw new Error(`API error ${res.status}: ${err}`)
+  }
+
+  const data = await res.json()
+  const textBlock = data.content.find(block => block.type === 'text')
+  if (!textBlock) throw new Error('No text in response')
+  return textBlock.text
+}

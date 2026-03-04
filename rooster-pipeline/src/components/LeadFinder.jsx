@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react'
-import { hasApiKey, generateBio, generateEmail, generateLeads } from '../utils/ai'
+import { hasApiKey, generateBio, generateEmail, generateLeads, refineEmail } from '../utils/ai'
 import { COMPANY_SIZES, SOURCES } from '../data/sampleData'
 
 const EMPTY_LEAD = {
@@ -30,6 +30,10 @@ export default function LeadFinder({ prospects, onAdd, onUpdate }) {
   // Track AI state per prospect id
   const [aiState, setAiState] = useState({})
   // aiState[id] = { loading, bio, email, error, phase }
+
+  // Track refine (Edit with AI) state per prospect id
+  const [refineState, setRefineState] = useState({})
+  // refineState[id] = { open, feedback, loading, error }
 
   const queue = prospects.filter(p => p.status === 'Identified')
   const reviewed = prospects.filter(p => p.status === 'Researched' && p.generatedEmail)
@@ -238,6 +242,45 @@ export default function LeadFinder({ prospects, onAdd, onUpdate }) {
   }
 
   const ai = (id) => aiState[id] || {}
+  const rf = (id) => refineState[id] || {}
+
+  function toggleRefine(id) {
+    setRefineState(s => ({
+      ...s,
+      [id]: { open: !s[id]?.open, feedback: s[id]?.feedback || '', loading: false, error: null }
+    }))
+  }
+
+  async function handleRefineEmail(prospect) {
+    const rs = refineState[prospect.id]
+    if (!rs?.feedback?.trim()) return
+
+    setRefineState(s => ({
+      ...s,
+      [prospect.id]: { ...s[prospect.id], loading: true, error: null }
+    }))
+
+    try {
+      const currentEmail = prospect.generatedEmail || ai(prospect.id).email
+      const revised = await refineEmail(currentEmail, rs.feedback.trim(), prospect)
+
+      setAiState(s => ({
+        ...s,
+        [prospect.id]: { ...s[prospect.id], email: revised }
+      }))
+      onUpdate(prospect.id, { generatedEmail: revised })
+
+      setRefineState(s => ({
+        ...s,
+        [prospect.id]: { open: false, feedback: '', loading: false, error: null }
+      }))
+    } catch (err) {
+      setRefineState(s => ({
+        ...s,
+        [prospect.id]: { ...s[prospect.id], loading: false, error: err.message }
+      }))
+    }
+  }
 
   return (
     <div className="lead-finder">
@@ -474,9 +517,48 @@ export default function LeadFinder({ prospects, onAdd, onUpdate }) {
                       <div className="lf-email-result">
                         <div className="lf-bio-label">Generated Email</div>
                         <pre className="lf-email-text">{state.email}</pre>
-                        <button className="btn btn-sm btn-primary" onClick={() => copyToClipboard(state.email)}>
-                          Copy Email
-                        </button>
+                        <div className="lf-email-actions">
+                          <button className="btn btn-sm btn-primary" onClick={() => copyToClipboard(state.email)}>
+                            Copy Email
+                          </button>
+                          <button className="btn btn-sm btn-secondary" onClick={() => toggleRefine(prospect.id)}>
+                            {rf(prospect.id).open ? 'Cancel' : 'Edit with AI'}
+                          </button>
+                        </div>
+                        {rf(prospect.id).open && (
+                          <div className="lf-refine">
+                            <div className="lf-refine-input-row">
+                              <input
+                                type="text"
+                                className="lf-refine-input"
+                                placeholder="e.g. make the opener shorter, mention their recent acquisition..."
+                                value={rf(prospect.id).feedback || ''}
+                                onChange={e => setRefineState(s => ({
+                                  ...s,
+                                  [prospect.id]: { ...s[prospect.id], feedback: e.target.value }
+                                }))}
+                                disabled={rf(prospect.id).loading}
+                                onKeyDown={e => { if (e.key === 'Enter') handleRefineEmail(prospect) }}
+                              />
+                              <button
+                                className="btn btn-sm btn-primary"
+                                onClick={() => handleRefineEmail(prospect)}
+                                disabled={rf(prospect.id).loading || !rf(prospect.id).feedback?.trim()}
+                              >
+                                {rf(prospect.id).loading ? 'Refining...' : 'Refine'}
+                              </button>
+                            </div>
+                            {rf(prospect.id).loading && (
+                              <div className="lf-loading" style={{ marginTop: '8px' }}>
+                                <div className="lf-spinner" />
+                                Thinking and revising email...
+                              </div>
+                            )}
+                            {rf(prospect.id).error && (
+                              <div className="lf-error">{rf(prospect.id).error}</div>
+                            )}
+                          </div>
+                        )}
                       </div>
                     )}
 
@@ -553,6 +635,45 @@ export default function LeadFinder({ prospects, onAdd, onUpdate }) {
                     </details>
                   )}
                   <pre className="lf-email-text">{prospect.generatedEmail}</pre>
+                  <div className="lf-email-actions" style={{ marginBottom: '10px' }}>
+                    <button className="btn btn-sm btn-secondary" onClick={() => toggleRefine(prospect.id)}>
+                      {rf(prospect.id).open ? 'Cancel' : 'Edit with AI'}
+                    </button>
+                  </div>
+                  {rf(prospect.id).open && (
+                    <div className="lf-refine" style={{ marginBottom: '10px' }}>
+                      <div className="lf-refine-input-row">
+                        <input
+                          type="text"
+                          className="lf-refine-input"
+                          placeholder="e.g. make the opener shorter, mention their recent acquisition..."
+                          value={rf(prospect.id).feedback || ''}
+                          onChange={e => setRefineState(s => ({
+                            ...s,
+                            [prospect.id]: { ...s[prospect.id], feedback: e.target.value }
+                          }))}
+                          disabled={rf(prospect.id).loading}
+                          onKeyDown={e => { if (e.key === 'Enter') handleRefineEmail(prospect) }}
+                        />
+                        <button
+                          className="btn btn-sm btn-primary"
+                          onClick={() => handleRefineEmail(prospect)}
+                          disabled={rf(prospect.id).loading || !rf(prospect.id).feedback?.trim()}
+                        >
+                          {rf(prospect.id).loading ? 'Refining...' : 'Refine'}
+                        </button>
+                      </div>
+                      {rf(prospect.id).loading && (
+                        <div className="lf-loading" style={{ marginTop: '8px' }}>
+                          <div className="lf-spinner" />
+                          Thinking and revising email...
+                        </div>
+                      )}
+                      {rf(prospect.id).error && (
+                        <div className="lf-error">{rf(prospect.id).error}</div>
+                      )}
+                    </div>
+                  )}
                   <div className="lf-ready-actions">
                     <button className="btn btn-primary btn-sm" onClick={() => copyToClipboard(prospect.generatedEmail)}>
                       Copy Email
