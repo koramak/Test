@@ -143,16 +143,45 @@ export default function LeadFinder({ prospects, onAdd, onUpdate }) {
     setAiState(s => ({ ...s, [prospect.id]: { loading: true, phase: 'bio', bio: null, email: null, error: null } }))
 
     try {
-      // Step 1: Generate bio
+      // Step 1: Generate bio (also identifies contact if missing)
       const bio = await generateBio(prospect)
       setAiState(s => ({ ...s, [prospect.id]: { ...s[prospect.id], bio, phase: 'email' } }))
 
-      // Step 2: Generate email (no user interaction needed)
-      const emailText = await generateEmail(prospect, bio)
+      // Step 1.5: Parse contact info from bio if we're missing it
+      const contactUpdates = {}
+      if (!prospect.contactName || prospect.contactName === 'Unknown') {
+        const nameMatch = bio.match(/RECOMMENDED CONTACT:\s*([^,\n]+),\s*([^\n]+)/)
+        if (nameMatch) {
+          contactUpdates.contactName = nameMatch[1].trim()
+          contactUpdates.contactTitle = nameMatch[2].trim()
+        }
+      }
+      if (!prospect.contactEmail) {
+        const emailMatch = bio.match(/EMAIL:\s*([^\s\n]+@[^\s\n]+)/)
+        if (emailMatch) {
+          contactUpdates.contactEmail = emailMatch[1].trim()
+        }
+      }
+      if (!prospect.contactLinkedIn) {
+        const linkedInMatch = bio.match(/LINKEDIN:\s*(https?:\/\/[^\s\n]+)/)
+        if (linkedInMatch) {
+          contactUpdates.contactLinkedIn = linkedInMatch[1].trim()
+        }
+      }
+
+      // Apply contact updates immediately so the email step uses them
+      if (Object.keys(contactUpdates).length > 0) {
+        onUpdate(prospect.id, contactUpdates)
+      }
+      const enrichedProspect = { ...prospect, ...contactUpdates }
+
+      // Step 2: Generate email using enriched prospect
+      const emailText = await generateEmail(enrichedProspect, bio)
       setAiState(s => ({ ...s, [prospect.id]: { ...s[prospect.id], email: emailText, loading: false, phase: 'done' } }))
 
       // Step 3: Update prospect in storage
       onUpdate(prospect.id, {
+        ...contactUpdates,
         status: 'Researched',
         aiBio: bio,
         generatedEmail: emailText,
@@ -177,6 +206,26 @@ export default function LeadFinder({ prospects, onAdd, onUpdate }) {
     setAiState(s => ({ ...s, [prospect.id]: { loading: true, phase: 'bio', bio: null, email: null, error: null } }))
     generateBio(prospect)
       .then(bio => {
+        // Parse contact info from bio if missing
+        const contactUpdates = {}
+        if (!prospect.contactName || prospect.contactName === 'Unknown') {
+          const nameMatch = bio.match(/RECOMMENDED CONTACT:\s*([^,\n]+),\s*([^\n]+)/)
+          if (nameMatch) {
+            contactUpdates.contactName = nameMatch[1].trim()
+            contactUpdates.contactTitle = nameMatch[2].trim()
+          }
+        }
+        if (!prospect.contactEmail) {
+          const emailMatch = bio.match(/EMAIL:\s*([^\s\n]+@[^\s\n]+)/)
+          if (emailMatch) contactUpdates.contactEmail = emailMatch[1].trim()
+        }
+        if (!prospect.contactLinkedIn) {
+          const linkedInMatch = bio.match(/LINKEDIN:\s*(https?:\/\/[^\s\n]+)/)
+          if (linkedInMatch) contactUpdates.contactLinkedIn = linkedInMatch[1].trim()
+        }
+        if (Object.keys(contactUpdates).length > 0) {
+          onUpdate(prospect.id, contactUpdates)
+        }
         setAiState(s => ({ ...s, [prospect.id]: { ...s[prospect.id], bio, loading: false, phase: 'preview' } }))
       })
       .catch(err => {

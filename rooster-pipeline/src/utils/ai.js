@@ -12,7 +12,7 @@ export function hasApiKey() {
   return !!getApiKey()
 }
 
-async function callClaude(prompt, apiKey) {
+async function callClaude(prompt, apiKey, { maxTokens = 1024 } = {}) {
   const res = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: {
@@ -23,7 +23,7 @@ async function callClaude(prompt, apiKey) {
     },
     body: JSON.stringify({
       model: 'claude-sonnet-4-20250514',
-      max_tokens: 1024,
+      max_tokens: maxTokens,
       messages: [{ role: 'user', content: prompt }],
     }),
   })
@@ -41,23 +41,42 @@ export async function generateBio(prospect) {
   const apiKey = getApiKey()
   if (!apiKey) throw new Error('No API key configured. Go to Settings to add your Anthropic API key.')
 
+  const hasContact = prospect.contactName && prospect.contactName !== 'Unknown'
+
   const prompt = `You are a sales research assistant for Rooster Partners, a social impact consultancy that helps companies build measurable social impact programs (employee engagement, community partnerships, impact storytelling, Snapshot Assessments).
 
-Research brief for a potential prospect. Based on the information below, write a concise assessment (under 250 words) covering:
-1. Who this person is and their likely role in social impact decisions
+Research brief for a potential prospect. Based on the information below, write a concise assessment covering:
+
+${!hasContact ? `**CRITICAL — IDENTIFY THE RIGHT CONTACT:**
+This lead only has a company name. You MUST identify the best person to reach out to at this company. The ideal contact is:
+- Primary: VP or Director of People & Culture / HR, Chief People Officer (CPO), Head of Employee Experience, Director of Communications or Brand
+- Secondary: CMO (if purpose-driven brand positioning is the entry point), CEO at companies ≤500 employees
+- AVOID: CSR/Sustainability titles at mature programs, Legal/Finance/Operations, Coordinator/Specialist level
+
+Provide their full name, title, a plausible professional email (using common formats like first.last@companydomain.com), and LinkedIn profile URL.
+
+Start your brief with:
+RECOMMENDED CONTACT: [Full Name], [Title]
+EMAIL: [plausible email]
+LINKEDIN: [plausible LinkedIn URL]
+
+Then continue with the assessment below.
+` : ''}1. ${hasContact ? 'Who this person is and their likely role in social impact decisions' : 'Who the recommended contact is and why they are the right person for this outreach'}
 2. What their company is probably doing (or not doing) in social impact
 3. Why they could be a good fit for Rooster Partners
 4. A suggested angle for outreach
+${!hasContact && prospect.contactEmail ? '' : !hasContact ? '\n5. If no email was provided, suggest the most likely email format for this company and provide your best guess at the contact\'s email address' : ''}
 
-Be direct, specific, and actionable. No fluff.
+Be direct, specific, and actionable. No fluff. Keep it under 300 words.
 
 Prospect info:
-- Name: ${prospect.contactName || 'Unknown'}
+- Name: ${prospect.contactName || 'Not provided — you must identify the right contact'}
 - Title: ${prospect.contactTitle || 'Unknown'}
 - Company: ${prospect.companyName || 'Unknown'}
 - Industry: ${prospect.industry || 'Unknown'}
 - Company Size: ${prospect.companySize || 'Unknown'}
 - LinkedIn: ${prospect.contactLinkedIn || 'N/A'}
+- Email: ${prospect.contactEmail || 'Not provided — suggest one'}
 - Company Website: ${prospect.companyWebsite || 'N/A'}
 - Source: ${prospect.source || 'N/A'}
 ${prospect.fitNotes ? `- Notes: ${prospect.fitNotes}` : ''}`
@@ -116,11 +135,15 @@ Primary: VP or Director of People & Culture / HR, Chief People Officer (CPO), He
 Secondary: CMO (if purpose-driven brand positioning), CEO at smaller companies (≤500 employees)
 AVOID: CSR/Sustainability-specific titles at mature programs, Legal/Finance/Operations titles, Coordinator or Specialist level
 
+For each lead, you MUST identify a specific person at the company who matches the contact-level targeting criteria above. Generate a plausible professional email address for them using common corporate email formats (first.last@domain.com, first@domain.com, etc.) based on the company's website domain. Also generate a plausible LinkedIn profile URL.
+
 Return ONLY a JSON array of exactly 10 objects with these fields (no markdown, no explanation, just the JSON array):
 [
   {
     "contactName": "Full Name",
     "contactTitle": "Their Title",
+    "contactEmail": "plausible email based on company domain",
+    "contactLinkedIn": "https://linkedin.com/in/plausible-profile-slug",
     "companyName": "Company Name",
     "industry": "Industry",
     "companySize": "e.g. 500-1000",
@@ -130,7 +153,7 @@ Return ONLY a JSON array of exactly 10 objects with these fields (no markdown, n
   }
 ]`
 
-  const raw = await callClaude(prompt, apiKey)
+  const raw = await callClaude(prompt, apiKey, { maxTokens: 4096 })
 
   // Parse JSON from the response — handle possible markdown wrapping
   let jsonStr = raw.trim()
