@@ -169,16 +169,62 @@ export async function generateEmail(prospect, bio) {
   const apiKey = getApiKey()
   if (!apiKey) throw new Error('No API key configured. Go to Settings to add your Anthropic API key.')
 
-  const prompt = `You are writing a cold outreach email on behalf of Zane Miller, who leads new business at Rooster Partners — a social impact consultancy.
+  const prompt = `You are drafting a cold outreach email on behalf of Zane Miller at Rooster Partners. Follow these guidelines EXACTLY.
 
-Rooster helps companies build and measure social impact programs: employee engagement, community partnerships, impact storytelling, and their flagship "Snapshot Assessment" diagnostic tool.
+=== ROOSTER PARTNERS EMAIL GUIDELINES ===
 
-Write a personalized cold email to this prospect. The email should:
-- Be warm but professional, not salesy
-- Reference something specific about their company/role
-- Be concise (under 200 words for the body)
-- End with a soft CTA (conversation, not a hard sell)
-- Sign off as Zane Miller, Rooster Partners
+ABOUT ROOSTER (use accurately in every email):
+- Rooster is a corporate social impact consulting firm. Builders and operators of impact programs, strategy through execution.
+- Experienced with Fortune 500 and mid-sized company programs. A team that has worked inside companies and led nonprofit partners.
+- Rooster is a small, focused team. Own it, don't hide it.
+- Rooster is NOT an environmental, sustainability, or ESG firm. NEVER mention climate, carbon, ESG, or environmental work.
+- Rooster is NOT a nonprofit, PR agency, or large firm.
+
+THREE-PART EMAIL STRUCTURE (mandatory, do not deviate):
+
+PART 1 — ROOSTER'S STORY (Opening):
+Lead with who Rooster is. This section is nearly identical across emails. Use this anchor language as your baseline (vary slightly, do NOT rewrite from scratch):
+
+"I'm part of a small, very focused consulting group called Rooster that was built to help companies build and run highly effective impact programs. We're a team that's worked both sides of this, running programs inside companies and leading the nonprofits they partner with. We're new as a company, but our process is built on our experience building, managing, and promoting these programs on the inside, for companies of all sizes."
+
+PART 2 — PERSONALIZATION (Middle):
+1-3 sentences max. Acknowledge something specific and real about the prospect's work from the research brief below. Reference a program, event, press mention, LinkedIn post, podcast, or other verifiable signal.
+- Do NOT explain their own work back to them
+- Do NOT be presumptuous about their challenges
+- Do NOT call their work "impressive" or "great." Show you know it, don't grade it.
+- If they've moved away from CSR, acknowledge the ambiguity rather than ignoring it
+- If limited info is available, lean on company-level signals, not guesses about the person
+
+GOOD examples: "I saw the Hope Lodge Gala coverage and the work BEDGEAR has been doing with ACS. It's always exciting to find a team that's already in it and doing the work."
+BAD examples: "I was really impressed by what BEDGEAR has built on the CSR side." / "It looks like you're dealing with the classic challenge of measuring impact."
+
+PART 3 — THE ASK (Close):
+Ask to listen, not to pitch. Goal is a 30-minute conversation. Never promise outcomes, quote ROI, or propose solutions.
+Use this anchor language: "If you've got 30 mins sometime, I'd love to hear what your challenges and opportunities are on that side of things."
+Or: "If you've got 30 mins sometime, I'd love to hear what you're working on and see if there's a way we can be useful."
+
+WARM CONNECTION VARIATIONS:
+- If the prospect is a Pepperdine alum: Lead with "My dad taught PR at Pepperdine for years, Kerry Miller. So this is a bit of a fellow Wave cold email, which feels less strange than a straight cold email." Use subject like "Kerry Miller's kid / Pepperdine + CSR"
+- If the prospect has a biz dev background: Open with "I'll be honest, sending a cold outreach email to someone who's run biz dev professionally is a little nerve-racking. So I'll just be straightforward."
+
+TONE & STYLE (non-negotiable):
+- Write like a person, not a consultant. Short sentences. Conversational cadence. No jargon.
+- Contractions are fine and preferred.
+- Do not hedge with "might," "potentially," "could possibly"
+- Do not over-apologize for reaching out
+- NEVER use em dashes (—). Use commas, periods, or restructure.
+- NEVER use: "I came across your profile and..." as an opener
+- NEVER use: "It's clear that you..." or "At a glance..."
+- NEVER use performance language like "driving results," "moving the needle" in the opener
+- NEVER use: "I'd love to learn more about..." (too passive)
+
+LENGTH: 4-6 short paragraphs. Under 200 words total. Sign off as Zane Miller, Rooster Partners.
+
+SUBJECT LINE: Under 7 words. Specific, not salesy. No "opportunity," "synergy," "partnership." No colons.
+Good patterns: "Impact programs at [Company]" / "[Company]'s community work, quick intro" / "Saw the [specific thing], wanted to connect"
+Bad: "Quick question about your impact programs" / "Helping companies like [Company] drive CSR ROI"
+
+=== END GUIDELINES ===
 
 Format your response EXACTLY like this (no markdown, plain text only):
 Subject: [subject line here]
