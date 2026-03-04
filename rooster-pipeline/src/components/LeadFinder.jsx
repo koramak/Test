@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react'
-import { hasApiKey, generateBio, generateEmail } from '../utils/ai'
+import { hasApiKey, generateBio, generateEmail, generateLeads } from '../utils/ai'
 import { COMPANY_SIZES, SOURCES } from '../data/sampleData'
 
 const EMPTY_LEAD = {
@@ -20,6 +20,12 @@ export default function LeadFinder({ prospects, onAdd, onUpdate }) {
   const [form, setForm] = useState({ ...EMPTY_LEAD })
   const [bulkText, setBulkText] = useState('')
   const [showBulk, setShowBulk] = useState(false)
+
+  // AI Discovery state
+  const [discoverFocus, setDiscoverFocus] = useState('')
+  const [discoverLoading, setDiscoverLoading] = useState(false)
+  const [discoverResults, setDiscoverResults] = useState([])
+  const [discoverError, setDiscoverError] = useState(null)
 
   // Track AI state per prospect id
   const [aiState, setAiState] = useState({})
@@ -78,6 +84,54 @@ export default function LeadFinder({ prospects, onAdd, onUpdate }) {
     }
     setBulkText('')
     setShowBulk(false)
+  }
+
+  async function handleDiscover() {
+    if (!hasApiKey()) {
+      setDiscoverError('No API key. Go to Settings to add your Anthropic API key.')
+      return
+    }
+    setDiscoverLoading(true)
+    setDiscoverError(null)
+    setDiscoverResults([])
+    try {
+      const leads = await generateLeads(discoverFocus)
+      setDiscoverResults(leads)
+    } catch (err) {
+      setDiscoverError(err.message)
+    } finally {
+      setDiscoverLoading(false)
+    }
+  }
+
+  function handleAddDiscoveredLead(lead, index) {
+    onAdd({
+      ...EMPTY_LEAD,
+      ...lead,
+      status: 'Identified',
+      priority: false,
+      snapshotTier: 'Unknown',
+      outreachLog: [],
+      nextAction: 'AI Research',
+      nextActionDate: '',
+    })
+    setDiscoverResults(prev => prev.filter((_, i) => i !== index))
+  }
+
+  function handleAddAllDiscovered() {
+    for (const lead of discoverResults) {
+      onAdd({
+        ...EMPTY_LEAD,
+        ...lead,
+        status: 'Identified',
+        priority: false,
+        snapshotTier: 'Unknown',
+        outreachLog: [],
+        nextAction: 'AI Research',
+        nextActionDate: '',
+      })
+    }
+    setDiscoverResults([])
   }
 
   const handleApprove = useCallback(async (prospect) => {
@@ -141,6 +195,9 @@ export default function LeadFinder({ prospects, onAdd, onUpdate }) {
       <div className="lf-header">
         <h2>Lead Discovery</h2>
         <div className="lf-tabs">
+          <button className={`lf-tab ${tab === 'discover' ? 'active' : ''}`} onClick={() => setTab('discover')}>
+            AI Search
+          </button>
           <button className={`lf-tab ${tab === 'queue' ? 'active' : ''}`} onClick={() => setTab('queue')}>
             Review Queue {queue.length > 0 && <span className="lf-badge">{queue.length}</span>}
           </button>
@@ -152,6 +209,95 @@ export default function LeadFinder({ prospects, onAdd, onUpdate }) {
           </button>
         </div>
       </div>
+
+      {/* ===== AI DISCOVER TAB ===== */}
+      {tab === 'discover' && (
+        <div className="lf-discover">
+          <div className="lf-discover-header">
+            <h3>AI Lead Discovery</h3>
+            <p className="settings-desc">
+              Generate 10 leads matching Rooster's ideal customer profile — mid-size companies showing early social impact interest without a mature CSR program.
+            </p>
+          </div>
+
+          <div className="lf-discover-controls">
+            <input
+              type="text"
+              placeholder="Optional focus — e.g. 'fintech in NYC', 'healthcare companies hiring CPO', 'retail brands post-rebrand'"
+              value={discoverFocus}
+              onChange={e => setDiscoverFocus(e.target.value)}
+              className="lf-discover-input"
+            />
+            <button
+              className="btn btn-primary"
+              onClick={handleDiscover}
+              disabled={discoverLoading || !hasApiKey()}
+            >
+              {discoverLoading ? 'Searching...' : 'Find 10 Leads'}
+            </button>
+          </div>
+
+          {!hasApiKey() && (
+            <div className="lf-warning">
+              AI features require an API key. Go to <strong>Settings</strong> to add your Anthropic API key.
+            </div>
+          )}
+
+          {discoverLoading && (
+            <div className="lf-loading">
+              <div className="lf-spinner" />
+              Searching for prospects matching Rooster's ICP...
+            </div>
+          )}
+
+          {discoverError && (
+            <div className="lf-error">{discoverError}</div>
+          )}
+
+          {discoverResults.length > 0 && (
+            <div className="lf-discover-results">
+              <div className="lf-discover-results-header">
+                <span>{discoverResults.length} lead{discoverResults.length !== 1 ? 's' : ''} found</span>
+                <button className="btn btn-primary btn-sm" onClick={handleAddAllDiscovered}>
+                  Add All to Queue
+                </button>
+              </div>
+              <div className="lf-cards">
+                {discoverResults.map((lead, i) => (
+                  <div key={i} className="lf-card">
+                    <div className="lf-card-header">
+                      <div className="lf-card-info">
+                        <h4>{lead.contactName}</h4>
+                        <span className="lf-company">{lead.contactTitle} at {lead.companyName}</span>
+                        <div className="lf-card-meta">
+                          {lead.industry && <span className="lf-meta-tag">{lead.industry}</span>}
+                          {lead.companySize && <span className="lf-meta-tag">{lead.companySize}</span>}
+                          <span className="lf-meta-tag">AI Discovery</span>
+                        </div>
+                      </div>
+                      <div className="lf-card-links">
+                        {lead.companyWebsite && (
+                          <a href={lead.companyWebsite} target="_blank" rel="noopener noreferrer" className="lf-link website">
+                            Website
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                    {lead.fitNotes && (
+                      <div className="lf-notes">{lead.fitNotes}</div>
+                    )}
+                    <div className="lf-card-actions">
+                      <button className="btn btn-primary btn-sm" onClick={() => handleAddDiscoveredLead(lead, i)}>
+                        Add to Queue
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* ===== ADD TAB ===== */}
       {tab === 'add' && (

@@ -642,6 +642,23 @@ body {
 }
 .lf-tab:not(.active) .lf-badge { background: var(--accent-light); color: var(--accent); }
 
+/* AI Discover */
+.lf-discover { display: flex; flex-direction: column; gap: 16px; }
+.lf-discover-header h3 { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+.lf-discover-controls {
+  display: flex; gap: 10px; align-items: center;
+}
+.lf-discover-input {
+  flex: 1; padding: 10px 14px; border: 1px solid var(--border);
+  border-radius: var(--radius); font-size: 14px; font-family: inherit;
+}
+.lf-discover-input:focus { outline: none; border-color: var(--accent); }
+.lf-discover-results { margin-top: 4px; }
+.lf-discover-results-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 12px; font-size: 14px; font-weight: 600; color: var(--text-secondary);
+}
+
 /* Quick Add */
 .lf-add-section { display: flex; flex-direction: column; gap: 20px; }
 .lf-quick-add {
