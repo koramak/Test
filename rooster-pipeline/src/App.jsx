@@ -5,6 +5,8 @@ import PipelineBoard from './components/PipelineBoard'
 import ProspectList from './components/ProspectList'
 import ProspectDetail from './components/ProspectDetail'
 import ProspectForm from './components/ProspectForm'
+import LeadFinder from './components/LeadFinder'
+import Settings from './components/Settings'
 import { getProspects, addProspect, updateProspect, deleteProspect, addOutreachEntry, importProspects as importAll } from './utils/storage'
 import { SAMPLE_PROSPECTS } from './data/sampleData'
 
@@ -32,6 +34,11 @@ export default function App() {
     const p = addProspect(data)
     reload()
     navigate(`/prospect/${p.id}`)
+  }
+
+  const handleQuickAdd = (data) => {
+    addProspect(data)
+    reload()
   }
 
   const handleUpdate = (id, updates) => {
@@ -74,9 +81,10 @@ export default function App() {
         </div>
         <nav className="main-nav">
           <NavLink to="/" end>Dashboard</NavLink>
+          <NavLink to="/discover">Discover</NavLink>
           <NavLink to="/pipeline">Pipeline</NavLink>
           <NavLink to="/prospects">All Prospects</NavLink>
-          <NavLink to="/add" className="nav-add">+ Add</NavLink>
+          <NavLink to="/settings" className="nav-settings">Settings</NavLink>
         </nav>
       </header>
 
@@ -85,6 +93,10 @@ export default function App() {
           <Route path="/" element={
             <Dashboard prospects={prospects} onUpdate={handleUpdate} />
           } />
+          <Route path="/discover" element={
+            <LeadFinder prospects={prospects} onAdd={handleQuickAdd} onUpdate={handleUpdate} />
+          } />
+          <Route path="/settings" element={<Settings />} />
           <Route path="/pipeline" element={
             <PipelineBoard prospects={prospects} onUpdate={handleUpdate} />
           } />
