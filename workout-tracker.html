@@ -363,24 +363,43 @@
         const lastWeight = lastData.weight;
         const lastAvgReps = Math.round(lastData.sets.reduce((a, s) => a + s.reps, 0) / lastData.sets.length);
         let newWeight = lastWeight, newReps = lastAvgReps, icon = Minus;
+
+        // Progression strategy based on exercise type from research
+        const progType = config.progressionType; // load-first, rep-first, rom-first, time-first, distance-first
+
         if (result.action === 'increase') {
           newWeight = lastWeight + (result.amount || config.weightIncrement);
-          newReps = config.repRange[0]; // Reset to bottom of range when increasing weight
+          if (progType === 'load-first') {
+            // Load-first (deadlift, squat, etc): increase weight, reset reps to bottom
+            newReps = config.repRange[0];
+          } else {
+            // Rep-first: keep reps high, weight increase is smaller jump
+            newReps = lastAvgReps;
+          }
           icon = TrendingUp;
         } else if (result.action === 'decrease') {
           newWeight = Math.max(0, lastWeight - (result.amount || config.weightIncrement));
-          newReps = config.repRange[1]; // Aim for top of range when decreasing
+          newReps = config.repRange[1]; // Aim for top of range when deloading
           icon = TrendingDown;
         } else if (result.action === 'progress') {
-          // For bodyweight exercises - suggest more reps
+          // For rom-first/time-first exercises (ab wheel, planks, etc) - no weight change, suggest more reps/time
           newReps = Math.min(lastAvgReps + 2, config.repRange[1] + 5);
           icon = TrendingUp;
         } else if (result.action === 'regress') {
           newReps = Math.max(lastAvgReps - 2, config.repRange[0]);
           icon = TrendingDown;
         } else {
-          // Maintain - try for 1 more rep
-          newReps = Math.min(lastAvgReps + 1, config.repRange[1]);
+          // Maintain - strategy depends on type
+          if (progType === 'load-first') {
+            // Load-first: try to add reps before next weight jump
+            newReps = Math.min(lastAvgReps + 1, config.repRange[1]);
+          } else if (progType === 'rep-first') {
+            // Rep-first: build reps toward top of range
+            newReps = Math.min(lastAvgReps + 1, config.repRange[1]);
+          } else {
+            // ROM/time/distance: small rep increase
+            newReps = lastAvgReps + 1;
+          }
         }
         return { weight: newWeight, reps: newReps, suggestion: result.reason, action: result.action, icon, config, lastWeight, lastSession: lastData };
       };
