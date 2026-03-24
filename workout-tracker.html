@@ -170,21 +170,37 @@
 
     const muscleColors = { shoulders: '#f97316', triceps: '#ef4444', chest: '#ec4899', upperChest: '#f472b6', lats: '#8b5cf6', traps: '#a855f7', biceps: '#3b82f6', rearDelts: '#f59e0b', sideDelts: '#fb923c', forearms: '#6366f1', abs: '#10b981', hamstrings: '#14b8a6', glutes: '#06b6d4', quads: '#22d3d1', calves: '#84cc16' };
 
-    // Exercise Description Component - text with YouTube link
+    // Exercise Description Component - collapsible, tap to expand
     const ExerciseDescription = ({ exerciseId, accent = '#3b82f6' }) => {
+      const [expanded, setExpanded] = useState(false);
       const media = exerciseMedia[exerciseId];
       const config = progressionConfig[exerciseId] || defaultProgressionConfig;
 
+      if (!media?.description) return null;
+
       return (
-        <div className="rounded-xl p-3 border border-zinc-800/50" style={{ background: `linear-gradient(135deg, ${accent}08 0%, #18181b 100%)` }}>
-          {media?.description ? (
-            <div>
+        <div
+          className="rounded-xl p-3 border border-zinc-800/50 cursor-pointer transition-all"
+          style={{ background: `linear-gradient(135deg, ${accent}08 0%, #18181b 100%)` }}
+          onClick={() => setExpanded(!expanded)}
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-zinc-500 font-medium">HOW TO DO IT</span>
+              {media.youtube && (
+                <span className="text-[9px] px-1.5 py-0.5 rounded bg-red-500/20 text-red-400">VIDEO</span>
+              )}
+            </div>
+            <ChevronDown className={`w-4 h-4 text-zinc-500 transition-transform ${expanded ? 'rotate-180' : ''}`} />
+          </div>
+          {expanded && (
+            <div className="mt-2">
               {media.youtube ? (
                 <a
                   href={media.youtube}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-sm text-zinc-300 leading-relaxed hover:text-white transition-colors"
+                  className="text-sm text-zinc-300 leading-relaxed hover:text-white transition-colors block"
                   onClick={(e) => e.stopPropagation()}
                 >
                   {media.description}
@@ -203,8 +219,6 @@
                 )}
               </div>
             </div>
-          ) : (
-            <p className="text-sm text-zinc-500 italic">No description available</p>
           )}
         </div>
       );
@@ -344,15 +358,31 @@
       const calculateProgression = (exercise) => {
         const lastData = getLastSession(exercise.id);
         const config = progressionConfig[exercise.id] || defaultProgressionConfig;
-        if (!lastData) return { weight: exercise.defaultWeight, suggestion: null, action: 'start', icon: null, config };
+        if (!lastData) return { weight: exercise.defaultWeight, reps: config.repRange[1], suggestion: null, action: 'start', icon: null, config };
         const result = config.progressionLogic(lastData);
         const lastWeight = lastData.weight;
-        let newWeight = lastWeight, icon = Minus;
-        if (result.action === 'increase') { newWeight = lastWeight + (result.amount || config.weightIncrement); icon = TrendingUp; }
-        else if (result.action === 'decrease') { newWeight = Math.max(0, lastWeight - (result.amount || config.weightIncrement)); icon = TrendingDown; }
-        else if (result.action === 'progress') icon = TrendingUp;
-        else if (result.action === 'regress') icon = TrendingDown;
-        return { weight: newWeight, suggestion: result.reason, action: result.action, icon, config, lastWeight, lastSession: lastData };
+        const lastAvgReps = Math.round(lastData.sets.reduce((a, s) => a + s.reps, 0) / lastData.sets.length);
+        let newWeight = lastWeight, newReps = lastAvgReps, icon = Minus;
+        if (result.action === 'increase') {
+          newWeight = lastWeight + (result.amount || config.weightIncrement);
+          newReps = config.repRange[0]; // Reset to bottom of range when increasing weight
+          icon = TrendingUp;
+        } else if (result.action === 'decrease') {
+          newWeight = Math.max(0, lastWeight - (result.amount || config.weightIncrement));
+          newReps = config.repRange[1]; // Aim for top of range when decreasing
+          icon = TrendingDown;
+        } else if (result.action === 'progress') {
+          // For bodyweight exercises - suggest more reps
+          newReps = Math.min(lastAvgReps + 2, config.repRange[1] + 5);
+          icon = TrendingUp;
+        } else if (result.action === 'regress') {
+          newReps = Math.max(lastAvgReps - 2, config.repRange[0]);
+          icon = TrendingDown;
+        } else {
+          // Maintain - try for 1 more rep
+          newReps = Math.min(lastAvgReps + 1, config.repRange[1]);
+        }
+        return { weight: newWeight, reps: newReps, suggestion: result.reason, action: result.action, icon, config, lastWeight, lastSession: lastData };
       };
 
       const selectProgram = (program) => { setSelectedProgram(program); setView('home'); };
@@ -374,14 +404,12 @@
         // Initialize session data for this exercise if not exists
         if (!sessionData[index]) {
           const progression = calculateProgression(exercise);
-          const exerciseConfig = progressionConfig[exercise.id] || defaultProgressionConfig;
-          const targetReps = exerciseConfig.repRange[1];
           const numSets = typeof exercise.sets === 'number' ? exercise.sets : 3;
 
           setSessionData(prev => ({
             ...prev,
             [index]: {
-              sets: Array(numSets).fill(null).map(() => ({ weight: progression.weight, reps: targetReps, completed: false })),
+              sets: Array(numSets).fill(null).map(() => ({ weight: progression.weight, reps: progression.reps, completed: false })),
               notes: '',
               selectedAbExercise: exercise.isAbsSlot ? 'cable_crunch' : null
             }
