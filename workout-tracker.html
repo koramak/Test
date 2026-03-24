@@ -359,6 +359,13 @@
         const lastData = getLastSession(exercise.id);
         const config = progressionConfig[exercise.id] || defaultProgressionConfig;
         if (!lastData) return { weight: exercise.defaultWeight, reps: config.repRange[1], suggestion: null, action: 'start', icon: null, config };
+
+        // If last session was skipped, don't progress - keep same weight/reps
+        if (lastData.skipped) {
+          const lastAvgReps = Math.round(lastData.sets.reduce((a, s) => a + s.reps, 0) / lastData.sets.length);
+          return { weight: lastData.weight, reps: lastAvgReps, suggestion: 'Skipped last time', action: 'maintain', icon: Minus, config, lastWeight: lastData.weight, lastSession: lastData };
+        }
+
         const result = config.progressionLogic(lastData);
         const lastWeight = lastData.weight;
         const lastAvgReps = Math.round(lastData.sets.reduce((a, s) => a + s.reps, 0) / lastData.sets.length);
@@ -424,11 +431,16 @@
         if (!sessionData[index]) {
           const progression = calculateProgression(exercise);
           const numSets = typeof exercise.sets === 'number' ? exercise.sets : 3;
+          // Use last session's weight (don't pre-progress). Progression happens on completion.
+          const startWeight = progression.lastSession?.weight ?? progression.weight;
+          const startReps = progression.lastSession ?
+            Math.round(progression.lastSession.sets.reduce((a, s) => a + s.reps, 0) / progression.lastSession.sets.length) :
+            progression.reps;
 
           setSessionData(prev => ({
             ...prev,
             [index]: {
-              sets: Array(numSets).fill(null).map(() => ({ weight: progression.weight, reps: progression.reps, completed: false })),
+              sets: Array(numSets).fill(null).map(() => ({ weight: startWeight, reps: startReps, completed: false })),
               notes: '',
               selectedAbExercise: exercise.isAbsSlot ? 'cable_crunch' : null
             }
@@ -558,13 +570,14 @@
             workoutSession.exercises[exerciseId] = [];
           }
 
+          const allSetsCompleted = data.sets.every(s => s.completed);
           workoutSession.exercises[exerciseId].push({
             exerciseName,
             usedAlt,
             sets: data.sets,
             weight: data.sets[0]?.weight || 0,
             notes: data.notes,
-            skipped: data.skipped || false
+            skipped: !allSetsCompleted
           });
         });
 
@@ -726,7 +739,7 @@
                       <div className="w-7 h-7 rounded flex items-center justify-center text-xs font-bold" style={{ background: `${primaryColor}20`, color: primaryColor }}>{i + 1}</div>
                       <div className="flex-1 min-w-0">
                         <div className="text-sm font-medium text-zinc-200 truncate">{ex.name.split(' / ')[0]}</div>
-                        <div className="text-[10px] text-zinc-600">{ex.sets} × {ex.reps}{lastData ? ` · ${lastData.weight} lbs` : ''}</div>
+                        <div className="text-[10px] text-zinc-600">{ex.sets} × {ex.reps}{lastData ? (lastData.skipped ? ' · Skipped' : ` · ${lastData.weight} lbs`) : ''}</div>
                       </div>
                     </div>
                   );
@@ -992,7 +1005,7 @@
                     className="w-full text-white font-semibold py-3.5 rounded-xl text-sm transition-all active:scale-[0.98]"
                     style={{ background: accent }}
                   >
-                    Complete Workout
+                    Complete workout, progress weight
                   </button>
                   <button
                     onClick={() => startExercise(0)}
