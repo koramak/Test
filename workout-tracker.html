@@ -38,7 +38,6 @@
     const TrendingUp = ({ className, style }) => <svg className={className} style={style} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>;
     const TrendingDown = ({ className, style }) => <svg className={className} style={style} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 17h8m0 0v-8m0 8l-8-8-4 4-6-6" /></svg>;
     const Minus = ({ className, style }) => <svg className={className} style={style} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" /></svg>;
-    const Clock = ({ className }) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>;
     const StickyNote = ({ className }) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>;
     const Play = ({ className }) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>;
     const Swap = ({ className }) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" /></svg>;
@@ -57,60 +56,65 @@
       { id: 'dead_bug', name: 'Dead Bug', hasWeight: false },
     ];
 
-    // Exercise media - images from free-exercise-db and YouTube form videos
-    const imgBase = 'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises';
+    // Exercise descriptions from NSCA (National Strength & Conditioning Association) and ACE (American Council on Exercise)
     const exerciseMedia = {
       // Compound lifts
-      deadlift: { image: `${imgBase}/Barbell_Deadlift/0.jpg`, youtube: 'https://www.youtube.com/watch?v=r4MzxtBKyNE' },
-      squat: { image: `${imgBase}/Barbell_Squat/0.jpg`, youtube: 'https://www.youtube.com/watch?v=ultWZbUMPL8' },
-      hip_thrust: { image: `${imgBase}/Barbell_Hip_Thrust/0.jpg`, youtube: 'https://www.youtube.com/watch?v=xDmFkJxPzeM' },
-      log_press: { image: `${imgBase}/Push_Press/0.jpg`, youtube: 'https://www.youtube.com/watch?v=iDKmj2fvRbM' },
+      deadlift: { description: 'Hip hinge with barbell from floor. Drive through heels, keep back flat, extend hips and knees together.', source: 'NSCA', youtube: 'https://www.youtube.com/watch?v=r4MzxtBKyNE' },
+      squat: { description: 'Barbell on upper back, descend by bending hips and knees until thighs parallel. Drive up through heels.', source: 'NSCA', youtube: 'https://www.youtube.com/watch?v=ultWZbUMPL8' },
+      hip_thrust: { description: 'Upper back on bench, barbell on hips. Drive hips up squeezing glutes at top, lower with control.', source: 'ACE', youtube: 'https://www.youtube.com/watch?v=xDmFkJxPzeM' },
+      log_press: { description: 'Clean log to shoulders, dip knees slightly, then drive overhead. Lock out with biceps by ears.', source: 'Strongman', youtube: 'https://www.youtube.com/watch?v=iDKmj2fvRbM' },
       // Chest
-      incline_db: { image: `${imgBase}/Incline_Dumbbell_Press/0.jpg`, youtube: 'https://www.youtube.com/watch?v=8iPEnn-ltC8' },
-      incline_bb: { image: `${imgBase}/Barbell_Incline_Bench_Press_-_Medium_Grip/0.jpg`, youtube: 'https://www.youtube.com/watch?v=SrqOu55lrYU' },
-      db_bench: { image: `${imgBase}/Dumbbell_Bench_Press/0.jpg`, youtube: 'https://www.youtube.com/watch?v=VmB1G1K7v94' },
-      low_high_fly: { image: `${imgBase}/Cable_Crossover/0.jpg`, youtube: 'https://www.youtube.com/watch?v=taI4XduLpTk' },
-      machine_chest: { image: `${imgBase}/Butterfly/0.jpg`, youtube: 'https://www.youtube.com/watch?v=xUm0BiZCWlQ' },
-      push_ups: { image: `${imgBase}/Pushups/0.jpg`, youtube: 'https://www.youtube.com/watch?v=IODxDxX7oi4' },
+      incline_db: { description: 'Bench at 30 degrees, press dumbbells from chest level to full extension. Control the negative.', source: 'ACE', youtube: 'https://www.youtube.com/watch?v=8iPEnn-ltC8' },
+      incline_bb: { description: 'Bench at 30 degrees, lower bar to upper chest, press to lockout. Emphasizes upper pecs.', source: 'NSCA', youtube: 'https://www.youtube.com/watch?v=SrqOu55lrYU' },
+      db_bench: { description: 'Flat bench, press dumbbells from chest to full extension. Allows greater ROM than barbell.', source: 'ACE', youtube: 'https://www.youtube.com/watch?v=VmB1G1K7v94' },
+      low_high_fly: { description: 'Cables set low, arms sweep up and together. Targets upper chest fibers.', source: 'ACE', youtube: 'https://www.youtube.com/watch?v=taI4XduLpTk' },
+      machine_chest: { description: 'Seated press machine. Push handles forward to full extension, control the return.', source: 'ACE', youtube: 'https://www.youtube.com/watch?v=xUm0BiZCWlQ' },
+      push_ups: { description: 'Hands shoulder-width, lower chest to floor, push back up. Core tight throughout.', source: 'ACE', youtube: 'https://www.youtube.com/watch?v=IODxDxX7oi4' },
       // Back
-      barbell_row: { image: `${imgBase}/Bent_Over_Barbell_Row/0.jpg`, youtube: 'https://www.youtube.com/watch?v=FWJR5Ve8bnQ' },
-      lat_pulldown: { image: `${imgBase}/Wide-Grip_Lat_Pulldown/0.jpg`, youtube: 'https://www.youtube.com/watch?v=CAwf7n6Luuc' },
-      cable_row: { image: `${imgBase}/Seated_Cable_Rows/0.jpg`, youtube: 'https://www.youtube.com/watch?v=GZbfZ033f74' },
-      seated_row: { image: `${imgBase}/Seated_Cable_Rows/0.jpg`, youtube: 'https://www.youtube.com/watch?v=GZbfZ033f74' },
+      barbell_row: { description: 'Hinged at hips, pull bar to lower chest. Squeeze shoulder blades, lower with control.', source: 'NSCA', youtube: 'https://www.youtube.com/watch?v=FWJR5Ve8bnQ' },
+      lat_pulldown: { description: 'Wide grip, pull bar to upper chest. Lean back slightly, squeeze lats at bottom.', source: 'ACE', youtube: 'https://www.youtube.com/watch?v=CAwf7n6Luuc' },
+      cable_row: { description: 'Seated, pull handle to torso. Keep chest up, squeeze shoulder blades together.', source: 'ACE', youtube: 'https://www.youtube.com/watch?v=GZbfZ033f74' },
+      seated_row: { description: 'Seated, pull handle to torso. Keep chest up, squeeze shoulder blades together.', source: 'ACE', youtube: 'https://www.youtube.com/watch?v=GZbfZ033f74' },
       // Shoulders
-      lateral_raise: { image: `${imgBase}/Side_Lateral_Raise/0.jpg`, youtube: 'https://www.youtube.com/watch?v=3VcKaXpzqRo' },
-      face_pull: { image: `${imgBase}/Face_Pull/0.jpg`, youtube: 'https://www.youtube.com/watch?v=rep-qVOkqgk' },
-      bent_lateral: { image: `${imgBase}/Seated_Bent-Over_Rear_Delt_Raise/0.jpg`, youtube: 'https://www.youtube.com/watch?v=EA7u4Q_8HQ0' },
+      lateral_raise: { description: 'Arms at sides, raise dumbbells to shoulder height. Lead with elbows, slight forward lean.', source: 'ACE', youtube: 'https://www.youtube.com/watch?v=3VcKaXpzqRo' },
+      face_pull: { description: 'Cable at face height, pull rope to face with elbows high. External rotate at end.', source: 'ACE', youtube: 'https://www.youtube.com/watch?v=rep-qVOkqgk' },
+      bent_lateral: { description: 'Hinged forward, raise dumbbells out to sides. Targets rear delts.', source: 'ACE', youtube: 'https://www.youtube.com/watch?v=EA7u4Q_8HQ0' },
       // Biceps
-      incline_curl: { image: `${imgBase}/Incline_Dumbbell_Curl/0.jpg`, youtube: 'https://www.youtube.com/watch?v=soxrZlIl35U' },
-      hammer_curl: { image: `${imgBase}/Hammer_Curls/0.jpg`, youtube: 'https://www.youtube.com/watch?v=zC3nLlEvin4' },
-      bayesian_curl: { image: `${imgBase}/Cable_Hammer_Curls_-_Rope_Attachment/0.jpg`, youtube: 'https://www.youtube.com/watch?v=NFzwT3CEPM4' },
-      preacher_curl: { image: `${imgBase}/Preacher_Curl/0.jpg`, youtube: 'https://www.youtube.com/watch?v=fIWP-FRFNU0' },
-      spider_curl: { image: `${imgBase}/Spider_Curl/0.jpg`, youtube: 'https://www.youtube.com/watch?v=ke3ttM3pPMI' },
+      incline_curl: { description: 'Seated on incline bench, arms hang back. Curl up, maximizing bicep stretch at bottom.', source: 'ACE', youtube: 'https://www.youtube.com/watch?v=soxrZlIl35U' },
+      hammer_curl: { description: 'Neutral grip (palms facing), curl to shoulders. Targets brachialis and forearms.', source: 'ACE', youtube: 'https://www.youtube.com/watch?v=zC3nLlEvin4' },
+      bayesian_curl: { description: 'Face away from cable, arm behind body. Curl forward for constant tension.', source: 'ACE', youtube: 'https://www.youtube.com/watch?v=NFzwT3CEPM4' },
+      preacher_curl: { description: 'Arms on preacher pad, curl bar up. Eliminates momentum, isolates biceps.', source: 'ACE', youtube: 'https://www.youtube.com/watch?v=fIWP-FRFNU0' },
+      spider_curl: { description: 'Chest on incline bench, arms hang straight down. Curl up for peak contraction.', source: 'ACE', youtube: 'https://www.youtube.com/watch?v=ke3ttM3pPMI' },
+      seated_curl: { description: 'Seated, dumbbells at sides. Curl both arms simultaneously with control.', source: 'ACE', youtube: 'https://www.youtube.com/watch?v=soxrZlIl35U' },
+      preacher_fri: { description: 'Arms on preacher pad, curl bar up. Eliminates momentum, isolates biceps.', source: 'ACE', youtube: 'https://www.youtube.com/watch?v=fIWP-FRFNU0' },
       // Triceps
-      overhead_tri: { image: `${imgBase}/Standing_Dumbbell_Triceps_Extension/0.jpg`, youtube: 'https://www.youtube.com/watch?v=YbX7Wd8jQ-Q' },
-      pushdown: { image: `${imgBase}/Triceps_Pushdown/0.jpg`, youtube: 'https://www.youtube.com/watch?v=2-LAMcpzODU' },
+      overhead_tri: { description: 'Weight overhead, lower behind head by bending elbows. Extend back up. Stretches long head.', source: 'ACE', youtube: 'https://www.youtube.com/watch?v=YbX7Wd8jQ-Q' },
+      pushdown: { description: 'Cable attachment at top, push down until arms straight. Keep elbows pinned to sides.', source: 'ACE', youtube: 'https://www.youtube.com/watch?v=2-LAMcpzODU' },
       // Legs
-      hack_squat: { image: `${imgBase}/Barbell_Hack_Squat/0.jpg`, youtube: 'https://www.youtube.com/watch?v=0tn5K9NlCfo' },
-      leg_press: { image: `${imgBase}/Leg_Press/0.jpg`, youtube: 'https://www.youtube.com/watch?v=IZxyjW7MPJQ' },
-      leg_curl: { image: `${imgBase}/Lying_Leg_Curls/0.jpg`, youtube: 'https://www.youtube.com/watch?v=1Tq3QdYUuHs' },
-      leg_ext: { image: `${imgBase}/Leg_Extensions/0.jpg`, youtube: 'https://www.youtube.com/watch?v=YyvSfVjQeL0' },
-      rdl: { image: `${imgBase}/Romanian_Deadlift_With_Dumbbells/0.jpg`, youtube: 'https://www.youtube.com/watch?v=jEy_czb3RKA' },
-      bulgarian_split: { image: `${imgBase}/Dumbbell_Single_Leg_Split_Squat/0.jpg`, youtube: 'https://www.youtube.com/watch?v=2C-uNgKwPLE' },
-      walking_lunge: { image: `${imgBase}/Dumbbell_Lunges/0.jpg`, youtube: 'https://www.youtube.com/watch?v=L8fvypPrzzs' },
-      step_up: { image: `${imgBase}/Barbell_Step_Ups/0.jpg`, youtube: 'https://www.youtube.com/watch?v=WCFCdxzFBa4' },
-      single_leg_rdl: { image: `${imgBase}/Single_Leg_Deadlift/0.jpg`, youtube: 'https://www.youtube.com/watch?v=_Po3o18B0JY' },
-      calf_raise: { image: `${imgBase}/Standing_Calf_Raises/0.jpg`, youtube: 'https://www.youtube.com/watch?v=gwLzBJYoWlI' },
+      hack_squat: { description: 'Machine squat, feet forward on platform. Descend deep, drive through heels.', source: 'NSCA', youtube: 'https://www.youtube.com/watch?v=0tn5K9NlCfo' },
+      leg_press: { description: 'Feet shoulder-width on sled, lower until 90 degree knee bend, press back up.', source: 'ACE', youtube: 'https://www.youtube.com/watch?v=IZxyjW7MPJQ' },
+      leg_curl: { description: 'Lying or seated, curl heels toward glutes. Squeeze hamstrings at top.', source: 'ACE', youtube: 'https://www.youtube.com/watch?v=1Tq3QdYUuHs' },
+      leg_ext: { description: 'Seated, extend legs until straight. Control the negative, avoid locking knees hard.', source: 'ACE', youtube: 'https://www.youtube.com/watch?v=YyvSfVjQeL0' },
+      rdl: { description: 'Barbell or DBs, hinge at hips with soft knees. Lower until hamstring stretch, drive hips forward.', source: 'NSCA', youtube: 'https://www.youtube.com/watch?v=jEy_czb3RKA' },
+      bulgarian_split: { description: 'Rear foot elevated, lunge down until back knee near floor. Drive through front heel.', source: 'ACE', youtube: 'https://www.youtube.com/watch?v=2C-uNgKwPLE' },
+      walking_lunge: { description: 'Step forward into lunge, drive up and step through to next lunge. Keep torso upright.', source: 'ACE', youtube: 'https://www.youtube.com/watch?v=L8fvypPrzzs' },
+      step_up: { description: 'Step onto box/bench, drive through heel to stand. Lower with control. Unilateral leg work.', source: 'ACE', youtube: 'https://www.youtube.com/watch?v=WCFCdxzFBa4' },
+      single_leg_rdl: { description: 'Balance on one leg, hinge forward as other leg extends back. Hamstring stretch and balance.', source: 'ACE', youtube: 'https://www.youtube.com/watch?v=_Po3o18B0JY' },
+      calf_raise: { description: 'Rise onto balls of feet, squeeze calves at top, lower below platform for full stretch.', source: 'ACE', youtube: 'https://www.youtube.com/watch?v=gwLzBJYoWlI' },
       // Glutes
-      cable_kickback: { image: `${imgBase}/Glute_Kickback/0.jpg`, youtube: 'https://www.youtube.com/watch?v=KUF9yHbVsK8' },
+      cable_kickback: { description: 'Ankle strap attached, kick leg straight back. Squeeze glute at top, control return.', source: 'ACE', youtube: 'https://www.youtube.com/watch?v=KUF9yHbVsK8' },
+      side_plank_abduction: { description: 'Side plank position, lift top leg up and down. Targets glute medius.', source: 'ACE', youtube: 'https://www.youtube.com/watch?v=8bGJaJqWjnc' },
       // Strongman
-      farmers_walk: { image: `${imgBase}/Farmers_Walk/0.jpg`, youtube: 'https://www.youtube.com/watch?v=Fkzk_RqlYig' },
+      farmers_walk: { description: 'Heavy weight in each hand, walk with short quick steps. Grip, traps, and core work.', source: 'Strongman', youtube: 'https://www.youtube.com/watch?v=Fkzk_RqlYig' },
       // Abs
-      cable_crunch: { image: `${imgBase}/Cable_Crunch/0.jpg`, youtube: 'https://www.youtube.com/watch?v=AV5PmZJIrrw' },
-      hanging_leg_raise: { image: `${imgBase}/Hanging_Leg_Raise/0.jpg`, youtube: 'https://www.youtube.com/watch?v=Pr1ieGZ5atk' },
-      ab_wheel: { image: `${imgBase}/Ab_Roller/0.jpg`, youtube: 'https://www.youtube.com/watch?v=rqiTPdK1c_I' },
-      pallof_press: { image: `${imgBase}/Pallof_Press/0.jpg`, youtube: 'https://www.youtube.com/watch?v=AH_QZLm_0-s' },
-      battle_rope: { image: `${imgBase}/Battling_Ropes/0.jpg`, youtube: 'https://www.youtube.com/watch?v=a9Rp2YBg2IY' },
+      cable_crunch: { description: 'Kneel at cable, rope behind head. Crunch down bringing elbows to knees.', source: 'ACE', youtube: 'https://www.youtube.com/watch?v=AV5PmZJIrrw' },
+      hanging_leg_raise: { description: 'Hang from bar, raise legs to parallel or higher. Control the swing.', source: 'ACE', youtube: 'https://www.youtube.com/watch?v=Pr1ieGZ5atk' },
+      ab_wheel: { description: 'Kneel, roll wheel forward extending body, pull back using abs. Keep core braced.', source: 'ACE', youtube: 'https://www.youtube.com/watch?v=rqiTPdK1c_I' },
+      pallof_press: { description: 'Cable at chest height, press out and resist rotation. Anti-rotation core work.', source: 'ACE', youtube: 'https://www.youtube.com/watch?v=AH_QZLm_0-s' },
+      reverse_crunch: { description: 'Lying down, curl hips up off floor bringing knees toward chest. Lower with control.', source: 'ACE', youtube: 'https://www.youtube.com/watch?v=hyv14e2QDq0' },
+      plank: { description: 'Forearms and toes on floor, body straight line. Hold position, brace core.', source: 'ACE', youtube: 'https://www.youtube.com/watch?v=pSHjTRCQxIw' },
+      dead_bug: { description: 'On back, extend opposite arm and leg while keeping lower back pressed to floor.', source: 'ACE', youtube: 'https://www.youtube.com/watch?v=I5xbsA71v1A' },
+      battle_rope: { description: 'Alternating waves with heavy ropes. Full body conditioning and grip work.', source: 'ACE', youtube: 'https://www.youtube.com/watch?v=a9Rp2YBg2IY' },
     };
 
     // Progression configs - updated rep ranges for strength exercises
@@ -165,93 +169,42 @@
 
     const muscleColors = { shoulders: '#f97316', triceps: '#ef4444', chest: '#ec4899', upperChest: '#f472b6', lats: '#8b5cf6', traps: '#a855f7', biceps: '#3b82f6', rearDelts: '#f59e0b', sideDelts: '#fb923c', forearms: '#6366f1', abs: '#10b981', hamstrings: '#14b8a6', glutes: '#06b6d4', quads: '#22d3d1', calves: '#84cc16' };
 
-    // Format time helper
-    const formatTime = (seconds) => {
-      const mins = Math.floor(seconds / 60);
-      const secs = seconds % 60;
-      return `${mins}:${secs.toString().padStart(2, '0')}`;
-    };
-
-    // Exercise Image Component with fallback
-    const ExerciseImage = ({ exerciseId, accent = '#3b82f6' }) => {
-      const [imageError, setImageError] = useState(false);
+    // Exercise Description Component - text with YouTube link
+    const ExerciseDescription = ({ exerciseId, accent = '#3b82f6' }) => {
       const media = exerciseMedia[exerciseId];
       const config = progressionConfig[exerciseId] || defaultProgressionConfig;
 
-      const FallbackSVG = () => (
-        <svg viewBox="0 0 200 160" className="w-full h-44">
-          <style>{`@keyframes pls{0%,100%{transform:scale(1);opacity:0.8}50%{transform:scale(1.05);opacity:1}}.pls-f{animation:pls 2s ease-in-out infinite;transform-origin:center}`}</style>
-          <line x1="20" y1="145" x2="180" y2="145" stroke="#27272a" strokeWidth="2"/>
-          <g className="pls-f">
-            <circle cx="100" cy="45" r="12" fill="none" stroke={accent} strokeWidth="3"/>
-            <line x1="100" y1="57" x2="100" y2="95" stroke={accent} strokeWidth="4" strokeLinecap="round"/>
-            <line x1="100" y1="65" x2="70" y2="85" stroke={accent} strokeWidth="3" strokeLinecap="round"/>
-            <line x1="100" y1="65" x2="130" y2="85" stroke={accent} strokeWidth="3" strokeLinecap="round"/>
-            <line x1="100" y1="95" x2="80" y2="140" stroke={accent} strokeWidth="3" strokeLinecap="round"/>
-            <line x1="100" y1="95" x2="120" y2="140" stroke={accent} strokeWidth="3" strokeLinecap="round"/>
-          </g>
-        </svg>
-      );
-
       return (
-        <div className="relative rounded-xl overflow-hidden" style={{ background: `linear-gradient(135deg, ${accent}10 0%, #18181b 100%)` }}>
-          {media?.image && !imageError ? (
-            <img
-              src={media.image}
-              alt="Exercise"
-              className="w-full h-44 object-cover"
-              onError={() => setImageError(true)}
-            />
-          ) : (
-            <FallbackSVG />
-          )}
-          <div className="absolute bottom-2 left-2 right-2 flex gap-2 justify-center">
-            <span className="px-2 py-0.5 rounded-full text-[9px] font-medium" style={{ background: `${accent}20`, color: accent }}>{config.repRange[0]}-{config.repRange[1]} reps</span>
-            <span className="px-2 py-0.5 rounded-full text-[9px] font-medium" style={{ background: `${accent}20`, color: accent }}>+{config.weightIncrement} lb</span>
-          </div>
-          {media?.youtube && (
-            <a
-              href={media.youtube}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="absolute top-2 right-2 p-1.5 rounded-lg flex items-center gap-1 text-[9px] font-medium"
-              style={{ background: 'rgba(0,0,0,0.7)', color: '#fff' }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <Play className="w-3 h-3" /> Form
-            </a>
-          )}
-        </div>
-      );
-    };
-
-    // Rest Timer Component
-    const RestTimer = ({ duration, onComplete, accent }) => {
-      const [remaining, setRemaining] = useState(duration);
-      const onCompleteRef = React.useRef(onComplete);
-      onCompleteRef.current = onComplete;
-
-      useEffect(() => {
-        if (remaining <= 0) {
-          onCompleteRef.current();
-          return;
-        }
-        const timer = setInterval(() => setRemaining(r => r - 1), 1000);
-        return () => clearInterval(timer);
-      }, [remaining]);
-
-      const progress = ((duration - remaining) / duration) * 100;
-
-      return (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50" onClick={onComplete}>
-          <div className="text-center">
-            <div className="text-6xl font-bold text-white mb-2">{formatTime(remaining)}</div>
-            <div className="text-zinc-400 text-sm mb-4">Rest Time</div>
-            <div className="w-48 h-1 bg-zinc-800 rounded-full overflow-hidden mx-auto">
-              <div className="h-full rounded-full transition-all" style={{ width: `${progress}%`, background: accent }} />
+        <div className="rounded-xl p-3 border border-zinc-800/50" style={{ background: `linear-gradient(135deg, ${accent}08 0%, #18181b 100%)` }}>
+          {media?.description ? (
+            <div>
+              {media.youtube ? (
+                <a
+                  href={media.youtube}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-zinc-300 leading-relaxed hover:text-white transition-colors"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {media.description}
+                  <span className="inline-flex items-center gap-1 ml-2 text-[10px] font-medium" style={{ color: accent }}>
+                    <Play className="w-3 h-3" /> Watch form
+                  </span>
+                </a>
+              ) : (
+                <p className="text-sm text-zinc-300 leading-relaxed">{media.description}</p>
+              )}
+              <div className="mt-2 flex items-center gap-3">
+                <span className="text-[9px] text-zinc-600">Source: {media.source}</span>
+                <span className="px-2 py-0.5 rounded-full text-[9px] font-medium" style={{ background: `${accent}15`, color: accent }}>{config.repRange[0]}-{config.repRange[1]} reps</span>
+                {config.weightIncrement > 0 && (
+                  <span className="px-2 py-0.5 rounded-full text-[9px] font-medium" style={{ background: `${accent}15`, color: accent }}>+{config.weightIncrement} lb</span>
+                )}
+              </div>
             </div>
-            <div className="text-zinc-600 text-xs mt-4">Tap to skip</div>
-          </div>
+          ) : (
+            <p className="text-sm text-zinc-500 italic">No description available</p>
+          )}
         </div>
       );
     };
@@ -350,24 +303,10 @@
 
       // Session state - only saved at workout completion
       const [sessionData, setSessionData] = useState({});
-      const [workoutStartTime, setWorkoutStartTime] = useState(null);
-      const [exerciseStartTime, setExerciseStartTime] = useState(null);
-      const [workoutElapsed, setWorkoutElapsed] = useState(0);
-      const [showRestTimer, setShowRestTimer] = useState(false);
-      const [restDuration, setRestDuration] = useState(90);
       const [showNotes, setShowNotes] = useState(false);
       const [useAltExercise, setUseAltExercise] = useState({});
 
       useEffect(() => { try { localStorage.setItem('workoutLogV2', JSON.stringify(workoutLog)); } catch {} }, [workoutLog]);
-
-      // Workout timer
-      useEffect(() => {
-        if (!workoutStartTime) return;
-        const interval = setInterval(() => {
-          setWorkoutElapsed(Math.floor((Date.now() - workoutStartTime) / 1000));
-        }, 1000);
-        return () => clearInterval(interval);
-      }, [workoutStartTime]);
 
       const getLogKey = (program, day) => `${program}_${day}`;
       const getExerciseLog = (exerciseId, program, day) => {
@@ -398,24 +337,13 @@
       const startDay = (day) => { setSelectedDay(day); setView('dayOverview'); };
 
       const beginWorkout = () => {
-        setWorkoutStartTime(Date.now());
         setSessionData({});
         setUseAltExercise({});
         startExercise(0);
       };
 
       const startExercise = (index) => {
-        // Save current exercise time if coming from another exercise
-        if (exerciseStartTime && sessionData[currentExerciseIndex]) {
-          const timeSpent = Math.floor((Date.now() - exerciseStartTime) / 1000);
-          setSessionData(prev => ({
-            ...prev,
-            [currentExerciseIndex]: { ...prev[currentExerciseIndex], timeSpent }
-          }));
-        }
-
         setCurrentExerciseIndex(index);
-        setExerciseStartTime(Date.now());
         setShowNotes(false);
 
         const config = programConfigs[selectedProgram];
@@ -433,8 +361,7 @@
             [index]: {
               sets: Array(numSets).fill(null).map(() => ({ weight: progression.weight, reps: targetReps, completed: false })),
               notes: '',
-              selectedAbExercise: exercise.isAbsSlot ? 'cable_crunch' : null,
-              timeSpent: 0
+              selectedAbExercise: exercise.isAbsSlot ? 'cable_crunch' : null
             }
           }));
         }
@@ -455,9 +382,6 @@
       };
 
       const toggleSetComplete = (setIndex) => {
-        const currentSets = sessionData[currentExerciseIndex]?.sets || [];
-        const wasCompleted = currentSets[setIndex]?.completed;
-
         setSessionData(prev => ({
           ...prev,
           [currentExerciseIndex]: {
@@ -467,15 +391,6 @@
             )
           }
         }));
-
-        // Start rest timer if marking complete (not uncompleting)
-        if (!wasCompleted) {
-          const config = programConfigs[selectedProgram];
-          const exercise = config.data[selectedDay].exercises[currentExerciseIndex];
-          const exerciseConfig = progressionConfig[exercise.id] || defaultProgressionConfig;
-          setRestDuration(exerciseConfig.restTime || 90);
-          setShowRestTimer(true);
-        }
       };
 
       const updateNotes = (notes) => {
@@ -502,15 +417,6 @@
       const nextExercise = () => {
         const config = programConfigs[selectedProgram];
         const exercises = config.data[selectedDay].exercises;
-
-        // Save time for current exercise
-        if (exerciseStartTime) {
-          const timeSpent = Math.floor((Date.now() - exerciseStartTime) / 1000);
-          setSessionData(prev => ({
-            ...prev,
-            [currentExerciseIndex]: { ...prev[currentExerciseIndex], timeSpent }
-          }));
-        }
 
         if (currentExerciseIndex < exercises.length - 1) {
           startExercise(currentExerciseIndex + 1);
@@ -546,13 +452,11 @@
       const completeWorkout = () => {
         const config = programConfigs[selectedProgram];
         const exercises = config.data[selectedDay].exercises;
-        const totalTime = Math.floor((Date.now() - workoutStartTime) / 1000);
         const key = getLogKey(selectedProgram, selectedDay);
 
         // Build the workout session record
         const workoutSession = {
           date: new Date().toISOString(),
-          totalTime,
           exercises: {}
         };
 
@@ -576,7 +480,6 @@
             sets: data.sets,
             weight: data.sets[0]?.weight || 0,
             notes: data.notes,
-            timeSpent: data.timeSpent,
             skipped: data.skipped || false
           });
         });
@@ -586,7 +489,7 @@
           const existing = prev[key] || { sessions: [], exercises: {} };
 
           // Add to sessions array
-          const sessions = [...(existing.sessions || []), { date: workoutSession.date, totalTime }];
+          const sessions = [...(existing.sessions || []), { date: workoutSession.date }];
 
           // Merge exercise data
           const exercisesLog = { ...existing.exercises };
@@ -614,17 +517,15 @@
       };
 
       const exportCSV = () => {
-        let csv = 'Date,Program,Day,Exercise,Variant,Set,Weight,Reps,Completed,Skipped,Notes,Time Spent (sec),Workout Duration (sec)\n';
+        let csv = 'Date,Program,Day,Exercise,Variant,Set,Weight,Reps,Completed,Skipped,Notes\n';
 
         Object.entries(workoutLog).forEach(([key, data]) => {
           const [program, day] = key.split('_');
-          const sessions = data.sessions || [];
 
           Object.entries(data.exercises || {}).forEach(([exerciseId, entries]) => {
             entries.forEach(entry => {
-              const session = sessions.find(s => s.date === entry.date);
               entry.sets.forEach((set, setIndex) => {
-                csv += `${new Date(entry.date).toLocaleDateString()},${program},${day},${entry.exerciseName || exerciseId},${entry.usedAlt ? 'Alt' : 'Main'},${setIndex + 1},${set.weight},${set.reps},${set.completed ? 'Yes' : 'No'},${entry.skipped ? 'Yes' : 'No'},"${entry.notes || ''}",${entry.timeSpent || ''},${session?.totalTime || ''}\n`;
+                csv += `${new Date(entry.date).toLocaleDateString()},${program},${day},${entry.exerciseName || exerciseId},${entry.usedAlt ? 'Alt' : 'Main'},${setIndex + 1},${set.weight},${set.reps},${set.completed ? 'Yes' : 'No'},${entry.skipped ? 'Yes' : 'No'},"${entry.notes || ''}"\n`;
               });
             });
           });
@@ -759,6 +660,11 @@
         const displayName = isUsingAlt && hasAlt ? nameParts[1] : nameParts[0];
         const currentData = sessionData[currentExerciseIndex] || { sets: [], notes: '', selectedAbExercise: 'cable_crunch' };
 
+        // Format last workout date
+        const lastWorkoutDate = progression.lastSession?.date
+          ? new Date(progression.lastSession.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
+          : null;
+
         let suggestionColor = accent, suggestionBg = `${accent}15`;
         if (progression.action === 'increase' || progression.action === 'progress') { suggestionColor = '#10b981'; suggestionBg = '#10b98115'; }
         else if (progression.action === 'decrease' || progression.action === 'regress') { suggestionColor = '#f59e0b'; suggestionBg = '#f59e0b15'; }
@@ -769,27 +675,11 @@
 
         return (
           <div className="min-h-screen text-white p-3 pb-24" style={{ background: config.bgGradient }}>
-            {showRestTimer && (
-              <RestTimer
-                duration={restDuration}
-                onComplete={() => setShowRestTimer(false)}
-                accent={accent}
-              />
-            )}
-
             <div className="max-w-md mx-auto">
-              {/* Header with timer */}
+              {/* Header */}
               <div className="flex justify-between items-center mb-2">
                 <button onClick={() => setView('dayOverview')} className="text-zinc-500 p-1"><ChevronLeft className="w-5 h-5" /></button>
-                <div className="flex items-center gap-2">
-                  <div className="text-[10px] text-zinc-600">{currentExerciseIndex + 1}/{dayData.exercises.length}</div>
-                  {workoutStartTime && (
-                    <div className="flex items-center gap-1 text-[10px] text-zinc-500">
-                      <Clock className="w-3 h-3" />
-                      {formatTime(workoutElapsed)}
-                    </div>
-                  )}
-                </div>
+                <div className="text-[10px] text-zinc-600">{currentExerciseIndex + 1}/{dayData.exercises.length}</div>
                 <button onClick={() => setShowNotes(!showNotes)} className="text-zinc-500 p-1">
                   <StickyNote className="w-5 h-5" />
                 </button>
@@ -800,30 +690,20 @@
                 <div className="h-full rounded-full" style={{ width: `${((currentExerciseIndex + 1) / dayData.exercises.length) * 100}%`, background: accent }} />
               </div>
 
-              {/* Alt exercise toggle */}
+              {/* Exercise name - always show */}
+              <h1 className="text-lg font-bold text-zinc-100 mb-1">{displayName}</h1>
+
+              {/* Alt exercise toggle - show as secondary option */}
               {hasAlt && (
                 <button
                   onClick={toggleAltExercise}
-                  className="w-full mb-3 py-3 px-4 rounded-xl flex items-center justify-between text-sm border-2 transition-all active:scale-[0.98]"
-                  style={{
-                    borderColor: accent,
-                    background: `${accent}20`
-                  }}
+                  className="mb-3 py-1.5 px-3 rounded-lg flex items-center gap-2 text-xs border transition-all active:scale-[0.98]"
+                  style={{ borderColor: `${accent}50`, background: `${accent}10` }}
                 >
-                  <div className="flex items-center gap-2">
-                    <Swap className="w-5 h-5" style={{ color: accent }} />
-                    <span className="text-zinc-300 text-xs font-medium">TAP TO SWAP</span>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-[10px] text-zinc-500">{isUsingAlt ? 'ALT' : 'MAIN'}</div>
-                    <div className="font-semibold text-white">{displayName}</div>
-                  </div>
+                  <Swap className="w-4 h-4" style={{ color: accent }} />
+                  <span style={{ color: accent }}>Switch to {isUsingAlt ? nameParts[0] : nameParts[1]}</span>
                 </button>
               )}
-
-              {/* Exercise name */}
-              {!hasAlt && <h1 className="text-base font-bold text-zinc-100 mb-0.5">{displayName}</h1>}
-              <p className="text-zinc-500 text-[10px] mb-2">{exercise.notes}</p>
 
               {/* Abs dropdown */}
               {exercise.isAbsSlot && (
@@ -843,66 +723,81 @@
                 </div>
               )}
 
-              {/* Exercise image/animation */}
-              <ExerciseImage exerciseId={exercise.isAbsSlot ? currentData.selectedAbExercise : exercise.id} accent={accent} />
-
-              {/* Last session performance */}
+              {/* Last workout date + sets */}
               {progression.lastSession && (
-                <div className="mt-2 p-2 rounded-lg bg-zinc-900/50 border border-zinc-800/50">
-                  <div className="text-[9px] text-zinc-500 mb-1">Last session:</div>
+                <div className="mb-3 p-3 rounded-xl bg-zinc-900/50 border border-zinc-800/50">
+                  <div className="text-xs text-zinc-400 mb-2">Last workout on <span className="text-zinc-200 font-medium">{lastWorkoutDate}</span></div>
                   <div className="flex gap-2 flex-wrap">
                     {progression.lastSession.sets.map((s, i) => (
-                      <span key={i} className="text-[10px] text-zinc-400">
-                        {s.weight}×{s.reps}{s.completed ? '✓' : ''}
+                      <span key={i} className="px-2 py-1 rounded bg-zinc-800/50 text-[11px] text-zinc-300">
+                        {s.weight} lbs × {s.reps} reps{s.completed ? ' ✓' : ''}
                       </span>
                     ))}
                   </div>
                 </div>
               )}
 
-              {/* Progression suggestion */}
-              {progression.suggestion && (
-                <div className="rounded-lg px-2 py-1.5 text-[10px] mt-2 flex items-center gap-2" style={{ background: suggestionBg, color: suggestionColor }}>
-                  {progression.icon && <progression.icon className="w-3 h-3" />}
-                  <span>{progression.suggestion}</span>
-                </div>
-              )}
-
-              {/* Notes field */}
-              {showNotes && (
-                <div className="mt-2">
-                  <textarea
-                    value={currentData.notes || ''}
-                    onChange={(e) => updateNotes(e.target.value)}
-                    placeholder="Add notes..."
-                    className="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white"
-                    rows={2}
-                  />
-                </div>
-              )}
-
-              {/* Sets */}
-              <div className="space-y-2 mt-3">
-                {currentData.sets.map((set, i) => (
-                  <div key={i} className={`rounded-lg p-2 border ${set.completed ? 'border-emerald-500/50 bg-emerald-500/10' : 'border-zinc-800/50 bg-zinc-900/30'}`}>
-                    <div className="flex items-center gap-2">
-                      <button onClick={() => toggleSetComplete(i)} className={`w-6 h-6 rounded flex items-center justify-center transition-all active:scale-90 flex-shrink-0 text-[10px] font-bold ${set.completed ? 'bg-emerald-500 text-white' : 'bg-zinc-800 text-zinc-500'}`}>
-                        {set.completed ? <Check className="w-3.5 h-3.5" /> : i + 1}
-                      </button>
-                      <div className="flex items-center gap-1 flex-1">
-                        <StepBtn onClick={() => updateSet(i, 'weight', Math.max(0, set.weight - weightIncrement))}>−</StepBtn>
-                        <div className="flex-1 text-center"><div className="text-base font-bold text-zinc-100">{set.weight}</div><div className="text-[7px] text-zinc-600 -mt-0.5">lbs</div></div>
-                        <StepBtn onClick={() => updateSet(i, 'weight', set.weight + weightIncrement)}>+</StepBtn>
-                      </div>
-                      <div className="w-px h-6 bg-zinc-800" />
-                      <div className="flex items-center gap-1 flex-1">
-                        <StepBtn onClick={() => updateSet(i, 'reps', Math.max(1, set.reps - 1))}>−</StepBtn>
-                        <div className="flex-1 text-center"><div className="text-base font-bold text-zinc-100">{set.reps}</div><div className="text-[7px] text-zinc-600 -mt-0.5">reps</div></div>
-                        <StepBtn onClick={() => updateSet(i, 'reps', set.reps + 1)}>+</StepBtn>
-                      </div>
+              {/* Progression suggestion with explanation */}
+              <div className="mb-3 p-3 rounded-xl border" style={{ background: suggestionBg, borderColor: `${suggestionColor}30` }}>
+                <div className="flex items-start gap-2">
+                  {progression.icon && <progression.icon className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: suggestionColor }} />}
+                  <div>
+                    <div className="text-sm font-medium" style={{ color: suggestionColor }}>
+                      {progression.suggestion || (progression.lastSession ? 'Keep building within your rep range' : 'First time - start with suggested weight')}
+                    </div>
+                    <div className="text-[10px] text-zinc-500 mt-1">
+                      {progression.action === 'increase' || progression.action === 'progress'
+                        ? 'You hit your rep target last time - try adding weight or reps today!'
+                        : progression.action === 'decrease' || progression.action === 'regress'
+                        ? 'Focus on form and control. Quality reps beat ego weight.'
+                        : progression.lastSession
+                        ? 'Aim for more reps at the same weight, or same reps with slightly more weight.'
+                        : 'Log your sets below. The app will suggest progression next time.'}
                     </div>
                   </div>
-                ))}
+                </div>
+              </div>
+
+              {/* Exercise description with YouTube link */}
+              <ExerciseDescription exerciseId={exercise.isAbsSlot ? currentData.selectedAbExercise : exercise.id} accent={accent} />
+
+              {/* Notes field - always visible but collapsed */}
+              <div className="mt-3">
+                <textarea
+                  value={currentData.notes || ''}
+                  onChange={(e) => updateNotes(e.target.value)}
+                  placeholder="Add workout notes..."
+                  className="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white"
+                  rows={showNotes ? 3 : 1}
+                  onFocus={() => setShowNotes(true)}
+                />
+              </div>
+
+              {/* Journal - Sets to log */}
+              <div className="mt-4">
+                <div className="text-xs text-zinc-500 mb-2 font-medium">LOG YOUR SETS</div>
+                <div className="space-y-2">
+                  {currentData.sets.map((set, i) => (
+                    <div key={i} className={`rounded-lg p-2 border ${set.completed ? 'border-emerald-500/50 bg-emerald-500/10' : 'border-zinc-800/50 bg-zinc-900/30'}`}>
+                      <div className="flex items-center gap-2">
+                        <button onClick={() => toggleSetComplete(i)} className={`w-6 h-6 rounded flex items-center justify-center transition-all active:scale-90 flex-shrink-0 text-[10px] font-bold ${set.completed ? 'bg-emerald-500 text-white' : 'bg-zinc-800 text-zinc-500'}`}>
+                          {set.completed ? <Check className="w-3.5 h-3.5" /> : i + 1}
+                        </button>
+                        <div className="flex items-center gap-1 flex-1">
+                          <StepBtn onClick={() => updateSet(i, 'weight', Math.max(0, set.weight - weightIncrement))}>−</StepBtn>
+                          <div className="flex-1 text-center"><div className="text-base font-bold text-zinc-100">{set.weight}</div><div className="text-[7px] text-zinc-600 -mt-0.5">lbs</div></div>
+                          <StepBtn onClick={() => updateSet(i, 'weight', set.weight + weightIncrement)}>+</StepBtn>
+                        </div>
+                        <div className="w-px h-6 bg-zinc-800" />
+                        <div className="flex items-center gap-1 flex-1">
+                          <StepBtn onClick={() => updateSet(i, 'reps', Math.max(1, set.reps - 1))}>−</StepBtn>
+                          <div className="flex-1 text-center"><div className="text-base font-bold text-zinc-100">{set.reps}</div><div className="text-[7px] text-zinc-600 -mt-0.5">reps</div></div>
+                          <StepBtn onClick={() => updateSet(i, 'reps', set.reps + 1)}>+</StepBtn>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
 
               {/* Navigation - BIGGER buttons */}
@@ -939,7 +834,7 @@
       if (view === 'summary') {
         const dayData = workoutData[selectedDay];
         const accent = config.dayAccents[selectedDay];
-        const totalTime = workoutStartTime ? Math.floor((Date.now() - workoutStartTime) / 1000) : 0;
+        const completedCount = Object.values(sessionData).filter(d => d && d.sets.every(s => s.completed)).length;
 
         return (
           <div className="min-h-screen text-white p-4 pb-24" style={{ background: config.bgGradient }}>
@@ -949,8 +844,8 @@
 
               <div className="p-4 rounded-xl bg-zinc-900/50 border border-zinc-800 mb-4">
                 <div className="text-center">
-                  <div className="text-3xl font-bold" style={{ color: accent }}>{formatTime(totalTime)}</div>
-                  <div className="text-zinc-500 text-xs">Total Duration</div>
+                  <div className="text-3xl font-bold" style={{ color: accent }}>{completedCount}/{dayData.exercises.length}</div>
+                  <div className="text-zinc-500 text-xs">Exercises Completed</div>
                 </div>
               </div>
 
@@ -970,7 +865,6 @@
                           <div className="text-sm font-medium text-zinc-200">{displayName}</div>
                           <div className="text-[10px] text-zinc-500">
                             {completedSets}/{data.sets.length} sets · {data.sets[0]?.weight || 0} lbs
-                            {data.timeSpent ? ` · ${formatTime(data.timeSpent)}` : ''}
                           </div>
                         </div>
                         {completedSets === data.sets.length ? (
@@ -1010,8 +904,7 @@
       if (view === 'complete') {
         const dayData = workoutData[selectedDay];
         const accent = config.dayAccents[selectedDay];
-        const key = getLogKey(selectedProgram, selectedDay);
-        const lastSession = workoutLog[key]?.sessions?.slice(-1)[0];
+        const todayDate = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
 
         return (
           <div className="min-h-screen text-white p-4 flex items-center justify-center" style={{ background: config.bgGradient }}>
@@ -1020,19 +913,13 @@
                 <Trophy className="w-9 h-9 text-white" />
               </div>
               <h1 className="text-xl font-bold text-zinc-100 mb-1">Workout Complete!</h1>
-              <p className="text-zinc-500 text-sm mb-4">{dayData.name}</p>
-
-              {lastSession && (
-                <div className="text-3xl font-bold mb-6" style={{ color: accent }}>
-                  {formatTime(lastSession.totalTime)}
-                </div>
-              )}
+              <p className="text-zinc-500 text-sm mb-2">{dayData.name}</p>
+              <p className="text-zinc-600 text-xs mb-6">{todayDate}</p>
 
               <button
                 onClick={() => {
                   setView('home');
                   setSelectedDay(null);
-                  setWorkoutStartTime(null);
                   setSessionData({});
                 }}
                 className="w-full text-white font-semibold py-3.5 rounded-xl text-sm"
