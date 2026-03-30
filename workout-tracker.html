@@ -107,6 +107,8 @@
       side_plank_abduction: { description: 'Side plank position, lift top leg up and down. Targets glute medius.', source: 'ACE', youtube: 'https://www.youtube.com/watch?v=8bGJaJqWjnc' },
       // Strongman
       farmers_walk: { description: 'Heavy weight in each hand, walk with short quick steps. Grip, traps, and core work.', source: 'Strongman', youtube: 'https://www.youtube.com/watch?v=Fkzk_RqlYig' },
+      suitcase_carry: { description: 'Single weight in one hand, walk maintaining upright posture. Core anti-lateral flexion.', source: 'Strongman', youtube: 'https://www.youtube.com/watch?v=DViTO8XOq1g' },
+      seated_row_machine: { description: 'Chest against pad, pull handles to torso. Squeeze shoulder blades, control return.', source: 'ACE', youtube: 'https://www.youtube.com/watch?v=GZbfZ033f74' },
       // Abs
       cable_crunch: { description: 'Kneel at cable, rope behind head. Crunch down bringing elbows to knees.', source: 'ACE', youtube: 'https://www.youtube.com/watch?v=AV5PmZJIrrw' },
       hanging_leg_raise: { description: 'Hang from bar, raise legs to parallel or higher. Control the swing.', source: 'ACE', youtube: 'https://www.youtube.com/watch?v=Pr1ieGZ5atk' },
@@ -227,22 +229,20 @@
     // Workout data
     const workoutData4Day = {
       day1: { name: "Upper Power + Biceps", focus: "Heavy pressing, pulling, bicep stretch", exercises: [
-        { id: "log_press", name: "Log Press / Standing DB Press", sets: 4, reps: "3-5", defaultWeight: 95, muscles: ["shoulders", "triceps", "chest"], notes: "Heavy, 3-min rest" },
+        { id: "log_press", name: "Log Press / Standing DB Press", sets: 3, reps: "3-5", defaultWeight: 95, muscles: ["shoulders", "triceps", "chest"], notes: "Heavy, 3-min rest" },
         { id: "incline_db", name: "Incline Dumbbell Press (30°)", sets: 3, reps: "8-12", defaultWeight: 50, muscles: ["upperChest", "shoulders", "triceps"], notes: "Deep stretch at bottom" },
-        { id: "barbell_row", name: "Barbell Row", sets: 4, reps: "6-10", defaultWeight: 135, muscles: ["lats", "traps", "biceps", "rearDelts"], notes: "Feel lats, not just moving weight" },
+        { id: "barbell_row", name: "Barbell Row / Seated Row Machine", sets: 4, reps: "6-10", defaultWeight: 135, muscles: ["lats", "traps", "biceps", "rearDelts"], notes: "Feel lats, not just moving weight" },
         { id: "lateral_raise", name: "Lateral Raise", sets: 3, reps: "12-20", defaultWeight: 15, muscles: ["sideDelts"], notes: "Microplates essential", superset: true },
         { id: "incline_curl", name: "Incline Dumbbell Curl", sets: 3, reps: "10-12", defaultWeight: 20, muscles: ["biceps"], notes: "Arms behind torso, max stretch" },
         { id: "face_pull", name: "Face Pull", sets: 3, reps: "15-20", defaultWeight: 40, muscles: ["rearDelts", "traps"], notes: "Shoulder health - form > load", superset: true },
-        { id: "hammer_curl", name: "Hammer Curl", sets: 3, reps: "10-15", defaultWeight: 25, muscles: ["biceps", "forearms"], notes: "Brachialis emphasis" },
-        { id: "abs_generic", name: "Abs", sets: 2, reps: "12-20", defaultWeight: 0, muscles: ["abs"], notes: "Select exercise below", isAbsSlot: true }
+        { id: "hammer_curl", name: "Hammer Curl", sets: 3, reps: "10-15", defaultWeight: 25, muscles: ["biceps", "forearms"], notes: "Brachialis emphasis" }
       ]},
       day2: { name: "Lower Power + Carries", focus: "Deadlift strength, carries for traps/forearms", exercises: [
         { id: "deadlift", name: "Conventional Deadlift", sets: 4, reps: "4-6", defaultWeight: 225, muscles: ["hamstrings", "glutes", "lats", "traps", "forearms"], notes: "Ramp up: 135→185→225→working weight" },
         { id: "hack_squat", name: "Hack Squat", sets: 3, reps: "6-10", defaultWeight: 180, muscles: ["quads", "glutes"], notes: "High SFR - push hard" },
-        { id: "farmers_walk", name: "Farmer's Walk", sets: 3, reps: "50-70 ft", defaultWeight: 70, muscles: ["traps", "forearms", "abs"], notes: "Per hand. Distance before load." },
+        { id: "farmers_walk", name: "Farmer's Walk / Suitcase Carry", sets: 3, reps: "50-70 ft", defaultWeight: 70, muscles: ["traps", "forearms", "abs"], notes: "Per hand. Distance before load." },
         { id: "leg_curl", name: "Leg Curl", sets: 3, reps: "8-12", defaultWeight: 90, muscles: ["hamstrings"], notes: "Control the negative" },
-        { id: "calf_raise", name: "Calf Raises", sets: 3, reps: "12-20", defaultWeight: 150, muscles: ["calves"], notes: "Full ROM, calves progress slowly" },
-        { id: "abs_generic", name: "Abs", sets: 2, reps: "12-20", defaultWeight: 0, muscles: ["abs"], notes: "Select exercise below", isAbsSlot: true }
+        { id: "calf_raise", name: "Calf Raises", sets: 3, reps: "12-20", defaultWeight: 150, muscles: ["calves"], notes: "Full ROM, calves progress slowly" }
       ]},
       day3: { name: "Upper Hypertrophy + Arms", focus: "Upper chest volume, arm hypertrophy", exercises: [
         { id: "incline_bb", name: "Incline Barbell Press (30°)", sets: 4, reps: "8-10", defaultWeight: 115, muscles: ["upperChest", "shoulders", "triceps"], notes: "Controlled tempo" },
@@ -275,9 +275,7 @@
         { id: "hip_thrust", name: "Barbell Hip Thrust", sets: 4, reps: "5-8", defaultWeight: 135, muscles: ["glutes", "hamstrings"], notes: "Progress fast - squeeze at top" },
         { id: "db_bench", name: "DB Bench Press", sets: 3, reps: "8-12", defaultWeight: 35, muscles: ["chest", "triceps"], notes: "Upper maintenance", superset: true },
         { id: "cable_row", name: "Cable Row", sets: 3, reps: "10-12", defaultWeight: 100, muscles: ["lats", "traps", "biceps"], notes: "Upper maintenance" },
-        { id: "bulgarian_split", name: "Bulgarian Split Squat", sets: 3, reps: "8-12", defaultWeight: 30, muscles: ["glutes", "quads"], notes: "Balance before load" },
-        { id: "side_plank_abduction", name: "Side Plank Hip Abduction", sets: 2, reps: "8-12", defaultWeight: 0, muscles: ["glutes", "abs"], notes: "103% glute medius activation" },
-        { id: "cable_crunch", name: "Cable Crunch", sets: 3, reps: "12-15", defaultWeight: 70, muscles: ["abs"], notes: "Load-based ab work" }
+        { id: "bulgarian_split", name: "Bulgarian Split Squat", sets: 3, reps: "8-12", defaultWeight: 30, muscles: ["glutes", "quads"], notes: "Balance before load" }
       ]},
       day2: { name: "Full Body Hypertrophy + Core", focus: "Glute volume, unilateral work, ab priority", exercises: [
         { id: "rdl", name: "Romanian Deadlift", sets: 4, reps: "8-12", defaultWeight: 95, muscles: ["hamstrings", "glutes"], notes: "Form > load, feel stretch" },
@@ -285,9 +283,7 @@
         { id: "step_up", name: "Diagonal Step-Up", sets: 3, reps: "10-12", defaultWeight: 20, muscles: ["glutes", "quads"], notes: "Highest glute EMG activation" },
         { id: "log_press", name: "Log Press / Standing DB Press", sets: 3, reps: "3-5", defaultWeight: 70, muscles: ["shoulders", "triceps"], notes: "Primary press - microplates!" },
         { id: "lat_pulldown", name: "Lat Pulldown", sets: 3, reps: "10-12", defaultWeight: 100, muscles: ["lats", "biceps"], notes: "Upper maintenance", superset: true },
-        { id: "hanging_leg_raise", name: "Hanging Leg Raise", sets: 3, reps: "10-15", defaultWeight: 0, muscles: ["abs"], notes: "Progress: bent → straight legs" },
-        { id: "cable_kickback", name: "Cable Kickback", sets: 3, reps: "12-15", defaultWeight: 25, muscles: ["glutes"], notes: "Mind-muscle connection" },
-        { id: "ab_wheel", name: "Ab Wheel Rollout", sets: 3, reps: "8-15", defaultWeight: 0, muscles: ["abs"], notes: "Highest ab activation - extend ROM" }
+        { id: "cable_kickback", name: "Cable Kickback", sets: 3, reps: "12-15", defaultWeight: 25, muscles: ["glutes"], notes: "Mind-muscle connection" }
       ]},
       day3: { name: "Lower Volume + Core Finisher", focus: "Glute pump, quad balance, ab definition", exercises: [
         { id: "hip_thrust", name: "Hip Thrust (moderate)", sets: 3, reps: "12-15", defaultWeight: 115, muscles: ["glutes"], notes: "Focus on squeeze/contraction" },
@@ -297,8 +293,6 @@
         { id: "single_leg_rdl", name: "Single-Leg RDL", sets: 3, reps: "10-12", defaultWeight: 25, muscles: ["glutes", "hamstrings"], notes: "Balance first, then load" },
         { id: "push_ups", name: "Push-ups", sets: 3, reps: "12-20", defaultWeight: 0, muscles: ["chest", "triceps"], notes: "Upper maintenance", superset: true },
         { id: "face_pull", name: "Face Pulls", sets: 3, reps: "15-20", defaultWeight: 35, muscles: ["rearDelts", "traps"], notes: "Shoulder health > ego" },
-        { id: "reverse_crunch", name: "Reverse Crunch", sets: 3, reps: "12-20", defaultWeight: 0, muscles: ["abs"], notes: "Progress via decline/ankle weight" },
-        { id: "pallof_press", name: "Pallof Press", sets: 3, reps: "10-15", defaultWeight: 30, muscles: ["abs"], notes: "Anti-rotation" },
         { id: "calf_raise", name: "Calf Raises", sets: 3, reps: "12-20", defaultWeight: 120, muscles: ["calves"], notes: "Full ROM, patient progression" }
       ]}
     };
