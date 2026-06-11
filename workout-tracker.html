@@ -97,6 +97,7 @@
       leg_curl: { description: 'Lying or seated, curl heels toward glutes. Squeeze hamstrings at top.', source: 'ACE', youtube: 'https://www.youtube.com/watch?v=1Tq3QdYUuHs' },
       leg_ext: { description: 'Seated, extend legs until straight. Control the negative, avoid locking knees hard.', source: 'ACE', youtube: 'https://www.youtube.com/watch?v=YyvSfVjQeL0' },
       rdl: { description: 'Barbell or DBs, hinge at hips with soft knees. Lower until hamstring stretch, drive hips forward.', source: 'NSCA', youtube: 'https://www.youtube.com/watch?v=jEy_czb3RKA' },
+      back_extension: { description: 'Hips on 45° pad, hinge down with flat back, raise torso by squeezing glutes and hamstrings. Stop at neutral - no hyperextension. Hold a plate at chest to load.', source: 'ACE' },
       bulgarian_split: { description: 'Rear foot elevated, lunge down until back knee near floor. Drive through front heel.', source: 'ACE', youtube: 'https://www.youtube.com/watch?v=2C-uNgKwPLE' },
       walking_lunge: { description: 'Step forward into lunge, drive up and step through to next lunge. Keep torso upright.', source: 'ACE', youtube: 'https://www.youtube.com/watch?v=L8fvypPrzzs' },
       step_up: { description: 'Step onto box/bench, drive through heel to stand. Lower with control. Unilateral leg work.', source: 'ACE', youtube: 'https://www.youtube.com/watch?v=WCFCdxzFBa4' },
@@ -120,63 +121,103 @@
       battle_rope: { description: 'Alternating waves with heavy ropes. Full body conditioning and grip work.', source: 'ACE', youtube: 'https://www.youtube.com/watch?v=a9Rp2YBg2IY' },
     };
 
-    // Progression configs - updated rep ranges for strength exercises
+    // Progression configs - data only. Shared logic lives in runProgression below.
+    // progressionType: load-first (add weight, reset reps to bottom) vs rep-first (build reps, small weight bumps)
     const progressionConfig = {
-      deadlift: { progressionType: "load-first", weightIncrement: 5, repRange: [4, 6], rirTarget: 2, restTime: 180, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 6) return { action: 'increase', amount: 5, reason: `Hit ${Math.round(avgReps)} reps → Add 5 lbs` }; if (avgReps < 4) return { action: 'decrease', amount: 5, reason: `Only ${Math.round(avgReps)} reps → Drop 5 lbs` }; return { action: 'maintain', reason: 'Building strength within range' }; } },
-      squat: { progressionType: "load-first", weightIncrement: 5, repRange: [4, 8], rirTarget: 2, restTime: 180, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 8) return { action: 'increase', amount: 5, reason: `Strong at ${Math.round(avgReps)} reps → Add 5 lbs` }; if (avgReps < 4) return { action: 'decrease', amount: 5, reason: `Below target → Deload 5 lbs` }; return { action: 'maintain', reason: 'Building within range' }; } },
-      hack_squat: { progressionType: "load-first", weightIncrement: 10, repRange: [6, 10], rirTarget: 2, restTime: 150, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 10) return { action: 'increase', amount: 10, reason: `Hit 10 reps → Add 10 lbs` }; if (avgReps < 6) return { action: 'decrease', amount: 10, reason: 'Below range → Reduce weight' }; return { action: 'maintain', reason: 'Building reps within range' }; } },
-      leg_press: { progressionType: "load-first", weightIncrement: 10, repRange: [8, 12], rirTarget: 2, restTime: 150, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 12) return { action: 'increase', amount: 10, reason: 'Hit 12 reps → Add 10 lbs' }; if (avgReps < 8) return { action: 'decrease', amount: 10, reason: 'Below 8 reps → Reduce weight' }; return { action: 'maintain', reason: 'Building within rep range' }; } },
-      hip_thrust: { progressionType: "load-first", weightIncrement: 10, repRange: [5, 8], rirTarget: 2, restTime: 120, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 8) return { action: 'increase', amount: 10, reason: 'Strong at 8+ reps → Add 10 lbs' }; if (allCompleted && avgReps >= 6) return { action: 'increase', amount: 5, reason: 'Hit target → Add 5 lbs' }; if (avgReps < 5) return { action: 'decrease', amount: 5, reason: 'Below target → Reduce 5 lbs' }; return { action: 'maintain', reason: 'Focus on glute squeeze at top' }; } },
-      rdl: { progressionType: "load-first", weightIncrement: 5, repRange: [8, 12], rirTarget: 2, restTime: 120, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 12) return { action: 'increase', amount: 5, reason: 'Hit 12 reps → Add 5 lbs' }; if (avgReps < 8) return { action: 'decrease', amount: 5, reason: 'Form likely degrading → Drop 5 lbs' }; return { action: 'maintain', reason: 'Focus on hamstring stretch' }; } },
-      bulgarian_split: { progressionType: "rep-first", weightIncrement: 2.5, repRange: [8, 12], rirTarget: 2, restTime: 90, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 12) return { action: 'increase', amount: 2.5, reason: 'Both legs hit 12 → Add 2.5 lbs/hand' }; if (avgReps < 8) return { action: 'decrease', amount: 2.5, reason: 'Below range → Prioritize stability' }; return { action: 'maintain', reason: 'Focus on depth and control' }; } },
-      walking_lunge: { progressionType: "rep-first", weightIncrement: 2.5, repRange: [24, 30], rirTarget: 2, restTime: 90, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 30) return { action: 'increase', amount: 2.5, reason: 'Hit 30 steps → Add 2.5 lbs/hand' }; if (avgReps < 24) return { action: 'decrease', amount: 2.5, reason: 'Below target → Reduce load' }; return { action: 'maintain', reason: 'Building metabolic capacity' }; } },
-      step_up: { progressionType: "rep-first", weightIncrement: 2.5, repRange: [10, 12], rirTarget: 2, restTime: 90, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 12) return { action: 'increase', amount: 2.5, reason: 'Both legs hit 12 → Add 2.5 lbs/hand' }; if (avgReps < 10) return { action: 'decrease', amount: 2.5, reason: 'Below target → Reduce weight' }; return { action: 'maintain', reason: 'Building unilateral strength' }; } },
-      single_leg_rdl: { progressionType: "rep-first", weightIncrement: 2.5, repRange: [10, 12], rirTarget: 3, restTime: 90, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 12) return { action: 'increase', amount: 2.5, reason: 'Stable at 12 → Add 2.5 lbs' }; if (avgReps < 10) return { action: 'decrease', amount: 2.5, reason: 'Balance limiting → Reduce load' }; return { action: 'maintain', reason: 'Focus on stability' }; } },
-      leg_curl: { progressionType: "load-first", weightIncrement: 5, repRange: [8, 12], rirTarget: 2, restTime: 90, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 12) return { action: 'increase', amount: 5, reason: 'Hit top of range → Move pin' }; if (avgReps < 8) return { action: 'decrease', amount: 5, reason: 'Below range → Reduce weight' }; return { action: 'maintain', reason: 'Building within rep range' }; } },
-      leg_ext: { progressionType: "load-first", weightIncrement: 5, repRange: [10, 12], rirTarget: 2, restTime: 90, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 12) return { action: 'increase', amount: 5, reason: 'Hit 12 reps → Add weight' }; if (avgReps < 10) return { action: 'decrease', amount: 5, reason: 'Below 10 → Reduce for joint health' }; return { action: 'maintain', reason: 'Building within rep range' }; } },
-      cable_kickback: { progressionType: "rep-first", weightIncrement: 2.5, repRange: [12, 15], rirTarget: 2, restTime: 60, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 15) return { action: 'increase', amount: 2.5, reason: 'Strong squeeze at 15 → Add 2.5 lbs' }; if (avgReps < 12) return { action: 'decrease', amount: 2.5, reason: 'Below range → Focus on MMC' }; return { action: 'maintain', reason: 'Prioritize glute squeeze' }; } },
-      calf_raise: { progressionType: "rep-first", weightIncrement: 5, repRange: [12, 20], rirTarget: 1, restTime: 60, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 20) return { action: 'increase', amount: 5, reason: 'Hit 20 → Add weight (calves progress slowly)' }; if (avgReps < 12) return { action: 'decrease', amount: 5, reason: 'Prioritize ROM over load' }; return { action: 'maintain', reason: 'Focus on stretch and squeeze' }; } },
-      log_press: { progressionType: "load-first", weightIncrement: 2.5, repRange: [3, 5], rirTarget: 2, restTime: 180, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 5) return { action: 'increase', amount: 2.5, reason: 'Hit 5 reps → Add ONLY 2.5 lbs (OHP stalls fastest)' }; if (avgReps < 3) return { action: 'decrease', amount: 2.5, reason: 'Below 3 → Drop 2.5 lbs' }; return { action: 'maintain', reason: 'OHP patience - small jumps win' }; } },
-      incline_bb: { progressionType: "load-first", weightIncrement: 2.5, repRange: [8, 10], rirTarget: 2, restTime: 120, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 10) return { action: 'increase', amount: 2.5, reason: 'Hit 10 reps → Add 2.5 lbs' }; if (avgReps < 8) return { action: 'decrease', amount: 2.5, reason: 'Below 8 → Reduce weight' }; return { action: 'maintain', reason: 'Building pressing strength' }; } },
-      incline_db: { progressionType: "rep-first", weightIncrement: 5, repRange: [8, 12], rirTarget: 2, restTime: 90, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 12) return { action: 'increase', amount: 5, reason: 'Hit 12 → Add 5 lbs per dumbbell' }; if (avgReps < 8) return { action: 'decrease', amount: 5, reason: 'Below 8 → Drop 5 lbs per DB' }; return { action: 'maintain', reason: 'Building within rep range' }; } },
-      db_bench: { progressionType: "rep-first", weightIncrement: 5, repRange: [8, 12], rirTarget: 2, restTime: 90, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 12) return { action: 'increase', amount: 5, reason: 'Hit 12 → Add 5 lbs per DB' }; if (avgReps < 8) return { action: 'decrease', amount: 5, reason: 'Below range' }; return { action: 'maintain', reason: 'Progressing well' }; } },
-      barbell_row: { progressionType: "load-first", weightIncrement: 5, repRange: [6, 10], rirTarget: 2, restTime: 120, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 10) return { action: 'increase', amount: 5, reason: 'Feeling lats, hit 10 → Add 5 lbs' }; if (avgReps < 6) return { action: 'decrease', amount: 5, reason: 'Form likely breaking → Drop 5 lbs' }; return { action: 'maintain', reason: 'Prioritize muscle engagement' }; } },
-      machine_chest: { progressionType: "rep-first", weightIncrement: 5, repRange: [10, 15], rirTarget: 1, restTime: 60, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 15) return { action: 'increase', amount: 5, reason: 'Hit 15 → Move pin' }; if (avgReps < 10) return { action: 'decrease', amount: 5, reason: 'Below range' }; return { action: 'maintain', reason: 'Building within range' }; } },
-      cable_row: { progressionType: "rep-first", weightIncrement: 5, repRange: [10, 12], rirTarget: 2, restTime: 90, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 12) return { action: 'increase', amount: 5, reason: 'Hit 12 → Move pin' }; if (avgReps < 10) return { action: 'decrease', amount: 5, reason: 'Below range' }; return { action: 'maintain', reason: 'Good progress' }; } },
-      seated_row: { progressionType: "rep-first", weightIncrement: 5, repRange: [10, 12], rirTarget: 2, restTime: 90, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 12) return { action: 'increase', amount: 5, reason: 'Hit 12 → Add 5 lbs' }; if (avgReps < 10) return { action: 'decrease', amount: 5, reason: 'Below range' }; return { action: 'maintain', reason: 'Building back thickness' }; } },
-      lat_pulldown: { progressionType: "rep-first", weightIncrement: 5, repRange: [10, 12], rirTarget: 2, restTime: 90, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 12) return { action: 'increase', amount: 5, reason: 'Hit 12 → Move pin' }; if (avgReps < 10) return { action: 'decrease', amount: 5, reason: 'Below range' }; return { action: 'maintain', reason: 'Good progress' }; } },
-      face_pull: { progressionType: "rep-first", weightIncrement: 2.5, repRange: [15, 20], rirTarget: 3, restTime: 60, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 20) return { action: 'increase', amount: 2.5, reason: 'Perfect form at 20 → Tiny bump only' }; if (avgReps < 15) return { action: 'decrease', amount: 2.5, reason: 'Too heavy for this movement' }; return { action: 'maintain', reason: 'Shoulder health > ego' }; } },
-      low_high_fly: { progressionType: "rep-first", weightIncrement: 2.5, repRange: [12, 15], rirTarget: 2, restTime: 60, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 15) return { action: 'increase', amount: 2.5, reason: 'Hit 15 → Small bump' }; if (avgReps < 12) return { action: 'decrease', amount: 2.5, reason: 'Below range' }; return { action: 'maintain', reason: 'Focus on chest squeeze' }; } },
-      lateral_raise: { progressionType: "rep-first", weightIncrement: 1.25, repRange: [12, 20], rirTarget: 2, restTime: 60, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 20) return { action: 'increase', amount: 1.25, reason: 'Hit 20 → Add ONLY 1.25 lbs (microplates essential)' }; if (avgReps < 12) return { action: 'decrease', amount: 1.25, reason: 'Below range → Drop slightly' }; return { action: 'maintain', reason: 'Building within range' }; } },
-      incline_curl: { progressionType: "rep-first", weightIncrement: 2.5, repRange: [10, 12], rirTarget: 2, restTime: 60, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 12) return { action: 'increase', amount: 2.5, reason: 'Hit 12 → Add 2.5 lbs' }; if (avgReps < 10) return { action: 'decrease', amount: 2.5, reason: 'Below range' }; return { action: 'maintain', reason: 'Focus on stretch at bottom' }; } },
-      hammer_curl: { progressionType: "rep-first", weightIncrement: 2.5, repRange: [10, 15], rirTarget: 2, restTime: 60, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 15) return { action: 'increase', amount: 2.5, reason: 'Hit 15 → Add 2.5 lbs' }; if (avgReps < 10) return { action: 'decrease', amount: 2.5, reason: 'Below range' }; return { action: 'maintain', reason: 'Building brachialis' }; } },
-      bayesian_curl: { progressionType: "rep-first", weightIncrement: 2.5, repRange: [10, 15], rirTarget: 2, restTime: 60, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 15) return { action: 'increase', amount: 2.5, reason: 'Hit 15 → Move pin' }; if (avgReps < 10) return { action: 'decrease', amount: 2.5, reason: 'Below range' }; return { action: 'maintain', reason: 'Constant tension advantage' }; } },
-      preacher_curl: { progressionType: "rep-first", weightIncrement: 2.5, repRange: [10, 12], rirTarget: 2, restTime: 60, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 12) return { action: 'increase', amount: 2.5, reason: 'Hit 12 → Add 2.5 lbs' }; if (avgReps < 10) return { action: 'decrease', amount: 2.5, reason: 'Below range' }; return { action: 'maintain', reason: 'Focus on full stretch' }; } },
-      preacher_fri: { progressionType: "rep-first", weightIncrement: 2.5, repRange: [8, 10], rirTarget: 2, restTime: 60, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 10) return { action: 'increase', amount: 2.5, reason: 'Hit 10 → Add 2.5 lbs' }; if (avgReps < 8) return { action: 'decrease', amount: 2.5, reason: 'Below range' }; return { action: 'maintain', reason: 'Building curl strength' }; } },
-      spider_curl: { progressionType: "rep-first", weightIncrement: 2.5, repRange: [12, 15], rirTarget: 2, restTime: 60, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 15) return { action: 'increase', amount: 2.5, reason: 'Hit 15 → Add 2.5 lbs' }; if (avgReps < 12) return { action: 'decrease', amount: 2.5, reason: 'Below range' }; return { action: 'maintain', reason: 'Focus on contraction' }; } },
-      seated_curl: { progressionType: "rep-first", weightIncrement: 2.5, repRange: [8, 12], rirTarget: 2, restTime: 60, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 12) return { action: 'increase', amount: 2.5, reason: 'Hit 12 → Add 2.5 lbs per DB' }; if (avgReps < 8) return { action: 'decrease', amount: 2.5, reason: 'Below range' }; return { action: 'maintain', reason: 'Controlled curls' }; } },
-      overhead_tri: { progressionType: "rep-first", weightIncrement: 2.5, repRange: [10, 15], rirTarget: 2, restTime: 60, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 15) return { action: 'increase', amount: 2.5, reason: 'Hit 15 → Add 2.5 lbs' }; if (avgReps < 10) return { action: 'decrease', amount: 2.5, reason: 'Below range' }; return { action: 'maintain', reason: 'Focus on stretch' }; } },
-      pushdown: { progressionType: "rep-first", weightIncrement: 5, repRange: [12, 20], rirTarget: 2, restTime: 60, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 20) return { action: 'increase', amount: 5, reason: 'Hit 20 → Move pin' }; if (avgReps < 12) return { action: 'decrease', amount: 5, reason: 'Below range' }; return { action: 'maintain', reason: 'Building pump' }; } },
-      bent_lateral: { progressionType: "rep-first", weightIncrement: 1.25, repRange: [12, 20], rirTarget: 2, restTime: 60, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 20) return { action: 'increase', amount: 1.25, reason: 'Hit 20 → Tiny bump (microplates)' }; if (avgReps < 12) return { action: 'decrease', amount: 1.25, reason: 'Below range' }; return { action: 'maintain', reason: 'Focus on rear delt squeeze' }; } },
-      cable_crunch: { progressionType: "load-first", weightIncrement: 5, repRange: [12, 15], rirTarget: 2, restTime: 60, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 15) return { action: 'increase', amount: 5, reason: 'Hit 15 → Move pin down' }; if (avgReps < 12) return { action: 'decrease', amount: 5, reason: 'Below range' }; return { action: 'maintain', reason: 'Building core strength' }; } },
-      hanging_leg_raise: { progressionType: "rom-first", weightIncrement: 0, repRange: [10, 15], rirTarget: 2, restTime: 60, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 15) return { action: 'progress', reason: 'Hit 15 → Progress to straight legs or add ankle weights' }; if (avgReps < 10) return { action: 'regress', reason: 'Below 10 → Bend knees more' }; return { action: 'maintain', reason: 'Control the swing' }; } },
-      ab_wheel: { progressionType: "rom-first", weightIncrement: 0, repRange: [8, 15], rirTarget: 2, restTime: 60, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 15) return { action: 'progress', reason: 'Hit 15 → Extend distance or add pause' }; if (avgReps < 8) return { action: 'regress', reason: 'Below 8 → Reduce rollout distance' }; return { action: 'maintain', reason: 'Focus on brace' }; } },
-      reverse_crunch: { progressionType: "rep-first", weightIncrement: 0, repRange: [12, 20], rirTarget: 2, restTime: 60, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 20) return { action: 'progress', reason: 'Hit 20 → Add decline angle or ankle weight' }; if (avgReps < 12) return { action: 'regress', reason: 'Below 12 → Reduce difficulty' }; return { action: 'maintain', reason: 'Lower with control' }; } },
-      pallof_press: { progressionType: "rep-first", weightIncrement: 2.5, repRange: [10, 15], rirTarget: 3, restTime: 60, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 15) return { action: 'increase', amount: 2.5, reason: 'Hit 15 per side → Small bump' }; if (avgReps < 10) return { action: 'decrease', amount: 2.5, reason: 'Below range' }; return { action: 'maintain', reason: 'Resist the rotation' }; } },
-      side_plank_abduction: { progressionType: "time-first", weightIncrement: 0, repRange: [8, 12], rirTarget: 2, restTime: 60, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 12) return { action: 'progress', reason: 'Hit 12 → Add mini band or dumbbell on hip' }; if (avgReps < 8) return { action: 'regress', reason: 'Below 8 → Simplify position' }; return { action: 'maintain', reason: 'Hips stacked, lift with heel' }; } },
-      farmers_walk: { progressionType: "distance-first", weightIncrement: 5, repRange: [50, 70], rirTarget: 2, restTime: 90, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 70) return { action: 'increase', amount: 5, reason: 'Hit 70 ft → Add 5 lbs per hand' }; if (avgReps < 50) return { action: 'decrease', amount: 5, reason: 'Below 50 ft → Reduce weight' }; return { action: 'maintain', reason: 'Building grip and core' }; } },
-      battle_rope: { progressionType: "time-first", weightIncrement: 0, repRange: [40, 60], rirTarget: 1, restTime: 60, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 60) return { action: 'progress', reason: 'Hit 60 → Add wave complexity or extend time' }; if (avgReps < 40) return { action: 'regress', reason: 'Below 40 → Reduce interval' }; return { action: 'maintain', reason: 'Building conditioning' }; } },
-      push_ups: { progressionType: "rep-first", weightIncrement: 0, repRange: [12, 20], rirTarget: 2, restTime: 60, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 20) return { action: 'progress', reason: 'Hit 20 → Add deficit, pause, or weight' }; if (avgReps < 12) return { action: 'regress', reason: 'Below 12 → Elevate hands' }; return { action: 'maintain', reason: 'Building pushing endurance' }; } }
+      deadlift: { progressionType: "load-first", weightIncrement: 5, repRange: [4, 6], rirTarget: 2, restTime: 180, cue: 'Building strength within range' },
+      squat: { progressionType: "load-first", weightIncrement: 5, repRange: [4, 8], rirTarget: 2, restTime: 180, cue: 'Building within range' },
+      hack_squat: { progressionType: "load-first", weightIncrement: 10, repRange: [6, 10], rirTarget: 2, restTime: 150, cue: 'Building reps within range' },
+      leg_press: { progressionType: "load-first", weightIncrement: 10, repRange: [8, 12], rirTarget: 2, restTime: 150, cue: 'Building within rep range' },
+      hip_thrust: { progressionType: "load-first", weightIncrement: 10, repRange: [5, 8], rirTarget: 2, restTime: 120, cue: 'Focus on glute squeeze at top' },
+      rdl: { progressionType: "load-first", weightIncrement: 5, repRange: [8, 12], rirTarget: 2, restTime: 120, cue: 'Focus on hamstring stretch' },
+      back_extension: { progressionType: "rep-first", weightIncrement: 5, repRange: [8, 15], rirTarget: 2, restTime: 90, cue: 'Squeeze glutes at top, no lumbar hyperextension' },
+      bulgarian_split: { progressionType: "rep-first", weightIncrement: 2.5, repRange: [8, 12], rirTarget: 2, restTime: 90, cue: 'Focus on depth and control' },
+      walking_lunge: { progressionType: "rep-first", weightIncrement: 2.5, repRange: [24, 30], rirTarget: 2, restTime: 90, cue: 'Building metabolic capacity' },
+      step_up: { progressionType: "rep-first", weightIncrement: 2.5, repRange: [10, 12], rirTarget: 2, restTime: 90, cue: 'Building unilateral strength' },
+      single_leg_rdl: { progressionType: "rep-first", weightIncrement: 2.5, repRange: [10, 12], rirTarget: 3, restTime: 90, cue: 'Focus on stability' },
+      leg_curl: { progressionType: "load-first", weightIncrement: 5, repRange: [8, 12], rirTarget: 2, restTime: 90, cue: 'Control the negative' },
+      leg_ext: { progressionType: "load-first", weightIncrement: 5, repRange: [10, 12], rirTarget: 2, restTime: 90, cue: 'Building within rep range' },
+      cable_kickback: { progressionType: "rep-first", weightIncrement: 2.5, repRange: [12, 15], rirTarget: 2, restTime: 60, cue: 'Prioritize glute squeeze' },
+      calf_raise: { progressionType: "rep-first", weightIncrement: 5, repRange: [12, 20], rirTarget: 1, restTime: 60, cue: 'Focus on stretch and squeeze' },
+      log_press: { progressionType: "load-first", weightIncrement: 2.5, repRange: [3, 5], rirTarget: 2, restTime: 180, cue: 'OHP patience - small jumps win' },
+      incline_bb: { progressionType: "load-first", weightIncrement: 2.5, repRange: [8, 10], rirTarget: 2, restTime: 120, cue: 'Building pressing strength' },
+      incline_db: { progressionType: "rep-first", weightIncrement: 5, repRange: [8, 12], rirTarget: 2, restTime: 90, cue: 'Building within rep range' },
+      db_bench: { progressionType: "rep-first", weightIncrement: 5, repRange: [8, 12], rirTarget: 2, restTime: 90, cue: 'Progressing well' },
+      barbell_row: { progressionType: "load-first", weightIncrement: 5, repRange: [6, 10], rirTarget: 2, restTime: 120, cue: 'Prioritize muscle engagement' },
+      machine_chest: { progressionType: "rep-first", weightIncrement: 5, repRange: [10, 15], rirTarget: 1, restTime: 60, cue: 'Building within range' },
+      cable_row: { progressionType: "rep-first", weightIncrement: 5, repRange: [10, 12], rirTarget: 2, restTime: 90, cue: 'Good progress' },
+      seated_row: { progressionType: "load-first", weightIncrement: 5, repRange: [5, 8], rirTarget: 2, restTime: 120, cue: 'Building back strength' },
+      lat_pulldown: { progressionType: "rep-first", weightIncrement: 5, repRange: [10, 12], rirTarget: 2, restTime: 90, cue: 'Good progress' },
+      face_pull: { progressionType: "rep-first", weightIncrement: 2.5, repRange: [15, 20], rirTarget: 3, restTime: 60, cue: 'Shoulder health > ego' },
+      low_high_fly: { progressionType: "rep-first", weightIncrement: 2.5, repRange: [12, 15], rirTarget: 2, restTime: 60, cue: 'Focus on chest squeeze' },
+      lateral_raise: { progressionType: "rep-first", weightIncrement: 1.25, repRange: [12, 20], rirTarget: 2, restTime: 60, cue: 'Microplates essential - tiny bumps only' },
+      incline_curl: { progressionType: "rep-first", weightIncrement: 2.5, repRange: [10, 12], rirTarget: 2, restTime: 60, cue: 'Focus on stretch at bottom' },
+      hammer_curl: { progressionType: "rep-first", weightIncrement: 2.5, repRange: [10, 15], rirTarget: 2, restTime: 60, cue: 'Building brachialis' },
+      bayesian_curl: { progressionType: "rep-first", weightIncrement: 2.5, repRange: [10, 15], rirTarget: 2, restTime: 60, cue: 'Constant tension advantage' },
+      preacher_curl: { progressionType: "rep-first", weightIncrement: 2.5, repRange: [10, 12], rirTarget: 2, restTime: 60, cue: 'Focus on full stretch' },
+      preacher_fri: { progressionType: "rep-first", weightIncrement: 2.5, repRange: [8, 10], rirTarget: 2, restTime: 60, cue: 'Building curl strength' },
+      spider_curl: { progressionType: "rep-first", weightIncrement: 2.5, repRange: [12, 15], rirTarget: 2, restTime: 60, cue: 'Focus on contraction' },
+      seated_curl: { progressionType: "rep-first", weightIncrement: 2.5, repRange: [8, 12], rirTarget: 2, restTime: 60, cue: 'Controlled curls' },
+      overhead_tri: { progressionType: "rep-first", weightIncrement: 2.5, repRange: [10, 15], rirTarget: 2, restTime: 60, cue: 'Focus on stretch' },
+      pushdown: { progressionType: "rep-first", weightIncrement: 5, repRange: [12, 20], rirTarget: 2, restTime: 60, cue: 'Building pump' },
+      bent_lateral: { progressionType: "rep-first", weightIncrement: 1.25, repRange: [12, 20], rirTarget: 2, restTime: 60, cue: 'Focus on rear delt squeeze' },
+      cable_crunch: { progressionType: "load-first", weightIncrement: 5, repRange: [12, 15], rirTarget: 2, restTime: 60, cue: 'Building core strength' },
+      hanging_leg_raise: { progressionType: "rom-first", weightIncrement: 0, repRange: [10, 15], rirTarget: 2, restTime: 60, cue: 'Control the swing' },
+      ab_wheel: { progressionType: "rom-first", weightIncrement: 0, repRange: [8, 15], rirTarget: 2, restTime: 60, cue: 'Focus on brace' },
+      reverse_crunch: { progressionType: "rep-first", weightIncrement: 0, repRange: [12, 20], rirTarget: 2, restTime: 60, cue: 'Lower with control' },
+      pallof_press: { progressionType: "rep-first", weightIncrement: 2.5, repRange: [10, 15], rirTarget: 3, restTime: 60, cue: 'Resist the rotation' },
+      side_plank_abduction: { progressionType: "time-first", weightIncrement: 0, repRange: [8, 12], rirTarget: 2, restTime: 60, cue: 'Hips stacked, lift with heel' },
+      farmers_walk: { progressionType: "distance-first", weightIncrement: 5, repRange: [50, 70], rirTarget: 2, restTime: 90, cue: 'Building grip and core' },
+      battle_rope: { progressionType: "time-first", weightIncrement: 0, repRange: [40, 60], rirTarget: 1, restTime: 60, cue: 'Building conditioning' },
+      push_ups: { progressionType: "rep-first", weightIncrement: 0, repRange: [12, 20], rirTarget: 2, restTime: 60, cue: 'Building pushing endurance' }
     };
-    const defaultProgressionConfig = { progressionType: "rep-first", weightIncrement: 5, repRange: [8, 12], rirTarget: 2, restTime: 90, progressionLogic: (lastSession) => { const avgReps = lastSession.sets.reduce((a, s) => a + s.reps, 0) / lastSession.sets.length; const allCompleted = lastSession.sets.every(s => s.completed); if (allCompleted && avgReps >= 12) return { action: 'increase', amount: 5, reason: 'Hit top of range → Add 5 lbs' }; if (avgReps < 8) return { action: 'decrease', amount: 5, reason: 'Below range → Reduce weight' }; return { action: 'maintain', reason: 'Progressing within range' }; } };
+    const defaultProgressionConfig = { progressionType: "rep-first", weightIncrement: 5, repRange: [8, 12], rirTarget: 2, restTime: 90, cue: 'Progressing within range' };
+
+    // Warm-up sets are excluded from all progression math. Old sessions have no
+    // warmup flags, so they pass through unchanged.
+    const getWorkingSets = (session) => {
+      const sets = session?.sets || [];
+      const working = sets.filter(s => !s.warmup);
+      return working.length > 0 ? working : sets;
+    };
+
+    // Single progression engine: hit the top of the rep range on every working
+    // set -> add weight; fall below the bottom -> reduce; otherwise build reps.
+    const runProgression = (config, lastSession) => {
+      const sets = getWorkingSets(lastSession);
+      if (sets.length === 0) return { action: 'maintain', reason: config.cue || 'Building within rep range' };
+      const avgReps = sets.reduce((a, s) => a + s.reps, 0) / sets.length;
+      const allCompleted = sets.every(s => s.completed);
+      const [low, high] = config.repRange;
+      const inc = config.weightIncrement;
+      if (allCompleted && avgReps >= high) {
+        return inc > 0
+          ? { action: 'increase', amount: inc, reason: `Hit ${high}+ on working sets → Add ${inc} lbs` }
+          : { action: 'progress', reason: `Hit ${high}+ → Progress difficulty (ROM, pause, or add weight)` };
+      }
+      if (avgReps < low) {
+        return inc > 0
+          ? { action: 'decrease', amount: inc, reason: `Below ${low} reps → Drop ${inc} lbs` }
+          : { action: 'regress', reason: `Below ${low} reps → Use an easier variation` };
+      }
+      return { action: 'maintain', reason: config.cue || 'Building within rep range' };
+    };
+
+    // Per-exercise overrides in workout data (exercise.progression) win over the
+    // shared config, so the same movement can be strength-biased in one program
+    // and hypertrophy-biased in another without forking its logged history.
+    const getExerciseConfig = (exercise) => ({
+      ...(progressionConfig[exercise.id] || defaultProgressionConfig),
+      ...(exercise.progression || {})
+    });
 
     const muscleColors = { shoulders: '#f97316', triceps: '#ef4444', chest: '#ec4899', upperChest: '#f472b6', lats: '#8b5cf6', traps: '#a855f7', biceps: '#3b82f6', rearDelts: '#f59e0b', sideDelts: '#fb923c', forearms: '#6366f1', abs: '#10b981', hamstrings: '#14b8a6', glutes: '#06b6d4', quads: '#22d3d1', calves: '#84cc16' };
 
     // Exercise Description Component - collapsible, tap to expand
-    const ExerciseDescription = ({ exerciseId, accent = '#3b82f6' }) => {
+    const ExerciseDescription = ({ exerciseId, accent = '#3b82f6', config: configOverride }) => {
       const [expanded, setExpanded] = useState(false);
       const media = exerciseMedia[exerciseId];
-      const config = progressionConfig[exerciseId] || defaultProgressionConfig;
+      const config = configOverride || progressionConfig[exerciseId] || defaultProgressionConfig;
 
       if (!media?.description) return null;
 
@@ -229,27 +270,27 @@
     // Workout data
     const workoutData4Day = {
       day1: { name: "Upper Power + Biceps", focus: "Heavy pressing, pulling, bicep stretch", exercises: [
-        { id: "log_press", name: "Log Press / Standing DB Press", sets: 3, reps: "3-5", defaultWeight: 95, muscles: ["shoulders", "triceps", "chest"], notes: "Heavy, 3-min rest" },
-        { id: "incline_db", name: "Incline Dumbbell Press (30°) / Machine Incline", sets: 3, reps: "8-12", defaultWeight: 50, muscles: ["upperChest", "shoulders", "triceps"], notes: "Deep stretch at bottom" },
-        { id: "seated_row", name: "Seated Row Machine / Cable Row", sets: 3, reps: "5-6", defaultWeight: 135, muscles: ["lats", "traps", "biceps", "rearDelts"], notes: "Strength focus" },
+        { id: "log_press", name: "Log Press / Standing DB Press", sets: 4, warmupSets: 1, reps: "3-5", defaultWeight: 95, muscles: ["shoulders", "triceps", "chest"], notes: "1 warm-up, then 3 heavy. 3-min rest" },
+        { id: "incline_db", name: "Incline Dumbbell Press (30°) / Machine Incline", sets: 4, warmupSets: 1, reps: "8-12", defaultWeight: 50, muscles: ["upperChest", "shoulders", "triceps"], notes: "1 intro set, then 3 at weight. Deep stretch" },
+        { id: "seated_row", name: "Seated Row Machine / Cable Row", sets: 3, reps: "5-8", defaultWeight: 135, muscles: ["lats", "traps", "biceps", "rearDelts"], notes: "Strength focus" },
         { id: "incline_curl", name: "Incline Dumbbell Curl / Bayesian Curl", sets: 3, reps: "10-12", defaultWeight: 20, muscles: ["biceps"], notes: "Arms behind torso, max stretch" },
         { id: "face_pull", name: "Face Pull / Rear Delt Fly", sets: 3, reps: "15-20", defaultWeight: 40, muscles: ["rearDelts", "traps"], notes: "Shoulder health - form > load" },
         { id: "hammer_curl", name: "Hammer Curl / Cross-Body Curl", sets: 3, reps: "10-15", defaultWeight: 25, muscles: ["biceps", "forearms"], notes: "Brachialis emphasis" },
         { id: "lateral_raise", name: "Lateral Raise / Cable Lateral", sets: 3, reps: "12-20", defaultWeight: 15, muscles: ["sideDelts"], notes: "Microplates essential" }
       ]},
       day2: { name: "Lower Power + Carries", focus: "Deadlift strength, carries for traps/forearms", exercises: [
-        { id: "deadlift", name: "Conventional Deadlift / Trap Bar Deadlift", sets: 4, reps: "4-6", defaultWeight: 225, muscles: ["hamstrings", "glutes", "lats", "traps", "forearms"], notes: "Ramp up: 135→185→225→working weight" },
-        { id: "hack_squat", name: "Hack Squat / Leg Press", sets: 3, reps: "6-10", defaultWeight: 180, muscles: ["quads", "glutes"], notes: "High SFR - push hard" },
+        { id: "deadlift", name: "Conventional Deadlift / Trap Bar Deadlift", sets: 4, warmupSets: 2, reps: "4-6", defaultWeight: 225, muscles: ["hamstrings", "glutes", "lats", "traps", "forearms"], notes: "2 warm-ups (~50%/75%), then 2 heavy sets" },
+        { id: "hack_squat", name: "Hack Squat / Leg Press", sets: 4, warmupSets: 1, reps: "6-10", defaultWeight: 180, muscles: ["quads", "glutes"], notes: "1 intro set, then 3 at weight. Push hard" },
         { id: "farmers_walk", name: "Farmer's Walk / Suitcase Carry", sets: 3, reps: "50-70 ft", defaultWeight: 70, muscles: ["traps", "forearms", "abs"], notes: "Per hand. Distance before load." },
-        { id: "leg_curl", name: "Leg Curl / Nordic Curl", sets: 3, reps: "8-12", defaultWeight: 90, muscles: ["hamstrings"], notes: "Control the negative" },
-        { id: "leg_ext", name: "Leg Extension / Sissy Squat", sets: 3, reps: "10", defaultWeight: 100, muscles: ["quads"], notes: "Controlled reps" },
-        { id: "lat_pulldown", name: "Lat Pulldown / Pull-ups", sets: 3, reps: "10-12", defaultWeight: 100, muscles: ["lats", "biceps"], notes: "Upper maintenance" },
+        { id: "leg_curl", name: "Leg Curl / Nordic Curl", sets: 3, reps: "5-8", defaultWeight: 90, muscles: ["hamstrings"], notes: "Strength focus - heavy, control the negative", progression: { progressionType: "load-first", repRange: [5, 8] } },
+        { id: "leg_ext", name: "Leg Extension / Sissy Squat", sets: 3, reps: "5-8", defaultWeight: 100, muscles: ["quads"], notes: "Strength focus - heavy, controlled reps", progression: { progressionType: "load-first", repRange: [5, 8] } },
+        { id: "lat_pulldown", name: "Lat Pulldown / Pull-ups", sets: 3, reps: "5-8", defaultWeight: 100, muscles: ["lats", "biceps"], notes: "Strength focus", progression: { progressionType: "load-first", repRange: [5, 8] } },
         { id: "bent_lateral", name: "Bent + Side Lateral / Rear Delt Machine", sets: 2, reps: "12-20", defaultWeight: 12, muscles: ["rearDelts", "sideDelts"], notes: "Microplates for laterals" },
         { id: "calf_raise", name: "Calf Raises / Seated Calf", sets: 3, reps: "12-20", defaultWeight: 150, muscles: ["calves"], notes: "Full ROM, calves progress slowly" }
       ]},
       day3: { name: "Upper Hypertrophy + Arms", focus: "Upper chest volume, arm hypertrophy", exercises: [
-        { id: "incline_bb", name: "Incline Barbell Press (30°) / Smith Incline", sets: 3, reps: "10-12", defaultWeight: 115, muscles: ["upperChest", "shoulders", "triceps"], notes: "Hypertrophy focus" },
-        { id: "cable_row", name: "Cable Row / Machine Row", sets: 3, reps: "10-12", defaultWeight: 120, muscles: ["lats", "traps", "biceps"], notes: "High SFR" },
+        { id: "incline_bb", name: "Incline Barbell Press (30°) / Smith Incline", sets: 4, warmupSets: 1, reps: "8-10", defaultWeight: 115, muscles: ["upperChest", "shoulders", "triceps"], notes: "1 intro set, then 3 at weight" },
+        { id: "cable_row", name: "Cable Row / Machine Row", sets: 3, reps: "5-8", defaultWeight: 120, muscles: ["lats", "traps", "biceps"], notes: "Strength focus", progression: { progressionType: "load-first", repRange: [5, 8] } },
         { id: "low_high_fly", name: "Low-to-High Cable Fly / Incline DB Fly", sets: 3, reps: "12-15", defaultWeight: 25, muscles: ["upperChest"], notes: "Upper chest isolation" },
         { id: "bayesian_curl", name: "Bayesian Cable Curl / Incline Curl", sets: 3, reps: "10-15", defaultWeight: 25, muscles: ["biceps"], notes: "Face away, constant tension" },
         { id: "overhead_tri", name: "Overhead Tricep Extension / Skull Crushers", sets: 3, reps: "10-15", defaultWeight: 50, muscles: ["triceps"], notes: "Long head emphasis" },
@@ -257,14 +298,14 @@
         { id: "pushdown", name: "Rope Pushdown / V-Bar Pushdown", sets: 2, reps: "12-20", defaultWeight: 40, muscles: ["triceps"], notes: "Pump finisher" }
       ]},
       day4: { name: "Lower Hypertrophy + Volume", focus: "Squat volume, additional upper work", exercises: [
-        { id: "squat", name: "Barbell Squat / Front Squat", sets: 4, reps: "4-8", defaultWeight: 155, muscles: ["quads", "glutes", "hamstrings"], notes: "Ramp: 95→135→155→working" },
-        { id: "leg_press", name: "Leg Press / Hack Squat", sets: 4, reps: "8-12", defaultWeight: 270, muscles: ["quads", "glutes"], notes: "Double progression" },
-        { id: "leg_ext", name: "Leg Extension / Sissy Squat", sets: 3, reps: "10-12", defaultWeight: 100, muscles: ["quads"], notes: "Controlled reps" },
-        { id: "leg_curl", name: "Leg Curl / Nordic Curl", sets: 3, reps: "10", defaultWeight: 70, muscles: ["hamstrings"], notes: "Control negative" },
-        { id: "rdl", name: "Romanian Deadlift / Good Morning", sets: 3, reps: "8-12", defaultWeight: 135, muscles: ["hamstrings", "glutes", "lats"], notes: "Hamstring stretch > load" },
-        { id: "seated_row", name: "Seated Cable Row / T-Bar Row", sets: 3, reps: "6-8", defaultWeight: 130, muscles: ["lats", "traps", "biceps"], notes: "Strength focus" },
-        { id: "lat_pulldown", name: "Lat Pulldown / Pull-ups", sets: 3, reps: "10-12", defaultWeight: 100, muscles: ["lats", "biceps"], notes: "Upper back volume" },
-        { id: "machine_chest", name: "Machine Chest Press / Cable Crossover", sets: 4, reps: "10-15", defaultWeight: 140, muscles: ["chest", "triceps"], notes: "Safe to push hard" },
+        { id: "squat", name: "Barbell Squat / Front Squat", sets: 4, warmupSets: 2, reps: "4-8", defaultWeight: 155, muscles: ["quads", "glutes", "hamstrings"], notes: "2 warm-ups (~50%/75%), then 2 heavy sets" },
+        { id: "leg_press", name: "Leg Press / Hack Squat", sets: 4, warmupSets: 1, reps: "8-12", defaultWeight: 270, muscles: ["quads", "glutes"], notes: "1 intro set, then 3 at weight" },
+        { id: "leg_ext", name: "Leg Extension / Sissy Squat", sets: 3, reps: "5-8", defaultWeight: 100, muscles: ["quads"], notes: "Strength focus - heavy, controlled reps", progression: { progressionType: "load-first", repRange: [5, 8] } },
+        { id: "leg_curl", name: "Leg Curl / Nordic Curl", sets: 3, reps: "5-8", defaultWeight: 70, muscles: ["hamstrings"], notes: "Strength focus - control negative", progression: { progressionType: "load-first", repRange: [5, 8] } },
+        { id: "back_extension", name: "45° Back Extension / Reverse Hyper", sets: 3, reps: "8-15", defaultWeight: 0, muscles: ["hamstrings", "glutes"], notes: "Replaces RDL. Hold a plate to add load" },
+        { id: "seated_row", name: "Seated Cable Row / T-Bar Row", sets: 3, reps: "5-8", defaultWeight: 130, muscles: ["lats", "traps", "biceps"], notes: "Strength focus" },
+        { id: "lat_pulldown", name: "Lat Pulldown / Pull-ups", sets: 3, reps: "5-8", defaultWeight: 100, muscles: ["lats", "biceps"], notes: "Strength focus", progression: { progressionType: "load-first", repRange: [5, 8] } },
+        { id: "machine_chest", name: "Machine Chest Press / Cable Crossover", sets: 4, warmupSets: 1, reps: "10-15", defaultWeight: 140, muscles: ["chest", "triceps"], notes: "1 intro set, then 3 at weight. Push hard" },
         { id: "high_rep_curl", name: "EZ Bar Curl / Cable Curl", sets: 3, reps: "12-15", defaultWeight: 45, muscles: ["biceps"], notes: "High rep pump" }
       ]}
     };
@@ -337,32 +378,55 @@
         }
       }, [workoutLog, selectedProgram]);
 
+      // Checkpoint in-progress workout (sets + notes) so nothing is lost if
+      // the browser reloads mid-session
+      useEffect(() => {
+        if ((view === 'exercise' || view === 'summary') && Object.keys(sessionData).length > 0) {
+          try {
+            localStorage.setItem('activeWorkoutSession', JSON.stringify({
+              program: selectedProgram, day: selectedDay, sessionData, useAltExercise,
+              savedAt: new Date().toISOString()
+            }));
+          } catch {}
+        }
+      }, [sessionData, useAltExercise, view]);
+
       const getLogKey = (day) => day;
       const getExerciseLog = (exerciseId, day) => {
         if (!selectedProgram) return [];
         const programLog = workoutLog[selectedProgram] || {};
         return programLog[day]?.exercises?.[exerciseId] || [];
       };
+      // Shared progression: the same exercise done on any day of this program
+      // pulls from one history, so leg curls on Day 2 and Day 4 progress together.
+      // Programs stay separate (they are separate users' logs).
       const getLastSession = (exerciseId) => {
-        if (!selectedProgram || !selectedDay) return null;
-        const logs = getExerciseLog(exerciseId, selectedDay);
-        return logs.length > 0 ? logs[logs.length - 1] : null;
+        if (!selectedProgram) return null;
+        const programLog = workoutLog[selectedProgram] || {};
+        let latest = null;
+        Object.values(programLog).forEach(dayLog => {
+          (dayLog?.exercises?.[exerciseId] || []).forEach(entry => {
+            if (!latest || new Date(entry.date) > new Date(latest.date)) latest = entry;
+          });
+        });
+        return latest;
       };
 
       const calculateProgression = (exercise) => {
         const lastData = getLastSession(exercise.id);
-        const config = progressionConfig[exercise.id] || defaultProgressionConfig;
+        const config = getExerciseConfig(exercise);
         if (!lastData) return { weight: exercise.defaultWeight, reps: config.repRange[1], suggestion: null, action: 'start', icon: null, config };
+
+        const workSets = getWorkingSets(lastData);
+        const lastWeight = workSets[0]?.weight ?? lastData.weight;
+        const lastAvgReps = Math.round(workSets.reduce((a, s) => a + s.reps, 0) / Math.max(1, workSets.length));
 
         // If last session was skipped, don't progress - keep same weight/reps
         if (lastData.skipped) {
-          const lastAvgReps = Math.round(lastData.sets.reduce((a, s) => a + s.reps, 0) / lastData.sets.length);
-          return { weight: lastData.weight, reps: lastAvgReps, suggestion: 'Skipped last time', action: 'maintain', icon: Minus, config, lastWeight: lastData.weight, lastSession: lastData };
+          return { weight: lastWeight, reps: lastAvgReps, suggestion: 'Skipped last time', action: 'maintain', icon: Minus, config, lastWeight, lastSession: lastData };
         }
 
-        const result = config.progressionLogic(lastData);
-        const lastWeight = lastData.weight;
-        const lastAvgReps = Math.round(lastData.sets.reduce((a, s) => a + s.reps, 0) / lastData.sets.length);
+        const result = runProgression(config, lastData);
         let newWeight = lastWeight, newReps = lastAvgReps, icon = Minus;
 
         // Progression strategy based on exercise type from research
@@ -408,9 +472,28 @@
       const selectProgram = (program) => { setSelectedProgram(program); setView('home'); };
       const startDay = (day) => { setSelectedDay(day); setView('dayOverview'); };
 
+      // In-progress workouts are checkpointed to localStorage so a phone
+      // refresh or accidental tab close at the gym doesn't lose logged sets.
+      const ACTIVE_SESSION_KEY = 'activeWorkoutSession';
+
       const beginWorkout = () => {
-        setSessionData({});
-        setUseAltExercise({});
+        let resumed = false;
+        try {
+          const saved = JSON.parse(localStorage.getItem(ACTIVE_SESSION_KEY));
+          if (saved && saved.program === selectedProgram && saved.day === selectedDay &&
+              saved.sessionData && Object.keys(saved.sessionData).length > 0) {
+            const hoursAgo = (Date.now() - new Date(saved.savedAt).getTime()) / 36e5;
+            if (hoursAgo < 12 && confirm('You have an unfinished workout for this day. Resume it? (Cancel starts fresh)')) {
+              setSessionData(saved.sessionData);
+              setUseAltExercise(saved.useAltExercise || {});
+              resumed = true;
+            }
+          }
+        } catch {}
+        if (!resumed) {
+          setSessionData({});
+          setUseAltExercise({});
+        }
         startExercise(0);
       };
 
@@ -421,25 +504,33 @@
         const config = programConfigs[selectedProgram];
         const exercise = config.data[selectedDay].exercises[index];
 
-        // Initialize session data for this exercise if not exists
-        if (!sessionData[index]) {
-          const progression = calculateProgression(exercise);
-          const numSets = typeof exercise.sets === 'number' ? exercise.sets : 3;
-          // Use last session's weight (don't pre-progress). Progression happens on completion.
-          const startWeight = progression.lastSession?.weight ?? progression.weight;
-          const startReps = progression.lastSession ?
-            Math.round(progression.lastSession.sets.reduce((a, s) => a + s.reps, 0) / progression.lastSession.sets.length) :
-            progression.reps;
+        const progression = calculateProgression(exercise);
+        const exConfig = progression.config;
+        const numSets = typeof exercise.sets === 'number' ? exercise.sets : 3;
+        const numWarmups = Math.min(exercise.warmupSets || 0, numSets - 1);
+        // Use last session's working weight (don't pre-progress). Progression happens on completion.
+        const lastWorking = progression.lastSession ? getWorkingSets(progression.lastSession) : [];
+        const startWeight = lastWorking[0]?.weight ?? progression.lastSession?.weight ?? progression.weight;
+        const startReps = lastWorking.length > 0 ?
+          Math.round(lastWorking.reduce((a, s) => a + s.reps, 0) / lastWorking.length) :
+          progression.reps;
+        // Warm-up ramp: ~50%/75% of working weight for 2 warm-ups, ~60% for 1
+        const inc = exConfig.weightIncrement || 5;
+        const warmupPcts = numWarmups >= 2 ? [0.5, 0.75] : [0.6];
+        const warmupWeight = (i) => Math.max(inc, Math.round((startWeight * warmupPcts[Math.min(i, warmupPcts.length - 1)]) / inc) * inc);
 
-          setSessionData(prev => ({
-            ...prev,
-            [index]: {
-              sets: Array(numSets).fill(null).map(() => ({ weight: startWeight, reps: startReps, completed: false })),
-              notes: '',
-              selectedAbExercise: exercise.isAbsSlot ? 'cable_crunch' : null
-            }
-          }));
-        }
+        // Initialize session data for this exercise if not exists (functional
+        // update so a just-restored session isn't clobbered by stale state)
+        setSessionData(prev => prev[index] ? prev : ({
+          ...prev,
+          [index]: {
+            sets: Array(numSets).fill(null).map((_, i) => i < numWarmups
+              ? { weight: warmupWeight(i), reps: startReps, completed: false, warmup: true }
+              : { weight: startWeight, reps: startReps, completed: false }),
+            notes: '',
+            selectedAbExercise: exercise.isAbsSlot ? 'cable_crunch' : null
+          }
+        }));
 
         setView('exercise');
       };
@@ -564,14 +655,18 @@
             workoutSession.exercises[exerciseId] = [];
           }
 
-          const allSetsCompleted = data.sets.every(s => s.completed);
+          // Journal accuracy first: an exercise only freezes progression
+          // (skipped) when zero working sets were completed. Partial sessions
+          // still count as real data.
+          const workSets = data.sets.filter(s => !s.warmup);
+          const refSets = workSets.length > 0 ? workSets : data.sets;
           workoutSession.exercises[exerciseId].push({
             exerciseName,
             usedAlt,
             sets: data.sets,
-            weight: data.sets[0]?.weight || 0,
+            weight: refSets[0]?.weight || 0,
             notes: data.notes,
-            skipped: !allSetsCompleted
+            skipped: !refSets.some(s => s.completed)
           });
         });
 
@@ -604,6 +699,7 @@
           };
         });
 
+        try { localStorage.removeItem('activeWorkoutSession'); } catch {}
         setView('complete');
       };
 
@@ -623,14 +719,14 @@
       const exportCSV = () => {
         if (!selectedProgram) return;
         const programName = programConfigs[selectedProgram]?.name || selectedProgram;
-        let csv = 'Date,Day,Exercise,Variant,Set,Weight,Reps,Completed,Skipped,Notes\n';
+        let csv = 'Date,Day,Exercise,Variant,Set,Warmup,Weight,Reps,Completed,Skipped,Notes\n';
 
         const programLog = workoutLog[selectedProgram] || {};
         Object.entries(programLog).forEach(([day, data]) => {
           Object.entries(data.exercises || {}).forEach(([exerciseId, entries]) => {
             entries.forEach(entry => {
               entry.sets.forEach((set, setIndex) => {
-                csv += `${new Date(entry.date).toLocaleDateString()},${day},${entry.exerciseName || exerciseId},${entry.usedAlt ? 'Alt' : 'Main'},${setIndex + 1},${set.weight},${set.reps},${set.completed ? 'Yes' : 'No'},${entry.skipped ? 'Yes' : 'No'},"${entry.notes || ''}"\n`;
+                csv += `${new Date(entry.date).toLocaleDateString()},${day},${entry.exerciseName || exerciseId},${entry.usedAlt ? 'Alt' : 'Main'},${setIndex + 1},${set.warmup ? 'Yes' : 'No'},${set.weight},${set.reps},${set.completed ? 'Yes' : 'No'},${entry.skipped ? 'Yes' : 'No'},"${entry.notes || ''}"\n`;
               });
             });
           });
@@ -756,7 +852,7 @@
         const dayData = workoutData[selectedDay];
         const exercise = dayData.exercises[currentExerciseIndex];
         const progression = calculateProgression(exercise);
-        const exerciseConfig = progressionConfig[exercise.id] || defaultProgressionConfig;
+        const exerciseConfig = getExerciseConfig(exercise);
         const accent = config.dayAccents[selectedDay];
         const weightIncrement = exerciseConfig.weightIncrement || 5;
         const nameParts = exercise.name.split(' / ');
@@ -834,11 +930,17 @@
                   <div className="text-xs text-zinc-400 mb-2">Last workout on <span className="text-zinc-200 font-medium">{lastWorkoutDate}</span></div>
                   <div className="flex gap-2 flex-wrap">
                     {progression.lastSession.sets.map((s, i) => (
-                      <span key={i} className="px-2 py-1 rounded bg-zinc-800/50 text-[11px] text-zinc-300">
-                        {s.weight} lbs × {s.reps} reps{s.completed ? ' ✓' : ''}
+                      <span key={i} className={`px-2 py-1 rounded text-[11px] ${s.warmup ? 'bg-amber-500/10 text-amber-400/80' : 'bg-zinc-800/50 text-zinc-300'}`}>
+                        {s.warmup ? 'W: ' : ''}{s.weight} lbs × {s.reps} reps{s.completed ? ' ✓' : ''}
                       </span>
                     ))}
                   </div>
+                  {progression.lastSession.notes && (
+                    <div className="mt-2 pt-2 border-t border-zinc-800/50 flex items-start gap-1.5">
+                      <StickyNote className="w-3.5 h-3.5 text-amber-400/70 mt-0.5 flex-shrink-0" />
+                      <span className="text-[11px] text-amber-200/80 italic">{progression.lastSession.notes}</span>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -864,7 +966,7 @@
               </div>
 
               {/* Exercise description with YouTube link */}
-              <ExerciseDescription exerciseId={exercise.isAbsSlot ? currentData.selectedAbExercise : exercise.id} accent={accent} />
+              <ExerciseDescription exerciseId={exercise.isAbsSlot ? currentData.selectedAbExercise : exercise.id} accent={accent} config={exercise.isAbsSlot ? undefined : exerciseConfig} />
 
               {/* Notes field - always visible but collapsed */}
               <div className="mt-3">
@@ -883,10 +985,11 @@
                 <div className="text-xs text-zinc-500 mb-2 font-medium">LOG YOUR SETS</div>
                 <div className="space-y-2">
                   {currentData.sets.map((set, i) => (
-                    <div key={i} className={`rounded-lg p-2 border ${set.completed ? 'border-emerald-500/50 bg-emerald-500/10' : 'border-zinc-800/50 bg-zinc-900/30'}`}>
+                    <div key={i} className={`rounded-lg p-2 border ${set.completed ? 'border-emerald-500/50 bg-emerald-500/10' : set.warmup ? 'border-amber-500/30 bg-amber-500/5' : 'border-zinc-800/50 bg-zinc-900/30'}`}>
+                      {set.warmup && <div className="text-[8px] font-bold text-amber-400/80 tracking-widest mb-1 ml-8">WARM-UP · not counted for progression</div>}
                       <div className="flex items-center gap-2">
-                        <button onClick={() => toggleSetComplete(i)} className={`w-6 h-6 rounded flex items-center justify-center transition-all active:scale-90 flex-shrink-0 text-[10px] font-bold ${set.completed ? 'bg-emerald-500 text-white' : 'bg-zinc-800 text-zinc-500'}`}>
-                          {set.completed ? <Check className="w-3.5 h-3.5" /> : i + 1}
+                        <button onClick={() => toggleSetComplete(i)} className={`w-6 h-6 rounded flex items-center justify-center transition-all active:scale-90 flex-shrink-0 text-[10px] font-bold ${set.completed ? 'bg-emerald-500 text-white' : set.warmup ? 'bg-amber-500/20 text-amber-400' : 'bg-zinc-800 text-zinc-500'}`}>
+                          {set.completed ? <Check className="w-3.5 h-3.5" /> : set.warmup ? 'W' : i + 1 - currentData.sets.slice(0, i).filter(s => s.warmup).length}
                         </button>
                         <div className="flex items-center gap-1 flex-1">
                           <StepBtn onClick={() => updateSet(i, 'weight', Math.max(0, set.weight - weightIncrement))}>−</StepBtn>
