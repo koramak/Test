@@ -72,7 +72,7 @@
       low_high_fly: { description: 'Cables set low, arms sweep up and together. Targets upper chest fibers.', source: 'ACE', youtube: 'https://www.youtube.com/watch?v=taI4XduLpTk' },
       machine_chest: { description: 'Seated press machine. Push handles forward to full extension, control the return.', source: 'ACE', youtube: 'https://www.youtube.com/watch?v=xUm0BiZCWlQ' },
       push_ups: { description: 'Hands shoulder-width, lower chest to floor, push back up. Core tight throughout.', source: 'ACE', youtube: 'https://www.youtube.com/watch?v=IODxDxX7oi4' },
-      dips: { description: 'Parallel bars, slight forward lean, lower until shoulders are just below elbows, press back up. Hits lower chest and triceps. Log added belt weight; bodyweight = 0.', source: 'ACE' },
+      dips: { description: 'Assisted dip machine: knees on the pad, slight forward lean, lower until shoulders dip just below elbows, press up. Log the ASSISTANCE weight - lower numbers are harder. Work toward 0 = full bodyweight.', source: 'ACE' },
       // Back
       barbell_row: { description: 'Hinged at hips, pull bar to lower chest. Squeeze shoulder blades, lower with control.', source: 'NSCA', youtube: 'https://www.youtube.com/watch?v=FWJR5Ve8bnQ' },
       lat_pulldown: { description: 'Wide grip, pull bar to upper chest. Lean back slightly, squeeze lats at bottom.', source: 'ACE', youtube: 'https://www.youtube.com/watch?v=CAwf7n6Luuc' },
@@ -148,7 +148,7 @@
       db_bench: { progressionType: "rep-first", weightIncrement: 5, repRange: [8, 12], rirTarget: 2, restTime: 90, cue: 'Progressing well' },
       barbell_row: { progressionType: "load-first", weightIncrement: 5, repRange: [6, 10], rirTarget: 2, restTime: 120, cue: 'Prioritize muscle engagement' },
       machine_chest: { progressionType: "rep-first", weightIncrement: 5, repRange: [10, 15], rirTarget: 1, restTime: 60, cue: 'Building within range' },
-      dips: { progressionType: "rep-first", weightIncrement: 5, repRange: [8, 12], rirTarget: 2, restTime: 90, cue: 'Full depth, slight forward lean' },
+      dips: { progressionType: "rep-first", weightIncrement: 5, repRange: [8, 12], rirTarget: 2, restTime: 90, assisted: true, cue: 'Less assistance over time → bodyweight' },
       cable_row: { progressionType: "rep-first", weightIncrement: 5, repRange: [10, 12], rirTarget: 2, restTime: 90, cue: 'Good progress' },
       seated_row: { progressionType: "load-first", weightIncrement: 5, repRange: [5, 8], rirTarget: 2, restTime: 120, cue: 'Building back strength' },
       lat_pulldown: { progressionType: "rep-first", weightIncrement: 5, repRange: [10, 12], rirTarget: 2, restTime: 90, cue: 'Good progress' },
@@ -187,6 +187,8 @@
 
     // Single progression engine: hit the top of the rep range on every working
     // set -> add weight; fall below the bottom -> reduce; otherwise build reps.
+    // Assisted exercises (config.assisted) invert: logged weight is machine
+    // assistance, so progress = LESS weight, and 0 = full bodyweight.
     const runProgression = (config, lastSession) => {
       const sets = getWorkingSets(lastSession);
       if (sets.length === 0) return { action: 'maintain', reason: config.cue || 'Building within rep range' };
@@ -194,6 +196,16 @@
       const allCompleted = sets.every(s => s.completed);
       const [low, high] = config.repRange;
       const inc = config.weightIncrement;
+      if (config.assisted) {
+        const assist = sets[0]?.weight ?? 0;
+        if (allCompleted && avgReps >= high) {
+          return assist <= 0
+            ? { action: 'maintain', reason: `Bodyweight × ${high}+! Time to switch to weighted` }
+            : { action: 'decrease', amount: inc, isProgress: true, reason: `Hit ${high}+ → Reduce assistance ${inc} lbs` };
+        }
+        if (avgReps < low) return { action: 'increase', amount: inc, isRegress: true, reason: `Below ${low} reps → Add ${inc} lbs assistance` };
+        return { action: 'maintain', reason: config.cue || 'Building within rep range' };
+      }
       if (allCompleted && avgReps >= high) {
         return inc > 0
           ? { action: 'increase', amount: inc, reason: `Hit ${high}+ on working sets → Add ${inc} lbs` }
@@ -262,7 +274,7 @@
                 <span className="text-[9px] text-zinc-600">Source: {media.source}</span>
                 <span className="px-2 py-0.5 rounded-full text-[9px] font-medium" style={{ background: `${accent}15`, color: accent }}>{config.repRange[0]}-{config.repRange[1]} reps</span>
                 {config.weightIncrement > 0 && (
-                  <span className="px-2 py-0.5 rounded-full text-[9px] font-medium" style={{ background: `${accent}15`, color: accent }}>+{config.weightIncrement} lb</span>
+                  <span className="px-2 py-0.5 rounded-full text-[9px] font-medium" style={{ background: `${accent}15`, color: accent }}>{config.assisted ? `−${config.weightIncrement} lb assist` : `+${config.weightIncrement} lb`}</span>
                 )}
               </div>
             </div>
@@ -276,7 +288,7 @@
       day1: { name: "Upper Power + Biceps", focus: "Heavy pressing, pulling, bicep stretch", exercises: [
         { id: "log_press", name: "Log Press / Standing DB Press", sets: 4, warmupSets: 1, reps: "3-5", defaultWeight: 95, muscles: ["shoulders", "triceps", "chest"], notes: "1 warm-up, then 3 heavy. 3-min rest" },
         { id: "incline_db", name: "Incline Dumbbell Press (30°) / Machine Incline", sets: 4, warmupSets: 1, reps: "8-12", defaultWeight: 50, muscles: ["upperChest", "shoulders", "triceps"], notes: "1 intro set, then 3 at weight. Deep stretch" },
-        { id: "dips", name: "Dips / Machine Dip", sets: 3, reps: "8-12", defaultWeight: 0, muscles: ["chest", "triceps"], notes: "Slight forward lean. Add weight via belt once 12 is easy" },
+        { id: "dips", name: "Assisted Dips / Machine Dip", sets: 3, reps: "8-12", defaultWeight: 60, muscles: ["chest", "triceps"], notes: "Weight = assistance, less is harder. Goal: 0 = bodyweight" },
         { id: "seated_row", name: "Seated Row Machine / Cable Row", sets: 3, reps: "5-8", defaultWeight: 135, muscles: ["lats", "traps", "biceps", "rearDelts"], notes: "Strength focus" },
         { id: "incline_curl", name: "Incline Dumbbell Curl / Bayesian Curl", sets: 3, reps: "10-12", defaultWeight: 20, muscles: ["biceps"], notes: "Arms behind torso, max stretch" },
         { id: "face_pull", name: "Face Pull / Rear Delt Fly", sets: 3, reps: "15-20", defaultWeight: 40, muscles: ["rearDelts", "traps"], notes: "Shoulder health - form > load" },
@@ -460,18 +472,24 @@
 
         if (result.action === 'increase') {
           newWeight = lastWeight + (result.amount || config.weightIncrement);
-          if (progType === 'load-first') {
+          if (result.isRegress) {
+            // Assisted: more assistance = easier; aim back at top of range
+            newReps = config.repRange[1];
+            icon = TrendingDown;
+          } else if (progType === 'load-first') {
             // Load-first (deadlift, squat, etc): increase weight, reset reps to bottom
             newReps = config.repRange[0];
+            icon = TrendingUp;
           } else {
             // Rep-first: keep reps high, weight increase is smaller jump
             newReps = lastAvgReps;
+            icon = TrendingUp;
           }
-          icon = TrendingUp;
         } else if (result.action === 'decrease') {
           newWeight = Math.max(0, lastWeight - (result.amount || config.weightIncrement));
-          newReps = config.repRange[1]; // Aim for top of range when deloading
-          icon = TrendingDown;
+          // Assisted progress: less assistance is harder, rebuild reps from bottom
+          newReps = result.isProgress ? config.repRange[0] : config.repRange[1];
+          icon = result.isProgress ? TrendingUp : TrendingDown;
         } else if (result.action === 'progress') {
           // For rom-first/time-first exercises (ab wheel, planks, etc) - no weight change, suggest more reps/time
           newReps = Math.min(lastAvgReps + 2, config.repRange[1] + 5);
@@ -1044,7 +1062,7 @@
                         </button>
                         <div className="flex items-center gap-1 flex-1">
                           <StepBtn onClick={() => updateSet(i, 'weight', Math.max(0, set.weight - weightIncrement))}>−</StepBtn>
-                          <div className="flex-1 text-center"><div className="text-base font-bold text-zinc-100">{set.weight}</div><div className="text-[7px] text-zinc-600 -mt-0.5">lbs</div></div>
+                          <div className="flex-1 text-center"><div className="text-base font-bold text-zinc-100">{set.weight}</div><div className="text-[7px] text-zinc-600 -mt-0.5">{exerciseConfig.assisted ? 'lbs assist' : 'lbs'}</div></div>
                           <StepBtn onClick={() => updateSet(i, 'weight', set.weight + weightIncrement)}>+</StepBtn>
                         </div>
                         <div className="w-px h-6 bg-zinc-800" />
