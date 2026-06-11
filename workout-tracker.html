@@ -283,6 +283,39 @@
       );
     };
 
+    // Inline SVG weight-over-time chart for one exercise's working weight.
+    // For assisted exercises the line trending DOWN is progress.
+    const ProgressSpark = ({ entries, accent, assisted }) => {
+      const pts = entries.filter(e => !e.skipped && typeof e.weight === 'number').map(e => ({ d: new Date(e.date), w: e.weight }));
+      if (pts.length < 3) return null;
+      const ws = pts.map(p => p.w);
+      const min = Math.min(...ws), max = Math.max(...ws);
+      const span = Math.max(max - min, 1);
+      const W = 280, H = 40, P = 4;
+      const x = (i) => P + (i / (pts.length - 1)) * (W - 2 * P);
+      const y = (w) => H - P - ((w - min) / span) * (H - 2 * P);
+      const line = pts.map((p, i) => `${x(i).toFixed(1)},${y(p.w).toFixed(1)}`).join(' ');
+      const delta = ws[ws.length - 1] - ws[0];
+      const improved = assisted ? delta < 0 : delta > 0;
+      const fmt = (d) => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      return (
+        <div className="mb-3 p-3 rounded-xl bg-zinc-900/50 border border-zinc-800/50">
+          <div className="flex justify-between items-center mb-1">
+            <span className="text-[10px] text-zinc-500 font-medium">PROGRESS · {pts.length} SESSIONS{assisted ? ' · LOWER = BETTER' : ''}</span>
+            <span className={`text-[10px] font-semibold ${improved ? 'text-emerald-400' : delta === 0 ? 'text-zinc-500' : 'text-amber-400'}`}>{delta > 0 ? '+' : ''}{delta} lb</span>
+          </div>
+          <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ height: H }} preserveAspectRatio="none">
+            <polyline points={line} fill="none" stroke={accent} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+            <circle cx={x(pts.length - 1)} cy={y(ws[ws.length - 1])} r="3" fill={accent} />
+          </svg>
+          <div className="flex justify-between text-[9px] text-zinc-600 mt-0.5">
+            <span>{fmt(pts[0].d)} · {ws[0]} lb</span>
+            <span>{fmt(pts[pts.length - 1].d)} · {ws[ws.length - 1]} lb</span>
+          </div>
+        </div>
+      );
+    };
+
     // Workout data
     const workoutData4Day = {
       day1: { name: "Upper Power + Biceps", focus: "Heavy pressing, pulling, bicep stretch", exercises: [
@@ -389,6 +422,15 @@
       // Pre-workout ab routine: tracked as a simple done/not-done per session,
       // no sets or reps - the routine itself lives outside the app
       const [absDone, setAbsDone] = useState(false);
+      // Which day the in-memory session belongs to: jumping between exercises
+      // keeps the session, but opening a different day must not inherit it
+      const [sessionDay, setSessionDay] = useState(null);
+      const [workoutStartedAt, setWorkoutStartedAt] = useState(null);
+      const [lastDurationMin, setLastDurationMin] = useState(null);
+      const [completedPRs, setCompletedPRs] = useState([]);
+      const [lastBackupAt, setLastBackupAt] = useState(() => {
+        try { return localStorage.getItem('lastBackupAt'); } catch { return null; }
+      });
 
       // Save each program's data separately
       useEffect(() => {
@@ -406,6 +448,7 @@
           try {
             localStorage.setItem('activeWorkoutSession', JSON.stringify({
               program: selectedProgram, day: selectedDay, sessionData, useAltExercise, absDone,
+              startedAt: workoutStartedAt,
               savedAt: new Date().toISOString()
             }));
           } catch {}
@@ -431,6 +474,17 @@
           });
         });
         return latest;
+      };
+      // Full history for one exercise across all days, oldest first - feeds
+      // the progress chart and PR detection
+      const getAllSessions = (exerciseId) => {
+        if (!selectedProgram) return [];
+        const programLog = workoutLog[selectedProgram] || {};
+        const all = [];
+        Object.values(programLog).forEach(dayLog => {
+          (dayLog?.exercises?.[exerciseId] || []).forEach(entry => all.push(entry));
+        });
+        return all.sort((a, b) => new Date(a.date) - new Date(b.date));
       };
 
       // Ab routine adherence across the whole program (the routine precedes
@@ -520,7 +574,12 @@
       // refresh or accidental tab close at the gym doesn't lose logged sets.
       const ACTIVE_SESSION_KEY = 'activeWorkoutSession';
 
-      const beginWorkout = () => {
+      const beginWorkout = (startIndex = 0) => {
+        // Already mid-workout on this day: jump straight to the tapped exercise
+        if (Object.keys(sessionData).length > 0 && sessionDay === selectedDay) {
+          startExercise(startIndex);
+          return;
+        }
         let resumed = false;
         try {
           const saved = JSON.parse(localStorage.getItem(ACTIVE_SESSION_KEY));
@@ -531,6 +590,7 @@
               setSessionData(saved.sessionData);
               setUseAltExercise(saved.useAltExercise || {});
               setAbsDone(!!saved.absDone);
+              setWorkoutStartedAt(saved.startedAt || saved.savedAt);
               resumed = true;
             }
           }
@@ -538,8 +598,10 @@
         if (!resumed) {
           setSessionData({});
           setUseAltExercise({});
+          setWorkoutStartedAt(new Date().toISOString());
         }
-        startExercise(0);
+        setSessionDay(selectedDay);
+        startExercise(startIndex);
       };
 
       const startExercise = (index) => {
@@ -685,6 +747,11 @@
           date: new Date().toISOString(),
           exercises: {}
         };
+        const durationMin = workoutStartedAt
+          ? Math.max(1, Math.round((Date.now() - new Date(workoutStartedAt).getTime()) / 60000))
+          : null;
+        const prList = [];
+        const e1rm = (s) => s.weight * (1 + s.reps / 30); // Epley estimate
 
         // Process each exercise
         exercises.forEach((exercise, index) => {
@@ -713,6 +780,29 @@
             notes: data.notes,
             skipped: !refSets.some(s => s.completed)
           });
+
+          // PR detection against history from BEFORE this session. First-ever
+          // sessions can't PR; assisted exercises invert (less assistance wins).
+          const completedWork = workSets.filter(s => s.completed);
+          if (completedWork.length === 0 || exercise.isAbsSlot) return;
+          const cfg = getExerciseConfig(exercise);
+          const priorSets = getAllSessions(exerciseId)
+            .filter(e => !e.skipped)
+            .flatMap(e => (e.sets || []).filter(s => !s.warmup && s.completed));
+          if (priorSets.length === 0) return;
+          if (cfg.assisted) {
+            const low = cfg.repRange[0];
+            const priorValid = priorSets.filter(s => s.reps >= low);
+            const currValid = completedWork.filter(s => s.reps >= low);
+            if (priorValid.length === 0 || currValid.length === 0) return;
+            const pMin = Math.min(...priorValid.map(s => s.weight));
+            const cMin = Math.min(...currValid.map(s => s.weight));
+            if (cMin < pMin) prList.push({ name: exerciseName, detail: cMin === 0 ? 'Bodyweight!' : `${cMin} lb assist`, prev: `${pMin} lb assist` });
+          } else {
+            const pBest = priorSets.reduce((a, s) => e1rm(s) > e1rm(a) ? s : a);
+            const cBest = completedWork.reduce((a, s) => e1rm(s) > e1rm(a) ? s : a);
+            if (e1rm(cBest) > e1rm(pBest) + 0.01) prList.push({ name: exerciseName, detail: `${cBest.weight} lb × ${cBest.reps}`, prev: `${pBest.weight} × ${pBest.reps}` });
+          }
         });
 
         // Update log - nested by program, then by day
@@ -721,7 +811,7 @@
           const existing = programLog[dayKey] || { sessions: [], exercises: {} };
 
           // Add to sessions array (absDone = pre-workout ab routine checkbox)
-          const sessions = [...(existing.sessions || []), { date: workoutSession.date, absDone }];
+          const sessions = [...(existing.sessions || []), { date: workoutSession.date, absDone, durationMin, prs: prList.map(p => p.name) }];
 
           // Merge exercise data
           const exercisesLog = { ...existing.exercises };
@@ -745,6 +835,8 @@
         });
 
         try { localStorage.removeItem('activeWorkoutSession'); } catch {}
+        setLastDurationMin(durationMin);
+        setCompletedPRs(prList);
         setView('complete');
       };
 
@@ -759,6 +851,48 @@
           });
           localStorage.removeItem(getStorageKey(selectedProgram));
         }
+      };
+
+      // Full-fidelity JSON backup of every program's log. Unlike the CSV
+      // (analysis only), this round-trips through importBackup for recovery.
+      const exportBackup = () => {
+        const logs = {};
+        ['4day', '3day'].forEach(prog => {
+          try {
+            const data = localStorage.getItem(getStorageKey(prog));
+            if (data) logs[prog] = JSON.parse(data);
+          } catch {}
+        });
+        const payload = { app: 'workout-tracker-backup', version: 1, exportedAt: new Date().toISOString(), logs };
+        const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `workout_backup_${new Date().toISOString().split('T')[0]}.json`;
+        a.click();
+        const now = new Date().toISOString();
+        try { localStorage.setItem('lastBackupAt', now); } catch {}
+        setLastBackupAt(now);
+      };
+
+      const importBackup = (file) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          try {
+            const data = JSON.parse(reader.result);
+            if (data.app !== 'workout-tracker-backup' || !data.logs) { alert('Not a valid backup file.'); return; }
+            const counts = Object.entries(data.logs).map(([prog, log]) => {
+              const n = Object.values(log || {}).reduce((a, d) => a + (d?.sessions?.length || 0), 0);
+              return `${programConfigs[prog]?.name || prog}: ${n} workouts`;
+            }).join(', ');
+            if (!confirm(`Restore backup from ${new Date(data.exportedAt).toLocaleDateString()}?\n(${counts})\n\nThis REPLACES current history for those programs.`)) return;
+            Object.entries(data.logs).forEach(([prog, log]) => {
+              try { localStorage.setItem(getStorageKey(prog), JSON.stringify(log)); } catch {}
+            });
+            setWorkoutLog(prev => ({ ...prev, ...data.logs }));
+            alert('Backup restored.');
+          } catch { alert('Could not read backup file.'); }
+        };
+        reader.readAsText(file);
       };
 
       const exportCSV = () => {
@@ -849,9 +983,53 @@
                   );
                 })}
               </div>
-              <div className="mt-8 flex gap-2 text-[10px]">
-                <button onClick={exportCSV} className="flex-1 text-zinc-600 flex items-center justify-center gap-1 py-2 border border-zinc-800 rounded-lg"><Download className="w-3 h-3" /> Export</button>
-                <button onClick={resetData} className="flex-1 text-zinc-700 flex items-center justify-center gap-1 py-2"><RotateCcw className="w-3 h-3" /> Reset</button>
+              {(() => {
+                // Consistency: workouts per week over the last 8 weeks
+                const dates = [];
+                Object.values(workoutLog[selectedProgram] || {}).forEach(d => (d?.sessions || []).forEach(s => dates.push(new Date(s.date))));
+                if (dates.length === 0) return null;
+                const now = new Date();
+                const monday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - ((now.getDay() + 6) % 7));
+                const start = new Date(monday);
+                start.setDate(start.getDate() - 49);
+                const weeks = Array(8).fill(0);
+                dates.forEach(dt => {
+                  const idx = Math.floor((dt - start) / (7 * 864e5));
+                  if (idx >= 0 && idx < 8) weeks[idx]++;
+                });
+                const maxW = Math.max(...weeks, 1);
+                return (
+                  <div className="mt-6 p-3 rounded-xl border border-zinc-800/50" style={{ backgroundColor: '#12121a' }}>
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-[10px] text-zinc-500 font-medium">LAST 8 WEEKS</span>
+                      <span className="text-[10px] text-zinc-400">{weeks[7]} this week · {dates.length} total</span>
+                    </div>
+                    <div className="flex items-end gap-1.5 h-8">
+                      {weeks.map((c, i) => (
+                        <div key={i} className="flex-1 rounded-sm" style={{ height: `${c === 0 ? 10 : 30 + (c / maxW) * 70}%`, background: c === 0 ? '#27272a' : config.gradient, opacity: c === 0 ? 1 : 0.45 + 0.55 * (c / maxW) }} />
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()}
+              {(() => {
+                const totalSessions = Object.values(workoutLog[selectedProgram] || {}).reduce((a, d) => a + (d?.sessions?.length || 0), 0);
+                const ageDays = lastBackupAt ? Math.floor((Date.now() - new Date(lastBackupAt).getTime()) / 864e5) : null;
+                if (totalSessions < 3 || (ageDays !== null && ageDays <= 21)) return null;
+                return (
+                  <button onClick={exportBackup} className="mt-3 w-full text-left p-2.5 rounded-lg border border-amber-500/30 bg-amber-500/10 text-[10px] text-amber-300/90">
+                    {ageDays === null ? 'Never backed up' : `Last backup ${ageDays} days ago`} — your log lives only in this browser. Tap to save a backup file.
+                  </button>
+                );
+              })()}
+              <div className="mt-4 flex gap-2 text-[10px]">
+                <button onClick={exportBackup} className="flex-1 text-zinc-500 flex items-center justify-center gap-1 py-2 border border-zinc-800 rounded-lg"><Download className="w-3 h-3" /> Backup</button>
+                <label className="flex-1 text-zinc-500 flex items-center justify-center gap-1 py-2 border border-zinc-800 rounded-lg cursor-pointer">
+                  <input type="file" accept=".json,application/json" className="hidden" onChange={(e) => { const f = e.target.files[0]; if (f) importBackup(f); e.target.value = ''; }} />
+                  <RotateCcw className="w-3 h-3" /> Restore
+                </label>
+                <button onClick={exportCSV} className="flex-1 text-zinc-600 flex items-center justify-center gap-1 py-2 border border-zinc-800 rounded-lg">CSV</button>
+                <button onClick={resetData} className="flex-1 text-zinc-700 flex items-center justify-center gap-1 py-2">Reset</button>
               </div>
             </div>
           </div>
@@ -888,21 +1066,25 @@
                 {dayData.exercises.map((ex, i) => {
                   const lastData = getLastSession(ex.id);
                   const primaryColor = muscleColors[ex.muscles[0]] || '#6b7280';
+                  // Equipment taken? Tap any exercise to jump straight to it
+                  const inSession = Object.keys(sessionData).length > 0 && sessionDay === selectedDay;
+                  const doneThisSession = inSession && sessionData[i]?.sets?.some(s => s.completed && !s.warmup);
                   return (
-                    <div key={`${ex.id}-${i}`} className="rounded-lg p-3 flex items-center gap-2.5 border border-zinc-800/50" style={{ backgroundColor: '#12121a' }}>
-                      <div className="w-7 h-7 rounded flex items-center justify-center text-xs font-bold" style={{ background: `${primaryColor}20`, color: primaryColor }}>{i + 1}</div>
+                    <button key={`${ex.id}-${i}`} onClick={() => beginWorkout(i)} className="w-full text-left rounded-lg p-3 flex items-center gap-2.5 border border-zinc-800/50 transition-all active:scale-[0.98]" style={{ backgroundColor: '#12121a' }}>
+                      <div className="w-7 h-7 rounded flex items-center justify-center text-xs font-bold flex-shrink-0" style={{ background: `${primaryColor}20`, color: primaryColor }}>{i + 1}</div>
                       <div className="flex-1 min-w-0">
                         <div className="text-sm font-medium text-zinc-200 truncate">{ex.name.split(' / ')[0]}</div>
                         <div className="text-[10px] text-zinc-600">{ex.sets} × {ex.reps}{lastData ? (lastData.skipped ? ' · Skipped' : ` · ${lastData.weight} lbs`) : ''}</div>
                       </div>
-                    </div>
+                      {doneThisSession ? <Check className="w-4 h-4 text-emerald-500 flex-shrink-0" /> : <ChevronRight className="w-4 h-4 text-zinc-700 flex-shrink-0" />}
+                    </button>
                   );
                 })}
               </div>
               <div className="fixed bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-zinc-950 to-transparent">
                 <div className="max-w-md mx-auto">
-                  <button onClick={beginWorkout} className="w-full text-white font-semibold py-3.5 rounded-xl text-sm transition-all active:scale-[0.98] flex items-center justify-center gap-2" style={{ background: accent }}>
-                    <Play className="w-4 h-4" /> Begin Workout
+                  <button onClick={() => beginWorkout(0)} className="w-full text-white font-semibold py-3.5 rounded-xl text-sm transition-all active:scale-[0.98] flex items-center justify-center gap-2" style={{ background: accent }}>
+                    <Play className="w-4 h-4" /> {Object.keys(sessionData).length > 0 && sessionDay === selectedDay ? 'Continue Workout' : 'Begin Workout'}
                   </button>
                 </div>
               </div>
@@ -1013,6 +1195,13 @@
                 </div>
               )}
 
+              {/* Working-weight trend across all logged sessions */}
+              <ProgressSpark
+                entries={getAllSessions(exercise.isAbsSlot ? (currentData.selectedAbExercise || 'cable_crunch') : exercise.id)}
+                accent={accent}
+                assisted={!!exerciseConfig.assisted}
+              />
+
               {/* Progression suggestion with explanation */}
               <div className="mb-3 p-3 rounded-xl border" style={{ background: suggestionBg, borderColor: `${suggestionColor}30` }}>
                 <div className="flex items-start gap-2">
@@ -1055,10 +1244,10 @@
                 <div className="space-y-2">
                   {currentData.sets.map((set, i) => (
                     <div key={i} className={`rounded-lg p-2 border ${set.completed ? 'border-emerald-500/50 bg-emerald-500/10' : set.warmup ? 'border-amber-500/30 bg-amber-500/5' : 'border-zinc-800/50 bg-zinc-900/30'}`}>
-                      {set.warmup && <div className="text-[8px] font-bold text-amber-400/80 tracking-widest mb-1 ml-8">WARM-UP · not counted for progression</div>}
+                      {set.warmup && <div className="text-[8px] font-bold text-amber-400/80 tracking-widest mb-1 ml-11">WARM-UP · not counted for progression</div>}
                       <div className="flex items-center gap-2">
-                        <button onClick={() => toggleSetComplete(i)} className={`w-6 h-6 rounded flex items-center justify-center transition-all active:scale-90 flex-shrink-0 text-[10px] font-bold ${set.completed ? 'bg-emerald-500 text-white' : set.warmup ? 'bg-amber-500/20 text-amber-400' : 'bg-zinc-800 text-zinc-500'}`}>
-                          {set.completed ? <Check className="w-3.5 h-3.5" /> : set.warmup ? 'W' : i + 1 - currentData.sets.slice(0, i).filter(s => s.warmup).length}
+                        <button onClick={() => toggleSetComplete(i)} className={`w-9 h-11 rounded-lg flex items-center justify-center transition-all active:scale-90 flex-shrink-0 text-xs font-bold ${set.completed ? 'bg-emerald-500 text-white' : set.warmup ? 'bg-amber-500/20 text-amber-400' : 'bg-zinc-800 text-zinc-500'}`}>
+                          {set.completed ? <Check className="w-4 h-4" /> : set.warmup ? 'W' : i + 1 - currentData.sets.slice(0, i).filter(s => s.warmup).length}
                         </button>
                         <div className="flex items-center gap-1 flex-1">
                           <StepBtn onClick={() => updateSet(i, 'weight', Math.max(0, set.weight - weightIncrement))}>−</StepBtn>
@@ -1074,7 +1263,7 @@
                         {i > 0 && !set.completed && (
                           <button
                             onClick={() => copyPreviousSet(i)}
-                            className="w-6 h-6 rounded flex items-center justify-center text-zinc-600 hover:text-zinc-400 active:scale-90"
+                            className="w-8 h-11 rounded flex items-center justify-center text-zinc-600 hover:text-zinc-400 active:scale-90"
                             title="Copy previous set"
                           >
                             <Copy className="w-3.5 h-3.5" />
@@ -1210,13 +1399,31 @@
               </div>
               <h1 className="text-xl font-bold text-zinc-100 mb-1">Workout Complete!</h1>
               <p className="text-zinc-500 text-sm mb-2">{dayData.name}</p>
-              <p className="text-zinc-600 text-xs mb-6">{todayDate}</p>
+              <p className="text-zinc-600 text-xs mb-6">{todayDate}{lastDurationMin ? ` · ${lastDurationMin} min` : ''}</p>
+
+              {completedPRs.length > 0 && (
+                <div className="mb-6 space-y-2">
+                  <div className="text-[10px] font-semibold tracking-widest text-amber-400">PERSONAL RECORDS</div>
+                  {completedPRs.map((pr, i) => (
+                    <div key={i} className="p-3 rounded-xl border border-amber-500/30 bg-amber-500/10 text-left flex items-center gap-3">
+                      <Trophy className="w-4 h-4 text-amber-400 flex-shrink-0" />
+                      <div>
+                        <div className="text-sm font-medium text-zinc-100">{pr.name}</div>
+                        <div className="text-[11px] text-amber-300/90">{pr.detail} <span className="text-zinc-500">(was {pr.prev})</span></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
 
               <button
                 onClick={() => {
                   setView('home');
                   setSelectedDay(null);
                   setSessionData({});
+                  setSessionDay(null);
+                  setWorkoutStartedAt(null);
+                  setCompletedPRs([]);
                 }}
                 className="w-full text-white font-semibold py-3.5 rounded-xl text-sm"
                 style={{ background: accent }}
