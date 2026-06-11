@@ -62,6 +62,7 @@
       // Compound lifts
       deadlift: { description: 'Hip hinge with barbell from floor. Drive through heels, keep back flat, extend hips and knees together.', source: 'NSCA', youtube: 'https://www.youtube.com/watch?v=r4MzxtBKyNE' },
       squat: { description: 'Barbell on upper back, descend by bending hips and knees until thighs parallel. Drive up through heels.', source: 'NSCA', youtube: 'https://www.youtube.com/watch?v=ultWZbUMPL8' },
+      pause_squat: { description: 'Barbell squat with a 2-3 second dead stop at the bottom, no bounce. Builds positional strength and squat skill at lighter loads - use roughly 70-80% of your normal squat weight.', source: 'NSCA' },
       hip_thrust: { description: 'Upper back on bench, barbell on hips. Drive hips up squeezing glutes at top, lower with control.', source: 'ACE', youtube: 'https://www.youtube.com/watch?v=xDmFkJxPzeM' },
       log_press: { description: 'Clean log to shoulders, dip knees slightly, then drive overhead. Lock out with biceps by ears.', source: 'Strongman', youtube: 'https://www.youtube.com/watch?v=iDKmj2fvRbM' },
       // Chest
@@ -126,6 +127,7 @@
     const progressionConfig = {
       deadlift: { progressionType: "load-first", weightIncrement: 5, repRange: [4, 6], rirTarget: 2, restTime: 180, cue: 'Building strength within range' },
       squat: { progressionType: "load-first", weightIncrement: 5, repRange: [4, 8], rirTarget: 2, restTime: 180, cue: 'Building within range' },
+      pause_squat: { progressionType: "load-first", weightIncrement: 5, repRange: [3, 6], rirTarget: 3, restTime: 180, cue: 'Skill work - crisp reps, never grind' },
       hack_squat: { progressionType: "load-first", weightIncrement: 10, repRange: [6, 10], rirTarget: 2, restTime: 150, cue: 'Building reps within range' },
       leg_press: { progressionType: "load-first", weightIncrement: 10, repRange: [8, 12], rirTarget: 2, restTime: 150, cue: 'Building within rep range' },
       hip_thrust: { progressionType: "load-first", weightIncrement: 10, repRange: [5, 8], rirTarget: 2, restTime: 120, cue: 'Focus on glute squeeze at top' },
@@ -280,6 +282,7 @@
       ]},
       day2: { name: "Lower Power + Carries", focus: "Deadlift strength, carries for traps/forearms", exercises: [
         { id: "deadlift", name: "Conventional Deadlift / Trap Bar Deadlift", sets: 4, warmupSets: 2, reps: "4-6", defaultWeight: 225, muscles: ["hamstrings", "glutes", "lats", "traps", "forearms"], notes: "2 warm-ups (~50%/75%), then 2 heavy sets" },
+        { id: "pause_squat", name: "Pause Squat / Front Squat", sets: 3, warmupSets: 1, reps: "3-6", defaultWeight: 115, muscles: ["quads", "glutes", "hamstrings"], notes: "2nd squat exposure for skill - skip when worn down" },
         { id: "hack_squat", name: "Hack Squat / Leg Press", sets: 4, warmupSets: 1, reps: "6-10", defaultWeight: 180, muscles: ["quads", "glutes"], notes: "1 intro set, then 3 at weight. Push hard" },
         { id: "farmers_walk", name: "Farmer's Walk / Suitcase Carry", sets: 3, reps: "50-70 ft", defaultWeight: 70, muscles: ["traps", "forearms", "abs"], notes: "Per hand. Distance before load." },
         { id: "leg_curl", name: "Leg Curl / Nordic Curl", sets: 3, reps: "5-8", defaultWeight: 90, muscles: ["hamstrings"], notes: "Strength focus - heavy, control the negative", progression: { progressionType: "load-first", repRange: [5, 8] } },
