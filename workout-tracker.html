@@ -368,6 +368,9 @@
       const [sessionData, setSessionData] = useState({});
       const [showNotes, setShowNotes] = useState(false);
       const [useAltExercise, setUseAltExercise] = useState({});
+      // Pre-workout ab routine: tracked as a simple done/not-done per session,
+      // no sets or reps - the routine itself lives outside the app
+      const [absDone, setAbsDone] = useState(false);
 
       // Save each program's data separately
       useEffect(() => {
@@ -384,12 +387,12 @@
         if ((view === 'exercise' || view === 'summary') && Object.keys(sessionData).length > 0) {
           try {
             localStorage.setItem('activeWorkoutSession', JSON.stringify({
-              program: selectedProgram, day: selectedDay, sessionData, useAltExercise,
+              program: selectedProgram, day: selectedDay, sessionData, useAltExercise, absDone,
               savedAt: new Date().toISOString()
             }));
           } catch {}
         }
-      }, [sessionData, useAltExercise, view]);
+      }, [sessionData, useAltExercise, absDone, view]);
 
       const getLogKey = (day) => day;
       const getExerciseLog = (exerciseId, day) => {
@@ -410,6 +413,23 @@
           });
         });
         return latest;
+      };
+
+      // Ab routine adherence across the whole program (the routine precedes
+      // every workout regardless of day). Sessions logged before the feature
+      // existed have no absDone field and are excluded rather than counted
+      // as skips.
+      const getAbsAdherence = () => {
+        if (!selectedProgram) return null;
+        const programLog = workoutLog[selectedProgram] || {};
+        const tracked = [];
+        Object.values(programLog).forEach(d => (d?.sessions || []).forEach(s => {
+          if (s.absDone !== undefined) tracked.push(s);
+        }));
+        tracked.sort((a, b) => new Date(a.date) - new Date(b.date));
+        const recent = tracked.slice(-10);
+        if (recent.length === 0) return null;
+        return { done: recent.filter(s => s.absDone).length, total: recent.length };
       };
 
       const calculateProgression = (exercise) => {
@@ -470,7 +490,7 @@
       };
 
       const selectProgram = (program) => { setSelectedProgram(program); setView('home'); };
-      const startDay = (day) => { setSelectedDay(day); setView('dayOverview'); };
+      const startDay = (day) => { setSelectedDay(day); setAbsDone(false); setView('dayOverview'); };
 
       // In-progress workouts are checkpointed to localStorage so a phone
       // refresh or accidental tab close at the gym doesn't lose logged sets.
@@ -486,6 +506,7 @@
             if (hoursAgo < 12 && confirm('You have an unfinished workout for this day. Resume it? (Cancel starts fresh)')) {
               setSessionData(saved.sessionData);
               setUseAltExercise(saved.useAltExercise || {});
+              setAbsDone(!!saved.absDone);
               resumed = true;
             }
           }
@@ -675,8 +696,8 @@
           const programLog = prev[selectedProgram] || {};
           const existing = programLog[dayKey] || { sessions: [], exercises: {} };
 
-          // Add to sessions array
-          const sessions = [...(existing.sessions || []), { date: workoutSession.date }];
+          // Add to sessions array (absDone = pre-workout ab routine checkbox)
+          const sessions = [...(existing.sessions || []), { date: workoutSession.date, absDone }];
 
           // Merge exercise data
           const exercisesLog = { ...existing.exercises };
@@ -729,6 +750,12 @@
                 csv += `${new Date(entry.date).toLocaleDateString()},${day},${entry.exerciseName || exerciseId},${entry.usedAlt ? 'Alt' : 'Main'},${setIndex + 1},${set.warmup ? 'Yes' : 'No'},${set.weight},${set.reps},${set.completed ? 'Yes' : 'No'},${entry.skipped ? 'Yes' : 'No'},"${entry.notes || ''}"\n`;
               });
             });
+          });
+          // Ab routine done/skipped, one row per session that tracked it
+          (data.sessions || []).forEach(sess => {
+            if (sess.absDone !== undefined) {
+              csv += `${new Date(sess.date).toLocaleDateString()},${day},Ab Routine (pre-workout),Main,1,No,0,0,${sess.absDone ? 'Yes' : 'No'},${sess.absDone ? 'No' : 'Yes'},""\n`;
+            }
           });
         });
 
@@ -820,6 +847,19 @@
                 <h1 className="text-lg font-bold text-zinc-100">{dayData.name}</h1>
                 <p className="text-zinc-500 text-xs">{dayData.focus}</p>
               </div>
+              {(() => { const adherence = getAbsAdherence(); return (
+                <button onClick={() => setAbsDone(!absDone)} className={`w-full rounded-lg p-3 mb-3 flex items-center gap-2.5 border transition-all active:scale-[0.98] ${absDone ? 'border-emerald-500/50 bg-emerald-500/10' : 'border-zinc-800/50'}`} style={absDone ? {} : { backgroundColor: '#12121a' }}>
+                  <div className={`w-6 h-6 rounded flex items-center justify-center flex-shrink-0 ${absDone ? 'bg-emerald-500 text-white' : 'bg-zinc-800 text-zinc-600'}`}>
+                    {absDone ? <Check className="w-4 h-4" /> : null}
+                  </div>
+                  <div className="flex-1 text-left">
+                    <div className={`text-sm font-medium ${absDone ? 'text-emerald-300' : 'text-zinc-200'}`}>Pre-workout ab routine</div>
+                    <div className="text-[10px] text-zinc-600">
+                      {adherence ? `Done ${adherence.done} of last ${adherence.total} workouts` : 'Tap when done — tracked with each workout'}
+                    </div>
+                  </div>
+                </button>
+              ); })()}
               <div className="space-y-1.5 mb-4">
                 {dayData.exercises.map((ex, i) => {
                   const lastData = getLastSession(ex.id);
@@ -1065,6 +1105,16 @@
                   <div className="text-zinc-500 text-xs">Exercises Completed</div>
                 </div>
               </div>
+
+              <button onClick={() => setAbsDone(!absDone)} className={`w-full rounded-lg p-3 mb-2 flex items-center gap-2.5 border transition-all active:scale-[0.98] ${absDone ? 'border-emerald-500/50 bg-emerald-500/10' : 'border-zinc-800/50'}`} style={absDone ? {} : { backgroundColor: '#12121a' }}>
+                <div className={`w-6 h-6 rounded flex items-center justify-center flex-shrink-0 ${absDone ? 'bg-emerald-500 text-white' : 'bg-zinc-800 text-zinc-600'}`}>
+                  {absDone ? <Check className="w-4 h-4" /> : null}
+                </div>
+                <div className="flex-1 text-left">
+                  <div className={`text-sm font-medium ${absDone ? 'text-emerald-300' : 'text-zinc-200'}`}>Pre-workout ab routine</div>
+                  <div className="text-[10px] text-zinc-600">Saved with this workout</div>
+                </div>
+              </button>
 
               <div className="space-y-2 mb-4">
                 {dayData.exercises.map((ex, i) => {
