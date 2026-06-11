@@ -72,6 +72,7 @@
       low_high_fly: { description: 'Cables set low, arms sweep up and together. Targets upper chest fibers.', source: 'ACE', youtube: 'https://www.youtube.com/watch?v=taI4XduLpTk' },
       machine_chest: { description: 'Seated press machine. Push handles forward to full extension, control the return.', source: 'ACE', youtube: 'https://www.youtube.com/watch?v=xUm0BiZCWlQ' },
       push_ups: { description: 'Hands shoulder-width, lower chest to floor, push back up. Core tight throughout.', source: 'ACE', youtube: 'https://www.youtube.com/watch?v=IODxDxX7oi4' },
+      dips: { description: 'Parallel bars, slight forward lean, lower until shoulders are just below elbows, press back up. Hits lower chest and triceps. Log added belt weight; bodyweight = 0.', source: 'ACE' },
       // Back
       barbell_row: { description: 'Hinged at hips, pull bar to lower chest. Squeeze shoulder blades, lower with control.', source: 'NSCA', youtube: 'https://www.youtube.com/watch?v=FWJR5Ve8bnQ' },
       lat_pulldown: { description: 'Wide grip, pull bar to upper chest. Lean back slightly, squeeze lats at bottom.', source: 'ACE', youtube: 'https://www.youtube.com/watch?v=CAwf7n6Luuc' },
@@ -147,6 +148,7 @@
       db_bench: { progressionType: "rep-first", weightIncrement: 5, repRange: [8, 12], rirTarget: 2, restTime: 90, cue: 'Progressing well' },
       barbell_row: { progressionType: "load-first", weightIncrement: 5, repRange: [6, 10], rirTarget: 2, restTime: 120, cue: 'Prioritize muscle engagement' },
       machine_chest: { progressionType: "rep-first", weightIncrement: 5, repRange: [10, 15], rirTarget: 1, restTime: 60, cue: 'Building within range' },
+      dips: { progressionType: "rep-first", weightIncrement: 5, repRange: [8, 12], rirTarget: 2, restTime: 90, cue: 'Full depth, slight forward lean' },
       cable_row: { progressionType: "rep-first", weightIncrement: 5, repRange: [10, 12], rirTarget: 2, restTime: 90, cue: 'Good progress' },
       seated_row: { progressionType: "load-first", weightIncrement: 5, repRange: [5, 8], rirTarget: 2, restTime: 120, cue: 'Building back strength' },
       lat_pulldown: { progressionType: "rep-first", weightIncrement: 5, repRange: [10, 12], rirTarget: 2, restTime: 90, cue: 'Good progress' },
@@ -274,6 +276,7 @@
       day1: { name: "Upper Power + Biceps", focus: "Heavy pressing, pulling, bicep stretch", exercises: [
         { id: "log_press", name: "Log Press / Standing DB Press", sets: 4, warmupSets: 1, reps: "3-5", defaultWeight: 95, muscles: ["shoulders", "triceps", "chest"], notes: "1 warm-up, then 3 heavy. 3-min rest" },
         { id: "incline_db", name: "Incline Dumbbell Press (30°) / Machine Incline", sets: 4, warmupSets: 1, reps: "8-12", defaultWeight: 50, muscles: ["upperChest", "shoulders", "triceps"], notes: "1 intro set, then 3 at weight. Deep stretch" },
+        { id: "dips", name: "Dips / Machine Dip", sets: 3, reps: "8-12", defaultWeight: 0, muscles: ["chest", "triceps"], notes: "Slight forward lean. Add weight via belt once 12 is easy" },
         { id: "seated_row", name: "Seated Row Machine / Cable Row", sets: 3, reps: "5-8", defaultWeight: 135, muscles: ["lats", "traps", "biceps", "rearDelts"], notes: "Strength focus" },
         { id: "incline_curl", name: "Incline Dumbbell Curl / Bayesian Curl", sets: 3, reps: "10-12", defaultWeight: 20, muscles: ["biceps"], notes: "Arms behind torso, max stretch" },
         { id: "face_pull", name: "Face Pull / Rear Delt Fly", sets: 3, reps: "15-20", defaultWeight: 40, muscles: ["rearDelts", "traps"], notes: "Shoulder health - form > load" },
@@ -281,11 +284,11 @@
         { id: "lateral_raise", name: "Lateral Raise / Cable Lateral", sets: 3, reps: "12-20", defaultWeight: 15, muscles: ["sideDelts"], notes: "Microplates essential" }
       ]},
       day2: { name: "Lower Power + Carries", focus: "Deadlift strength, carries for traps/forearms", exercises: [
-        { id: "deadlift", name: "Conventional Deadlift / Trap Bar Deadlift", sets: 4, warmupSets: 2, reps: "4-6", defaultWeight: 225, muscles: ["hamstrings", "glutes", "lats", "traps", "forearms"], notes: "2 warm-ups (~50%/75%), then 2 heavy sets" },
+        { id: "deadlift", name: "Conventional Deadlift / Trap Bar Deadlift", sets: 5, warmupSets: 2, reps: "4-6", defaultWeight: 225, muscles: ["hamstrings", "glutes", "lats", "traps", "forearms"], notes: "2 warm-ups (~50%/75%), then 3 heavy sets" },
         { id: "pause_squat", name: "Pause Squat / Front Squat", sets: 3, warmupSets: 1, reps: "3-6", defaultWeight: 115, muscles: ["quads", "glutes", "hamstrings"], notes: "2nd squat exposure for skill - skip when worn down" },
         { id: "hack_squat", name: "Hack Squat / Leg Press", sets: 4, warmupSets: 1, reps: "6-10", defaultWeight: 180, muscles: ["quads", "glutes"], notes: "1 intro set, then 3 at weight. Push hard" },
         { id: "farmers_walk", name: "Farmer's Walk / Suitcase Carry", sets: 3, reps: "50-70 ft", defaultWeight: 70, muscles: ["traps", "forearms", "abs"], notes: "Per hand. Distance before load." },
-        { id: "leg_curl", name: "Leg Curl / Nordic Curl", sets: 3, reps: "5-8", defaultWeight: 90, muscles: ["hamstrings"], notes: "Strength focus - heavy, control the negative", progression: { progressionType: "load-first", repRange: [5, 8] } },
+        { id: "leg_curl", name: "Leg Curl / Nordic Curl", sets: 3, reps: "5-8", defaultWeight: 90, muscles: ["hamstrings"], notes: "Strength focus, control the negative. Swap in Nordics sometimes for long-length work", progression: { progressionType: "load-first", repRange: [5, 8] } },
         { id: "leg_ext", name: "Leg Extension / Sissy Squat", sets: 3, reps: "5-8", defaultWeight: 100, muscles: ["quads"], notes: "Strength focus - heavy, controlled reps", progression: { progressionType: "load-first", repRange: [5, 8] } },
         { id: "lat_pulldown", name: "Lat Pulldown / Pull-ups", sets: 3, reps: "5-8", defaultWeight: 100, muscles: ["lats", "biceps"], notes: "Strength focus", progression: { progressionType: "load-first", repRange: [5, 8] } },
         { id: "bent_lateral", name: "Bent + Side Lateral / Rear Delt Machine", sets: 2, reps: "12-20", defaultWeight: 12, muscles: ["rearDelts", "sideDelts"], notes: "Microplates for laterals" },
@@ -301,14 +304,14 @@
         { id: "pushdown", name: "Rope Pushdown / V-Bar Pushdown", sets: 2, reps: "12-20", defaultWeight: 40, muscles: ["triceps"], notes: "Pump finisher" }
       ]},
       day4: { name: "Lower Hypertrophy + Volume", focus: "Squat volume, additional upper work", exercises: [
-        { id: "squat", name: "Barbell Squat / Front Squat", sets: 4, warmupSets: 2, reps: "4-8", defaultWeight: 155, muscles: ["quads", "glutes", "hamstrings"], notes: "2 warm-ups (~50%/75%), then 2 heavy sets" },
+        { id: "squat", name: "Barbell Squat / Front Squat", sets: 5, warmupSets: 2, reps: "4-8", defaultWeight: 155, muscles: ["quads", "glutes", "hamstrings"], notes: "2 warm-ups (~50%/75%), then 3 heavy sets" },
         { id: "leg_press", name: "Leg Press / Hack Squat", sets: 4, warmupSets: 1, reps: "8-12", defaultWeight: 270, muscles: ["quads", "glutes"], notes: "1 intro set, then 3 at weight" },
         { id: "leg_ext", name: "Leg Extension / Sissy Squat", sets: 3, reps: "5-8", defaultWeight: 100, muscles: ["quads"], notes: "Strength focus - heavy, controlled reps", progression: { progressionType: "load-first", repRange: [5, 8] } },
-        { id: "leg_curl", name: "Leg Curl / Nordic Curl", sets: 3, reps: "5-8", defaultWeight: 70, muscles: ["hamstrings"], notes: "Strength focus - control negative", progression: { progressionType: "load-first", repRange: [5, 8] } },
+        { id: "leg_curl", name: "Leg Curl / Nordic Curl", sets: 3, reps: "5-8", defaultWeight: 70, muscles: ["hamstrings"], notes: "Strength focus, control negative. Nordics cover what RDLs used to", progression: { progressionType: "load-first", repRange: [5, 8] } },
         { id: "back_extension", name: "45° Back Extension / Reverse Hyper", sets: 3, reps: "8-15", defaultWeight: 0, muscles: ["hamstrings", "glutes"], notes: "Replaces RDL. Hold a plate to add load" },
         { id: "seated_row", name: "Seated Cable Row / T-Bar Row", sets: 3, reps: "5-8", defaultWeight: 130, muscles: ["lats", "traps", "biceps"], notes: "Strength focus" },
         { id: "lat_pulldown", name: "Lat Pulldown / Pull-ups", sets: 3, reps: "5-8", defaultWeight: 100, muscles: ["lats", "biceps"], notes: "Strength focus", progression: { progressionType: "load-first", repRange: [5, 8] } },
-        { id: "machine_chest", name: "Machine Chest Press / Cable Crossover", sets: 4, warmupSets: 1, reps: "10-15", defaultWeight: 140, muscles: ["chest", "triceps"], notes: "1 intro set, then 3 at weight. Push hard" },
+        { id: "machine_chest", name: "Machine Chest Press / Cable Crossover", sets: 3, reps: "10-15", defaultWeight: 140, muscles: ["chest", "triceps"], notes: "3 working sets - safe to push hard" },
         { id: "high_rep_curl", name: "EZ Bar Curl / Cable Curl", sets: 3, reps: "12-15", defaultWeight: 45, muscles: ["biceps"], notes: "High rep pump" }
       ]}
     };
@@ -936,6 +939,11 @@
 
               {/* Exercise name - always show */}
               <h1 className="text-lg font-bold text-zinc-100 mb-1">{displayName}</h1>
+
+              {/* Plan note (coaching cue from the program) */}
+              {exercise.notes && (
+                <p className="text-[11px] text-zinc-500 mb-2">{exercise.notes}</p>
+              )}
 
               {/* Alt exercise toggle - show as secondary option */}
               {hasAlt && (
