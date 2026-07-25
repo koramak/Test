@@ -2,21 +2,16 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Workouts">
-  <meta name="theme-color" content="#0A0A0A">
+  <meta name="theme-color" content="#0a0a0f">
   <title>Workout Tracker</title>
-  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%230A0A0A' width='100' height='100' rx='22'/><path fill='%23FFFFFF' d='M56 14 22 61h20L44 86l34-48H57z'/></svg>">
-  <link rel="preconnect" href="https://api.fontshare.com">
-  <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=switzer@400,500,600,700&display=swap">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%233b82f6' width='100' height='100' rx='20'/><text x='50' y='68' text-anchor='middle' font-size='50'>🏋️</text></svg>">
   <!-- Fully self-contained: Tailwind CSS compiled statically, React/Babel inlined below.
        Works offline and from file:// - no network needed after the file is on the device.
        To recompile CSS after class changes: npx tailwindcss -i base.css -o out.css --content workout-tracker.html --minify -->
   <style>*,:after,:before{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgba(59,130,246,.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgba(59,130,246,.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/*! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com*/*,:after,:before{box-sizing:border-box;border:0 solid #e5e7eb}:after,:before{--tw-content:""}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;-o-tab-size:4;tab-size:4;font-family:ui-sans-serif,system-ui,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji;font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0}fieldset,legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::-moz-placeholder,textarea::-moz-placeholder{opacity:1;color:#9ca3af}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.pointer-events-none{pointer-events:none}.pointer-events-auto{pointer-events:auto}.visible{visibility:visible}.fixed{position:fixed}.absolute{position:absolute}.relative{position:relative}.bottom-0{bottom:0}.bottom-4{bottom:1rem}.left-0{left:0}.right-0{right:0}.right-3{right:.75rem}.top-1\/2{top:50%}.mx-auto{margin-left:auto;margin-right:auto}.-mt-0\.5{margin-top:-.125rem}.mb-0\.5{margin-bottom:.125rem}.mb-1{margin-bottom:.25rem}.mb-10{margin-bottom:2.5rem}.mb-2{margin-bottom:.5rem}.mb-3{margin-bottom:.75rem}.mb-4{margin-bottom:1rem}.mb-6{margin-bottom:1.5rem}.mb-8{margin-bottom:2rem}.ml-11{margin-left:2.75rem}.ml-2{margin-left:.5rem}.mt-0\.5{margin-top:.125rem}.mt-1{margin-top:.25rem}.mt-2{margin-top:.5rem}.mt-3{margin-top:.75rem}.mt-4{margin-top:1rem}.mt-6{margin-top:1.5rem}.block{display:block}.flex{display:flex}.inline-flex{display:inline-flex}.hidden{display:none}.h-0\.5{height:.125rem}.h-11{height:2.75rem}.h-12{height:3rem}.h-14{height:3.5rem}.h-16{height:4rem}.h-20{height:5rem}.h-3{height:.75rem}.h-3\.5{height:.875rem}.h-4{height:1rem}.h-5{height:1.25rem}.h-6{height:1.5rem}.h-7{height:1.75rem}.h-8{height:2rem}.h-9{height:2.25rem}.h-full{height:100%}.min-h-screen{min-height:100vh}.w-11{width:2.75rem}.w-12{width:3rem}.w-14{width:3.5rem}.w-16{width:4rem}.w-20{width:5rem}.w-3{width:.75rem}.w-3\.5{width:.875rem}.w-4{width:1rem}.w-5{width:1.25rem}.w-6{width:1.5rem}.w-7{width:1.75rem}.w-8{width:2rem}.w-9{width:2.25rem}.w-full{width:100%}.w-px{width:1px}.min-w-0{min-width:0}.max-w-md{max-width:28rem}.flex-1{flex:1 1 0%}.flex-shrink-0{flex-shrink:0}.-translate-y-1\/2{--tw-translate-y:-50%}.-translate-y-1\/2,.rotate-180{transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.rotate-180{--tw-rotate:180deg}.cursor-pointer{cursor:pointer}.resize{resize:both}.appearance-none{-webkit-appearance:none;-moz-appearance:none;appearance:none}.flex-wrap{flex-wrap:wrap}.items-start{align-items:flex-start}.items-end{align-items:flex-end}.items-center{align-items:center}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-1{gap:.25rem}.gap-1\.5{gap:.375rem}.gap-2{gap:.5rem}.gap-2\.5{gap:.625rem}.gap-3{gap:.75rem}.gap-4{gap:1rem}.space-y-1\.5>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.375rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.375rem*var(--tw-space-y-reverse))}.space-y-2>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.5rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.5rem*var(--tw-space-y-reverse))}.space-y-4>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1rem*var(--tw-space-y-reverse))}.overflow-hidden,.truncate{overflow:hidden}.truncate{text-overflow:ellipsis;white-space:nowrap}.rounded{border-radius:.25rem}.rounded-2xl{border-radius:1rem}.rounded-full{border-radius:9999px}.rounded-lg{border-radius:.5rem}.rounded-sm{border-radius:.125rem}.rounded-xl{border-radius:.75rem}.border{border-width:1px}.border-t{border-top-width:1px}.border-amber-500\/30{border-color:rgba(245,158,11,.3)}.border-emerald-500\/50{border-color:rgba(16,185,129,.5)}.border-zinc-700{--tw-border-opacity:1;border-color:rgb(63 63 70/var(--tw-border-opacity,1))}.border-zinc-800{--tw-border-opacity:1;border-color:rgb(39 39 42/var(--tw-border-opacity,1))}.border-zinc-800\/50{border-color:rgba(39,39,42,.5)}.bg-amber-500\/10{background-color:rgba(245,158,11,.1)}.bg-amber-500\/20{background-color:rgba(245,158,11,.2)}.bg-amber-500\/5{background-color:rgba(245,158,11,.05)}.bg-emerald-500{--tw-bg-opacity:1;background-color:rgb(16 185 129/var(--tw-bg-opacity,1))}.bg-emerald-500\/10{background-color:rgba(16,185,129,.1)}.bg-red-500\/20{background-color:rgba(239,68,68,.2)}.bg-zinc-800{--tw-bg-opacity:1;background-color:rgb(39 39 42/var(--tw-bg-opacity,1))}.bg-zinc-800\/50{background-color:rgba(39,39,42,.5)}.bg-zinc-900{--tw-bg-opacity:1;background-color:rgb(24 24 27/var(--tw-bg-opacity,1))}.bg-zinc-900\/30{background-color:rgba(24,24,27,.3)}.bg-zinc-900\/50{background-color:rgba(24,24,27,.5)}.bg-zinc-900\/80{background-color:rgba(24,24,27,.8)}.bg-gradient-to-t{background-image:linear-gradient(to top,var(--tw-gradient-stops))}.from-zinc-950{--tw-gradient-from:#09090b var(--tw-gradient-from-position);--tw-gradient-to:rgba(9,9,11,0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)}.to-transparent{--tw-gradient-to:transparent var(--tw-gradient-to-position)}.p-1{padding:.25rem}.p-2{padding:.5rem}.p-2\.5{padding:.625rem}.p-3{padding:.75rem}.p-4{padding:1rem}.p-5{padding:1.25rem}.px-1\.5{padding-left:.375rem;padding-right:.375rem}.px-2{padding-left:.5rem;padding-right:.5rem}.px-3{padding-left:.75rem;padding-right:.75rem}.px-4{padding-left:1rem;padding-right:1rem}.py-0\.5{padding-top:.125rem;padding-bottom:.125rem}.py-1{padding-top:.25rem;padding-bottom:.25rem}.py-1\.5{padding-top:.375rem;padding-bottom:.375rem}.py-2{padding-top:.5rem;padding-bottom:.5rem}.py-3\.5{padding-top:.875rem;padding-bottom:.875rem}.pb-24{padding-bottom:6rem}.pt-2{padding-top:.5rem}.pt-4{padding-top:1rem}.text-left{text-align:left}.text-center{text-align:center}.text-2xl{font-size:1.5rem;line-height:2rem}.text-3xl{font-size:1.875rem;line-height:2.25rem}.text-4xl{font-size:2.25rem;line-height:2.5rem}.text-\[10px\]{font-size:10px}.text-\[11px\]{font-size:11px}.text-\[7px\]{font-size:7px}.text-\[8px\]{font-size:8px}.text-\[9px\]{font-size:9px}.text-base{font-size:1rem;line-height:1.5rem}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-sm{font-size:.875rem;line-height:1.25rem}.text-xl{font-size:1.25rem;line-height:1.75rem}.text-xs{font-size:.75rem;line-height:1rem}.font-bold{font-weight:700}.font-medium{font-weight:500}.font-semibold{font-weight:600}.uppercase{text-transform:uppercase}.italic{font-style:italic}.leading-relaxed{line-height:1.625}.tracking-tight{letter-spacing:-.025em}.tracking-widest{letter-spacing:.1em}.text-amber-200\/80{color:hsla(48,97%,77%,.8)}.text-amber-300\/90{color:rgba(252,211,77,.9)}.text-amber-400{--tw-text-opacity:1;color:rgb(251 191 36/var(--tw-text-opacity,1))}.text-amber-400\/70{color:rgba(251,191,36,.7)}.text-amber-400\/80{color:rgba(251,191,36,.8)}.text-amber-500{--tw-text-opacity:1;color:rgb(245 158 11/var(--tw-text-opacity,1))}.text-emerald-300{--tw-text-opacity:1;color:rgb(110 231 183/var(--tw-text-opacity,1))}.text-emerald-400{--tw-text-opacity:1;color:rgb(52 211 153/var(--tw-text-opacity,1))}.text-emerald-500{--tw-text-opacity:1;color:rgb(16 185 129/var(--tw-text-opacity,1))}.text-red-400{--tw-text-opacity:1;color:rgb(248 113 113/var(--tw-text-opacity,1))}.text-white{--tw-text-opacity:1;color:rgb(255 255 255/var(--tw-text-opacity,1))}.text-zinc-100{--tw-text-opacity:1;color:rgb(244 244 245/var(--tw-text-opacity,1))}.text-zinc-200{--tw-text-opacity:1;color:rgb(228 228 231/var(--tw-text-opacity,1))}.text-zinc-300{--tw-text-opacity:1;color:rgb(212 212 216/var(--tw-text-opacity,1))}.text-zinc-400{--tw-text-opacity:1;color:rgb(161 161 170/var(--tw-text-opacity,1))}.text-zinc-500{--tw-text-opacity:1;color:rgb(113 113 122/var(--tw-text-opacity,1))}.text-zinc-600{--tw-text-opacity:1;color:rgb(82 82 91/var(--tw-text-opacity,1))}.text-zinc-700{--tw-text-opacity:1;color:rgb(63 63 70/var(--tw-text-opacity,1))}.invert{--tw-invert:invert(100%)}.filter,.invert{filter:var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)}.transition-all{transition-property:all;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.transition-colors{transition-property:color,background-color,border-color,text-decoration-color,fill,stroke;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.transition-transform{transition-property:transform;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.hover\:text-white:hover{--tw-text-opacity:1;color:rgb(255 255 255/var(--tw-text-opacity,1))}.hover\:text-zinc-400:hover{--tw-text-opacity:1;color:rgb(161 161 170/var(--tw-text-opacity,1))}.active\:scale-90:active{--tw-scale-x:.9;--tw-scale-y:.9}.active\:scale-90:active,.active\:scale-95:active{transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.active\:scale-95:active{--tw-scale-x:.95;--tw-scale-y:.95}.active\:scale-\[0\.98\]:active{--tw-scale-x:0.98;--tw-scale-y:0.98;transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.disabled\:opacity-20:disabled{opacity:.2}</style>
-  <style>html,body,button,input{font-family:'Switzer',-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif}</style>
   <script>/* react@18.3.1 umd production */
 /**
  * @license React
@@ -327,20 +322,7 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
 </script>
   <style>
     * { -webkit-tap-highlight-color: transparent; }
-    html, body { margin: 0; background: #0A0A0A; overscroll-behavior: none; height: 100%; }
-    body { position: fixed; inset: 0; overflow: hidden; width: 100%; }
-    #root { height: 100%; }
-    button, .screen { -webkit-user-select: none; user-select: none; touch-action: manipulation; }
-    button { transition: background-color 180ms ease-out, opacity 180ms ease-out; }
-    /* Full-height app screen: 100vh fallback for iOS < 16.4, dvh where supported */
-    .screen { height: 100vh; height: 100dvh; background: #0A0A0A; overflow: hidden; }
-    .scrollarea { overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; scrollbar-width: none; }
-    .scrollarea::-webkit-scrollbar { display: none; }
-    /* Press states per design spec */
-    .btn-primary:active { background: #E6E6E6 !important; }
-    .btn-step:active { background: #333333 !important; }
-    .btn-secondary:active { background: #141414 !important; }
-    .press-row:active { background: #1F1F1F !important; }
+    body { margin: 0; background: #0a0a0f; overscroll-behavior: none; }
     input[type="number"]::-webkit-inner-spin-button,
     input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
     input[type="number"] { -moz-appearance: textfield; }
@@ -642,88 +624,76 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
       );
     };
 
-    // Power / Size class icons
-    const PowerIcon = ({ size = 15 }) => (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="#FFFFFF">
-        <path d="M13.5 2 5.5 13.2h4.6L8.9 22l8.4-11.6h-4.9z" />
-      </svg>
-    );
-    const SizeIcon = ({ size = 15 }) => (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="#9A9A9A" strokeWidth="2.4" strokeLinecap="round">
-        <path d="M5 19v-4M12 19v-8M19 19v-12" />
-      </svg>
-    );
-
     // Workout data
     const workoutData4Day = {
       day1: { name: "Upper Power + Biceps", focus: "Heavy pressing, pulling, bicep stretch", exercises: [
-        { id: "log_press", name: "Log Press / Standing DB Press", sets: 4, warmupSets: 1, reps: "3-5", defaultWeight: 95, muscles: ["shoulders", "triceps", "chest"], notes: "1 warm-up, then 3 heavy. 3-min rest", cls: 'power' },
-        { id: "incline_db", name: "Incline Dumbbell Press (30°) / Machine Incline", sets: 4, warmupSets: 1, reps: "8-12", defaultWeight: 50, muscles: ["upperChest", "shoulders", "triceps"], notes: "1 intro set, then 3 at weight. Deep stretch", cls: 'power' },
-        { id: "dips", name: "Assisted Dips / Machine Dip", sets: 3, reps: "8-12", defaultWeight: 60, muscles: ["chest", "triceps"], notes: "Weight = assistance, less is harder. Goal: 0 = bodyweight", cls: 'size' },
-        { id: "seated_row", name: "Seated Row Machine / Cable Row", sets: 3, reps: "5-8", defaultWeight: 135, muscles: ["lats", "traps", "biceps", "rearDelts"], notes: "Strength focus", cls: 'power' },
-        { id: "incline_curl", name: "Incline Dumbbell Curl / Bayesian Curl", sets: 3, reps: "10-12", defaultWeight: 20, muscles: ["biceps"], notes: "Arms behind torso, max stretch", cls: 'size' },
-        { id: "face_pull", name: "Face Pull / Rear Delt Fly", sets: 3, reps: "15-20", defaultWeight: 40, muscles: ["rearDelts", "traps"], notes: "Shoulder health - form > load", cls: 'size', supersetGroupId: 'ss_facehammer' },
-        { id: "hammer_curl", name: "Hammer Curl / Cross-Body Curl", sets: 3, reps: "10-15", defaultWeight: 25, muscles: ["biceps", "forearms"], notes: "Brachialis emphasis", cls: 'size', supersetGroupId: 'ss_facehammer' },
-        { id: "lateral_raise", name: "Lateral Raise / Cable Lateral", sets: 3, reps: "12-20", defaultWeight: 15, muscles: ["sideDelts"], notes: "Microplates essential", cls: 'size' }
+        { id: "log_press", name: "Log Press / Standing DB Press", sets: 4, warmupSets: 1, reps: "3-5", defaultWeight: 95, muscles: ["shoulders", "triceps", "chest"], notes: "1 warm-up, then 3 heavy. 3-min rest" },
+        { id: "incline_db", name: "Incline Dumbbell Press (30°) / Machine Incline", sets: 4, warmupSets: 1, reps: "8-12", defaultWeight: 50, muscles: ["upperChest", "shoulders", "triceps"], notes: "1 intro set, then 3 at weight. Deep stretch" },
+        { id: "dips", name: "Assisted Dips / Machine Dip", sets: 3, reps: "8-12", defaultWeight: 60, muscles: ["chest", "triceps"], notes: "Weight = assistance, less is harder. Goal: 0 = bodyweight" },
+        { id: "seated_row", name: "Seated Row Machine / Cable Row", sets: 3, reps: "5-8", defaultWeight: 135, muscles: ["lats", "traps", "biceps", "rearDelts"], notes: "Strength focus" },
+        { id: "incline_curl", name: "Incline Dumbbell Curl / Bayesian Curl", sets: 3, reps: "10-12", defaultWeight: 20, muscles: ["biceps"], notes: "Arms behind torso, max stretch" },
+        { id: "face_pull", name: "Face Pull / Rear Delt Fly", sets: 3, reps: "15-20", defaultWeight: 40, muscles: ["rearDelts", "traps"], notes: "Shoulder health - form > load" },
+        { id: "hammer_curl", name: "Hammer Curl / Cross-Body Curl", sets: 3, reps: "10-15", defaultWeight: 25, muscles: ["biceps", "forearms"], notes: "Brachialis emphasis" },
+        { id: "lateral_raise", name: "Lateral Raise / Cable Lateral", sets: 3, reps: "12-20", defaultWeight: 15, muscles: ["sideDelts"], notes: "Microplates essential" }
       ]},
       day2: { name: "Lower Power + Carries", focus: "Deadlift strength, carries for traps/forearms", exercises: [
-        { id: "deadlift", name: "Conventional Deadlift / Trap Bar Deadlift", sets: 5, warmupSets: 2, reps: "4-6", defaultWeight: 225, muscles: ["hamstrings", "glutes", "lats", "traps", "forearms"], notes: "2 warm-ups (~50%/75%), then 3 heavy sets", cls: 'power' },
-        { id: "pause_squat", name: "Pause Squat / Front Squat", sets: 3, warmupSets: 1, reps: "3-6", defaultWeight: 115, muscles: ["quads", "glutes", "hamstrings"], notes: "2nd squat exposure for skill - skip when worn down", cls: 'power' },
-        { id: "hack_squat", name: "Hack Squat / Leg Press", sets: 4, warmupSets: 1, reps: "6-10", defaultWeight: 180, muscles: ["quads", "glutes"], notes: "1 intro set, then 3 at weight. Push hard", cls: 'power' },
-        { id: "farmers_walk", name: "Farmer's Walk / Suitcase Carry", sets: 3, reps: "50-70 ft", defaultWeight: 70, muscles: ["traps", "forearms", "abs"], notes: "Per hand. Distance before load.", cls: 'power' },
-        { id: "leg_curl", name: "Leg Curl / Nordic Curl", sets: 3, reps: "5-8", defaultWeight: 90, muscles: ["hamstrings"], notes: "Strength focus, control the negative. Swap in Nordics sometimes for long-length work", progression: { progressionType: "load-first", repRange: [5, 8] }, cls: 'power' },
-        { id: "leg_ext", name: "Leg Extension / Sissy Squat", sets: 3, reps: "5-8", defaultWeight: 100, muscles: ["quads"], notes: "Strength focus - heavy, controlled reps", progression: { progressionType: "load-first", repRange: [5, 8] }, cls: 'power' },
-        { id: "lat_pulldown", name: "Lat Pulldown / Pull-ups", sets: 3, reps: "5-8", defaultWeight: 100, muscles: ["lats", "biceps"], notes: "Strength focus", progression: { progressionType: "load-first", repRange: [5, 8] }, cls: 'power' },
-        { id: "bent_lateral", name: "Bent + Side Lateral / Rear Delt Machine", sets: 2, reps: "12-20", defaultWeight: 12, muscles: ["rearDelts", "sideDelts"], notes: "Microplates for laterals", cls: 'size' },
-        { id: "calf_raise", name: "Calf Raises / Seated Calf", sets: 3, reps: "12-20", defaultWeight: 150, muscles: ["calves"], notes: "Full ROM, calves progress slowly", cls: 'size' }
+        { id: "deadlift", name: "Conventional Deadlift / Trap Bar Deadlift", sets: 5, warmupSets: 2, reps: "4-6", defaultWeight: 225, muscles: ["hamstrings", "glutes", "lats", "traps", "forearms"], notes: "2 warm-ups (~50%/75%), then 3 heavy sets" },
+        { id: "pause_squat", name: "Pause Squat / Front Squat", sets: 3, warmupSets: 1, reps: "3-6", defaultWeight: 115, muscles: ["quads", "glutes", "hamstrings"], notes: "2nd squat exposure for skill - skip when worn down" },
+        { id: "hack_squat", name: "Hack Squat / Leg Press", sets: 4, warmupSets: 1, reps: "6-10", defaultWeight: 180, muscles: ["quads", "glutes"], notes: "1 intro set, then 3 at weight. Push hard" },
+        { id: "farmers_walk", name: "Farmer's Walk / Suitcase Carry", sets: 3, reps: "50-70 ft", defaultWeight: 70, muscles: ["traps", "forearms", "abs"], notes: "Per hand. Distance before load." },
+        { id: "leg_curl", name: "Leg Curl / Nordic Curl", sets: 3, reps: "5-8", defaultWeight: 90, muscles: ["hamstrings"], notes: "Strength focus, control the negative. Swap in Nordics sometimes for long-length work", progression: { progressionType: "load-first", repRange: [5, 8] } },
+        { id: "leg_ext", name: "Leg Extension / Sissy Squat", sets: 3, reps: "5-8", defaultWeight: 100, muscles: ["quads"], notes: "Strength focus - heavy, controlled reps", progression: { progressionType: "load-first", repRange: [5, 8] } },
+        { id: "lat_pulldown", name: "Lat Pulldown / Pull-ups", sets: 3, reps: "5-8", defaultWeight: 100, muscles: ["lats", "biceps"], notes: "Strength focus", progression: { progressionType: "load-first", repRange: [5, 8] } },
+        { id: "bent_lateral", name: "Bent + Side Lateral / Rear Delt Machine", sets: 2, reps: "12-20", defaultWeight: 12, muscles: ["rearDelts", "sideDelts"], notes: "Microplates for laterals" },
+        { id: "calf_raise", name: "Calf Raises / Seated Calf", sets: 3, reps: "12-20", defaultWeight: 150, muscles: ["calves"], notes: "Full ROM, calves progress slowly" }
       ]},
       day3: { name: "Upper Hypertrophy + Arms", focus: "Upper chest volume, arm hypertrophy", exercises: [
-        { id: "incline_bb", name: "Incline Barbell Press (30°) / Smith Incline", sets: 4, warmupSets: 1, reps: "8-10", defaultWeight: 115, muscles: ["upperChest", "shoulders", "triceps"], notes: "1 intro set, then 3 at weight", cls: 'power' },
-        { id: "cable_row", name: "Cable Row / Machine Row", sets: 3, reps: "5-8", defaultWeight: 120, muscles: ["lats", "traps", "biceps"], notes: "Strength focus", progression: { progressionType: "load-first", repRange: [5, 8] }, cls: 'power' },
-        { id: "low_high_fly", name: "Low-to-High Cable Fly / Incline DB Fly", sets: 3, reps: "12-15", defaultWeight: 25, muscles: ["upperChest"], notes: "Upper chest isolation", cls: 'size' },
-        { id: "bayesian_curl", name: "Bayesian Cable Curl / Incline Curl", sets: 3, reps: "10-15", defaultWeight: 25, muscles: ["biceps"], notes: "Face away, constant tension", cls: 'size' },
-        { id: "overhead_tri", name: "Overhead Tricep Extension / Skull Crushers", sets: 3, reps: "10-15", defaultWeight: 50, muscles: ["triceps"], notes: "Long head emphasis", cls: 'size' },
-        { id: "preacher_curl", name: "Preacher Curl / Concentration Curl", sets: 3, reps: "10-12", defaultWeight: 50, muscles: ["biceps"], notes: "Short head emphasis", cls: 'size' },
-        { id: "pushdown", name: "Rope Pushdown / V-Bar Pushdown", sets: 2, reps: "12-20", defaultWeight: 40, muscles: ["triceps"], notes: "Pump finisher", cls: 'size' }
+        { id: "incline_bb", name: "Incline Barbell Press (30°) / Smith Incline", sets: 4, warmupSets: 1, reps: "8-10", defaultWeight: 115, muscles: ["upperChest", "shoulders", "triceps"], notes: "1 intro set, then 3 at weight" },
+        { id: "cable_row", name: "Cable Row / Machine Row", sets: 3, reps: "5-8", defaultWeight: 120, muscles: ["lats", "traps", "biceps"], notes: "Strength focus", progression: { progressionType: "load-first", repRange: [5, 8] } },
+        { id: "low_high_fly", name: "Low-to-High Cable Fly / Incline DB Fly", sets: 3, reps: "12-15", defaultWeight: 25, muscles: ["upperChest"], notes: "Upper chest isolation" },
+        { id: "bayesian_curl", name: "Bayesian Cable Curl / Incline Curl", sets: 3, reps: "10-15", defaultWeight: 25, muscles: ["biceps"], notes: "Face away, constant tension" },
+        { id: "overhead_tri", name: "Overhead Tricep Extension / Skull Crushers", sets: 3, reps: "10-15", defaultWeight: 50, muscles: ["triceps"], notes: "Long head emphasis" },
+        { id: "preacher_curl", name: "Preacher Curl / Concentration Curl", sets: 3, reps: "10-12", defaultWeight: 50, muscles: ["biceps"], notes: "Short head emphasis" },
+        { id: "pushdown", name: "Rope Pushdown / V-Bar Pushdown", sets: 2, reps: "12-20", defaultWeight: 40, muscles: ["triceps"], notes: "Pump finisher" }
       ]},
       day4: { name: "Lower Hypertrophy + Volume", focus: "Squat volume, additional upper work", exercises: [
-        { id: "squat", name: "Barbell Squat / Front Squat", sets: 5, warmupSets: 2, reps: "4-8", defaultWeight: 155, muscles: ["quads", "glutes", "hamstrings"], notes: "2 warm-ups (~50%/75%), then 3 heavy sets", cls: 'power' },
-        { id: "leg_press", name: "Leg Press / Hack Squat", sets: 4, warmupSets: 1, reps: "8-12", defaultWeight: 270, muscles: ["quads", "glutes"], notes: "1 intro set, then 3 at weight", cls: 'size' },
-        { id: "leg_ext", name: "Leg Extension / Sissy Squat", sets: 3, reps: "5-8", defaultWeight: 100, muscles: ["quads"], notes: "Strength focus - heavy, controlled reps", progression: { progressionType: "load-first", repRange: [5, 8] }, cls: 'power' },
-        { id: "leg_curl", name: "Leg Curl / Nordic Curl", sets: 3, reps: "5-8", defaultWeight: 70, muscles: ["hamstrings"], notes: "Strength focus, control negative. Nordics cover what RDLs used to", progression: { progressionType: "load-first", repRange: [5, 8] }, cls: 'power' },
-        { id: "back_extension", name: "45° Back Extension / Reverse Hyper", sets: 3, reps: "8-15", defaultWeight: 0, muscles: ["hamstrings", "glutes"], notes: "Replaces RDL. Hold a plate to add load", cls: 'size' },
-        { id: "seated_row", name: "Seated Cable Row / T-Bar Row", sets: 3, reps: "5-8", defaultWeight: 130, muscles: ["lats", "traps", "biceps"], notes: "Strength focus", cls: 'power' },
-        { id: "lat_pulldown", name: "Lat Pulldown / Pull-ups", sets: 3, reps: "5-8", defaultWeight: 100, muscles: ["lats", "biceps"], notes: "Strength focus", progression: { progressionType: "load-first", repRange: [5, 8] }, cls: 'power' },
-        { id: "machine_chest", name: "Machine Chest Press / Cable Crossover", sets: 3, reps: "10-15", defaultWeight: 140, muscles: ["chest", "triceps"], notes: "3 working sets - safe to push hard", cls: 'size' },
-        { id: "high_rep_curl", name: "EZ Bar Curl / Cable Curl", sets: 3, reps: "12-15", defaultWeight: 45, muscles: ["biceps"], notes: "High rep pump", cls: 'size' }
+        { id: "squat", name: "Barbell Squat / Front Squat", sets: 5, warmupSets: 2, reps: "4-8", defaultWeight: 155, muscles: ["quads", "glutes", "hamstrings"], notes: "2 warm-ups (~50%/75%), then 3 heavy sets" },
+        { id: "leg_press", name: "Leg Press / Hack Squat", sets: 4, warmupSets: 1, reps: "8-12", defaultWeight: 270, muscles: ["quads", "glutes"], notes: "1 intro set, then 3 at weight" },
+        { id: "leg_ext", name: "Leg Extension / Sissy Squat", sets: 3, reps: "5-8", defaultWeight: 100, muscles: ["quads"], notes: "Strength focus - heavy, controlled reps", progression: { progressionType: "load-first", repRange: [5, 8] } },
+        { id: "leg_curl", name: "Leg Curl / Nordic Curl", sets: 3, reps: "5-8", defaultWeight: 70, muscles: ["hamstrings"], notes: "Strength focus, control negative. Nordics cover what RDLs used to", progression: { progressionType: "load-first", repRange: [5, 8] } },
+        { id: "back_extension", name: "45° Back Extension / Reverse Hyper", sets: 3, reps: "8-15", defaultWeight: 0, muscles: ["hamstrings", "glutes"], notes: "Replaces RDL. Hold a plate to add load" },
+        { id: "seated_row", name: "Seated Cable Row / T-Bar Row", sets: 3, reps: "5-8", defaultWeight: 130, muscles: ["lats", "traps", "biceps"], notes: "Strength focus" },
+        { id: "lat_pulldown", name: "Lat Pulldown / Pull-ups", sets: 3, reps: "5-8", defaultWeight: 100, muscles: ["lats", "biceps"], notes: "Strength focus", progression: { progressionType: "load-first", repRange: [5, 8] } },
+        { id: "machine_chest", name: "Machine Chest Press / Cable Crossover", sets: 3, reps: "10-15", defaultWeight: 140, muscles: ["chest", "triceps"], notes: "3 working sets - safe to push hard" },
+        { id: "high_rep_curl", name: "EZ Bar Curl / Cable Curl", sets: 3, reps: "12-15", defaultWeight: 45, muscles: ["biceps"], notes: "High rep pump" }
       ]}
     };
 
     const workoutData3Day = {
       day1: { name: "Lower Power + Upper Maintenance", focus: "Heavy glute loading, hip hinge strength", exercises: [
-        { id: "deadlift", name: "Sumo Deadlift / Conventional Deadlift", sets: 4, reps: "4-6", defaultWeight: 185, muscles: ["glutes", "hamstrings", "lats", "traps"], notes: "Heavy, 2-3 min rest", cls: 'power' },
-        { id: "hip_thrust", name: "Barbell Hip Thrust / Machine Hip Thrust", sets: 4, reps: "5-8", defaultWeight: 135, muscles: ["glutes", "hamstrings"], notes: "Progress fast - squeeze at top", cls: 'power' },
-        { id: "db_bench", name: "DB Bench Press / Machine Chest Press", sets: 3, reps: "8-12", defaultWeight: 35, muscles: ["chest", "triceps"], notes: "Upper maintenance", cls: 'size' },
-        { id: "cable_row", name: "Cable Row / Machine Row", sets: 3, reps: "10-12", defaultWeight: 100, muscles: ["lats", "traps", "biceps"], notes: "Upper maintenance", cls: 'size' },
-        { id: "bulgarian_split", name: "Bulgarian Split Squat / Reverse Lunge", sets: 3, reps: "8-12", defaultWeight: 30, muscles: ["glutes", "quads"], notes: "Balance before load", cls: 'size' }
+        { id: "deadlift", name: "Sumo Deadlift / Conventional Deadlift", sets: 4, reps: "4-6", defaultWeight: 185, muscles: ["glutes", "hamstrings", "lats", "traps"], notes: "Heavy, 2-3 min rest" },
+        { id: "hip_thrust", name: "Barbell Hip Thrust / Machine Hip Thrust", sets: 4, reps: "5-8", defaultWeight: 135, muscles: ["glutes", "hamstrings"], notes: "Progress fast - squeeze at top" },
+        { id: "db_bench", name: "DB Bench Press / Machine Chest Press", sets: 3, reps: "8-12", defaultWeight: 35, muscles: ["chest", "triceps"], notes: "Upper maintenance" },
+        { id: "cable_row", name: "Cable Row / Machine Row", sets: 3, reps: "10-12", defaultWeight: 100, muscles: ["lats", "traps", "biceps"], notes: "Upper maintenance" },
+        { id: "bulgarian_split", name: "Bulgarian Split Squat / Reverse Lunge", sets: 3, reps: "8-12", defaultWeight: 30, muscles: ["glutes", "quads"], notes: "Balance before load" }
       ]},
       day2: { name: "Full Body Hypertrophy", focus: "Glute volume, unilateral work", exercises: [
-        { id: "rdl", name: "Romanian Deadlift / Stiff-Leg Deadlift", sets: 4, reps: "8-12", defaultWeight: 95, muscles: ["hamstrings", "glutes"], notes: "Form > load, feel stretch", cls: 'power' },
-        { id: "walking_lunge", name: "Walking Lunges / Stationary Lunges", sets: 3, reps: "24-30 steps", defaultWeight: 25, muscles: ["glutes", "quads"], notes: "Per DB, metabolic stress", cls: 'size' },
-        { id: "step_up", name: "Diagonal Step-Up / Box Step-Up", sets: 3, reps: "10-12", defaultWeight: 20, muscles: ["glutes", "quads"], notes: "Highest glute EMG activation", cls: 'size' },
-        { id: "log_press", name: "Log Press / Standing DB Press", sets: 3, reps: "3-5", defaultWeight: 70, muscles: ["shoulders", "triceps"], notes: "Primary press - microplates!", cls: 'power' },
-        { id: "lat_pulldown", name: "Lat Pulldown / Assisted Pull-ups", sets: 3, reps: "10-12", defaultWeight: 100, muscles: ["lats", "biceps"], notes: "Upper maintenance", cls: 'size' },
-        { id: "cable_kickback", name: "Cable Kickback / Donkey Kick", sets: 3, reps: "12-15", defaultWeight: 25, muscles: ["glutes"], notes: "Mind-muscle connection", cls: 'size' }
+        { id: "rdl", name: "Romanian Deadlift / Stiff-Leg Deadlift", sets: 4, reps: "8-12", defaultWeight: 95, muscles: ["hamstrings", "glutes"], notes: "Form > load, feel stretch" },
+        { id: "walking_lunge", name: "Walking Lunges / Stationary Lunges", sets: 3, reps: "24-30 steps", defaultWeight: 25, muscles: ["glutes", "quads"], notes: "Per DB, metabolic stress" },
+        { id: "step_up", name: "Diagonal Step-Up / Box Step-Up", sets: 3, reps: "10-12", defaultWeight: 20, muscles: ["glutes", "quads"], notes: "Highest glute EMG activation" },
+        { id: "log_press", name: "Log Press / Standing DB Press", sets: 3, reps: "3-5", defaultWeight: 70, muscles: ["shoulders", "triceps"], notes: "Primary press - microplates!" },
+        { id: "lat_pulldown", name: "Lat Pulldown / Assisted Pull-ups", sets: 3, reps: "10-12", defaultWeight: 100, muscles: ["lats", "biceps"], notes: "Upper maintenance" },
+        { id: "cable_kickback", name: "Cable Kickback / Donkey Kick", sets: 3, reps: "12-15", defaultWeight: 25, muscles: ["glutes"], notes: "Mind-muscle connection" }
       ]},
       day3: { name: "Lower Volume + Finisher", focus: "Glute pump, quad balance", exercises: [
-        { id: "hip_thrust", name: "Hip Thrust / Glute Bridge", sets: 3, reps: "12-15", defaultWeight: 115, muscles: ["glutes"], notes: "Focus on squeeze/contraction", cls: 'size' },
-        { id: "leg_press", name: "Leg Press / Hack Squat", sets: 3, reps: "8-12", defaultWeight: 200, muscles: ["glutes", "quads"], notes: "Glute-biased foot position", cls: 'size' },
-        { id: "leg_curl", name: "Leg Curl / Nordic Curl", sets: 3, reps: "8-12", defaultWeight: 70, muscles: ["hamstrings"], notes: "Control negative", cls: 'size' },
-        { id: "leg_ext", name: "Leg Extension / Sissy Squat", sets: 3, reps: "10-12", defaultWeight: 80, muscles: ["quads"], notes: "Controlled reps for knee health", cls: 'size' },
-        { id: "single_leg_rdl", name: "Single-Leg RDL / Kickstand RDL", sets: 3, reps: "10-12", defaultWeight: 25, muscles: ["glutes", "hamstrings"], notes: "Balance first, then load", cls: 'size' },
-        { id: "push_ups", name: "Push-ups / Knee Push-ups", sets: 3, reps: "12-20", defaultWeight: 0, muscles: ["chest", "triceps"], notes: "Upper maintenance", cls: 'size' },
-        { id: "face_pull", name: "Face Pulls / Band Pull-Aparts", sets: 3, reps: "15-20", defaultWeight: 35, muscles: ["rearDelts", "traps"], notes: "Shoulder health > ego", cls: 'size' },
-        { id: "calf_raise", name: "Calf Raises / Seated Calf Raise", sets: 3, reps: "12-20", defaultWeight: 120, muscles: ["calves"], notes: "Full ROM, patient progression", cls: 'size' }
+        { id: "hip_thrust", name: "Hip Thrust / Glute Bridge", sets: 3, reps: "12-15", defaultWeight: 115, muscles: ["glutes"], notes: "Focus on squeeze/contraction" },
+        { id: "leg_press", name: "Leg Press / Hack Squat", sets: 3, reps: "8-12", defaultWeight: 200, muscles: ["glutes", "quads"], notes: "Glute-biased foot position" },
+        { id: "leg_curl", name: "Leg Curl / Nordic Curl", sets: 3, reps: "8-12", defaultWeight: 70, muscles: ["hamstrings"], notes: "Control negative" },
+        { id: "leg_ext", name: "Leg Extension / Sissy Squat", sets: 3, reps: "10-12", defaultWeight: 80, muscles: ["quads"], notes: "Controlled reps for knee health" },
+        { id: "single_leg_rdl", name: "Single-Leg RDL / Kickstand RDL", sets: 3, reps: "10-12", defaultWeight: 25, muscles: ["glutes", "hamstrings"], notes: "Balance first, then load" },
+        { id: "push_ups", name: "Push-ups / Knee Push-ups", sets: 3, reps: "12-20", defaultWeight: 0, muscles: ["chest", "triceps"], notes: "Upper maintenance" },
+        { id: "face_pull", name: "Face Pulls / Band Pull-Aparts", sets: 3, reps: "15-20", defaultWeight: 35, muscles: ["rearDelts", "traps"], notes: "Shoulder health > ego" },
+        { id: "calf_raise", name: "Calf Raises / Seated Calf Raise", sets: 3, reps: "12-20", defaultWeight: 120, muscles: ["calves"], notes: "Full ROM, patient progression" }
       ]}
     };
 
@@ -756,7 +726,6 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
       // Session state - only saved at workout completion
       const [sessionData, setSessionData] = useState({});
       const [showNotes, setShowNotes] = useState(false);
-      const [showMenu, setShowMenu] = useState(false);
       const [useAltExercise, setUseAltExercise] = useState({});
       // Pre-workout ab routine: tracked as a simple done/not-done per session,
       // no sets or reps - the routine itself lives outside the app
@@ -914,21 +883,19 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
       const ACTIVE_SESSION_KEY = 'activeWorkoutSession';
 
       const beginWorkout = (startIndex = 0) => {
-        // Already mid-workout on this day: resume in place
+        // Already mid-workout on this day: jump straight to the tapped exercise
         if (Object.keys(sessionData).length > 0 && sessionDay === selectedDay) {
-          setCurrentExerciseIndex(startIndex);
-          setView('exercise');
+          startExercise(startIndex);
           return;
         }
         let resumed = false;
-        let resumedData = {};
         try {
           const saved = JSON.parse(localStorage.getItem(ACTIVE_SESSION_KEY));
           if (saved && saved.program === selectedProgram && saved.day === selectedDay &&
               saved.sessionData && Object.keys(saved.sessionData).length > 0) {
             const hoursAgo = (Date.now() - new Date(saved.savedAt).getTime()) / 36e5;
             if (hoursAgo < 12 && confirm('You have an unfinished workout for this day. Resume it? (Cancel starts fresh)')) {
-              resumedData = saved.sessionData;
+              setSessionData(saved.sessionData);
               setUseAltExercise(saved.useAltExercise || {});
               setAbsDone(!!saved.absDone);
               setWorkoutStartedAt(saved.startedAt || saved.savedAt);
@@ -937,40 +904,12 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
           }
         } catch {}
         if (!resumed) {
+          setSessionData({});
           setUseAltExercise({});
           setWorkoutStartedAt(new Date().toISOString());
         }
         setSessionDay(selectedDay);
-
-        // Pre-initialize all exercises
-        const cfg = programConfigs[selectedProgram];
-        const exercises = cfg.data[selectedDay].exercises;
-        const initAll = {};
-        exercises.forEach((exercise, index) => {
-          const progression = calculateProgression(exercise);
-          const exConfig = progression.config;
-          const numSets = typeof exercise.sets === 'number' ? exercise.sets : 3;
-          const numWarmups = Math.min(exercise.warmupSets || 0, numSets - 1);
-          const lastWorking = progression.lastSession ? getWorkingSets(progression.lastSession) : [];
-          const startWeight = lastWorking[0]?.weight ?? progression.lastSession?.weight ?? progression.weight;
-          const startReps = lastWorking.length > 0
-            ? Math.round(lastWorking.reduce((a, s) => a + s.reps, 0) / lastWorking.length)
-            : progression.reps;
-          const inc = exConfig.weightIncrement || 5;
-          const warmupPcts = numWarmups >= 2 ? [0.5, 0.75] : [0.6];
-          const warmupWeight = (i) => Math.max(inc, Math.round((startWeight * warmupPcts[Math.min(i, warmupPcts.length - 1)]) / inc) * inc);
-          initAll[index] = {
-            sets: Array(numSets).fill(null).map((_, i) => i < numWarmups
-              ? { weight: warmupWeight(i), reps: startReps, completed: false, warmup: true }
-              : { weight: startWeight, reps: startReps, completed: false }),
-            notes: '',
-            selectedAbExercise: exercise.isAbsSlot ? 'cable_crunch' : null
-          };
-        });
-        // Merge: resumed session data wins over fresh init
-        setSessionData(prev => ({ ...initAll, ...resumedData }));
-        setCurrentExerciseIndex(startIndex);
-        setView('exercise');
+        startExercise(startIndex);
       };
 
       const startExercise = (index) => {
@@ -1295,27 +1234,28 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
 
       // PROGRAM SELECT
       if (view === 'programSelect') {
-        const psOuter = { width: '100%', maxWidth: 430, margin: '0 auto', color: '#FFFFFF', display: 'flex', flexDirection: 'column', padding: 'calc(28px + env(safe-area-inset-top)) 20px calc(16px + env(safe-area-inset-bottom))', boxSizing: 'border-box' };
         return (
-          <div className="screen" style={psOuter}>
-            <div style={{ fontSize: 26, fontWeight: 500, marginBottom: 4 }}>Choose Program</div>
-            <div style={{ fontSize: 13, color: '#9A9A9A', marginBottom: 28 }}>Select a plan to get started</div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {Object.entries(programConfigs).map(([key, cfg]) => {
-                const dayCount = Object.keys(cfg.data).length;
-                return (
-                  <button key={key} onClick={() => selectProgram(key)} className="press-row" style={{ background: '#191919', borderRadius: 20, padding: 20, textAlign: 'left', border: 'none', color: '#FFFFFF', fontFamily: 'inherit', cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: 4 }}>
-                    <div style={{ fontSize: 16, fontWeight: 500 }}>{cfg.name}</div>
-                    <div style={{ fontSize: 12, color: '#9A9A9A' }}>{cfg.subtitle} · {dayCount} days</div>
+          <div className="min-h-screen text-white p-4 flex items-center justify-center" style={{ background: 'linear-gradient(180deg, #0a0a0f 0%, #0f0f18 100%)' }}>
+            <div className="max-w-md mx-auto w-full">
+              <div className="text-center mb-10">
+                <h1 className="text-2xl font-bold tracking-tight mb-2">Choose Your Program</h1>
+                <p className="text-zinc-500 text-sm">Select a workout plan to get started</p>
+              </div>
+              <div className="space-y-4">
+                {Object.entries(programConfigs).map(([key, cfg]) => (
+                  <button key={key} onClick={() => selectProgram(key)} className="w-full rounded-2xl p-5 text-left transition-all active:scale-[0.98] border border-zinc-800/50" style={{ backgroundColor: '#12121a' }}>
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: cfg.gradient }}><cfg.icon className="w-6 h-6 text-white" /></div>
+                      <div className="flex-1">
+                        <div className="text-base font-semibold text-zinc-100">{cfg.name}</div>
+                        <div className="text-xs text-zinc-500">{cfg.subtitle}</div>
+                      </div>
+                      <ChevronRight className="w-5 h-5 text-zinc-600" />
+                    </div>
                   </button>
-                );
-              })}
+                ))}
+              </div>
             </div>
-            {selectedProgram && (
-              <button onClick={() => setView('home')} style={{ marginTop: 20, background: 'none', border: 'none', color: '#9A9A9A', fontSize: 13, cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left' }}>
-                ‹ Back
-              </button>
-            )}
           </div>
         );
       }
@@ -1325,157 +1265,81 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
 
       // HOME
       if (view === 'home') {
-        const progLog = workoutLog[selectedProgram] || {};
-        // Compute last done date per day
-        const lastDoneByDay = {};
-        Object.entries(progLog).forEach(([dayKey, dayData]) => {
-          const sessions = dayData?.sessions || [];
-          if (sessions.length > 0) {
-            const latest = sessions.reduce((a, s) => new Date(s.date) > new Date(a.date) ? s : a);
-            lastDoneByDay[dayKey] = new Date(latest.date);
-          }
-        });
-        // Next day: first never-done day in order; if all done, the least-recently-done
-        const dayEntries = Object.entries(workoutData);
-        let nextDayKey = null;
-        for (const [key] of dayEntries) {
-          if (!lastDoneByDay[key]) { nextDayKey = key; break; }
-        }
-        if (!nextDayKey) {
-          nextDayKey = dayEntries[0][0];
-          let minDate = lastDoneByDay[nextDayKey];
-          dayEntries.forEach(([key]) => {
-            const d = lastDoneByDay[key];
-            if (d < minDate) { minDate = d; nextDayKey = key; }
-          });
-        }
-        const nextDayData = workoutData[nextDayKey];
-        const nextDayNum = nextDayKey.replace('day', '');
-        // Week number
-        const allSessions = [];
-        Object.values(progLog).forEach(d => (d?.sessions || []).forEach(s => allSessions.push(new Date(s.date))));
-        allSessions.sort((a, b) => a - b);
-        const weekNumber = allSessions.length > 0
-          ? Math.floor((Date.now() - allSessions[0].getTime()) / (7 * 864e5)) + 1
-          : 1;
-        // 7-day volume
-        const sevenDaysAgo = Date.now() - 7 * 864e5;
-        let volume7d = 0;
-        Object.values(progLog).forEach(dayD => {
-          Object.values(dayD?.exercises || {}).forEach(entries => {
-            entries.forEach(entry => {
-              if (new Date(entry.date).getTime() >= sevenDaysAgo) {
-                (entry.sets || []).forEach(s => {
-                  if (!s.warmup && s.completed) volume7d += (s.weight || 0) * (s.reps || 0);
-                });
-              }
-            });
-          });
-        });
-        const fmtVolume = (v) => v >= 1000 ? `${(v / 1000).toFixed(1)}k` : String(v);
-        const fmtDate = (d) => d ? d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : null;
-        // Day type label (Power vs Size) from majority of exercises
-        const dayType = (data) => {
-          const p = (data.exercises || []).filter(e => e.cls === 'power').length;
-          const s = (data.exercises || []).filter(e => e.cls === 'size').length;
-          return p >= s ? 'Power' : 'Size';
-        };
-        // Backup nudge
-        const totalSessions = allSessions.length;
-        const ageDays = lastBackupAt ? Math.floor((Date.now() - new Date(lastBackupAt).getTime()) / 864e5) : null;
-        const showBackupNudge = totalSessions >= 3 && (ageDays === null || ageDays > 21);
-        const outerStyle = { width: '100%', maxWidth: 430, margin: '0 auto', color: '#FFFFFF', display: 'flex', flexDirection: 'column', padding: 'calc(28px + env(safe-area-inset-top)) 20px calc(16px + env(safe-area-inset-bottom))', boxSizing: 'border-box' };
         return (
-          <div className="screen" style={outerStyle}>
-            {/* Header */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
-              <span style={{ fontSize: 26, fontWeight: 500 }}>Workouts</span>
-              <div style={{ display: 'flex', gap: 8 }}>
-                <button onClick={() => setShowMenu(true)} className="press-row" style={{ width: 36, height: 36, borderRadius: '50%', background: '#191919', border: 'none', color: '#9A9A9A', fontSize: 15, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>≡</button>
-                <button onClick={() => setShowMenu(true)} className="press-row" style={{ width: 36, height: 36, borderRadius: '50%', background: '#191919', border: 'none', color: '#FFFFFF', fontSize: 18, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>+</button>
+          <div className="min-h-screen text-white p-4" style={{ background: config.bgGradient }}>
+            <div className="max-w-md mx-auto">
+              <div className="text-center mb-8 pt-4">
+                <button onClick={() => setView('programSelect')} className="text-zinc-600 text-xs mb-3 hover:text-white transition-colors flex items-center justify-center gap-1 mx-auto"><ChevronLeft className="w-3 h-3" /> Switch</button>
+                <div className="w-14 h-14 mx-auto mb-3 rounded-xl flex items-center justify-center" style={{ background: config.gradient }}><config.icon className="w-7 h-7 text-white" /></div>
+                <h1 className="text-xl font-bold tracking-tight">{config.name}</h1>
+                <p className="text-zinc-500 text-xs mt-1">{config.subtitle}</p>
               </div>
-            </div>
-            <div className="scrollarea" style={{ flex: 1, minHeight: 0, margin: '0 -20px', padding: '0 20px' }}>
-            {/* Hero tile pair */}
-            <div style={{ display: 'flex', gap: 10, marginTop: 18 }}>
-              <div style={{ flex: 1.2, background: '#191919', borderRadius: 20, padding: 16 }}>
-                <span style={{ width: 34, height: 34, borderRadius: '50%', border: '1.5px solid #3A3A3A', boxSizing: 'border-box', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 500 }}>{nextDayNum}</span>
-                <div style={{ fontSize: 15, fontWeight: 500, marginTop: 14 }}>{nextDayData.name}</div>
-                <div style={{ fontSize: 11.5, color: '#9A9A9A', marginTop: 4 }}>
-                  {lastDoneByDay[nextDayKey] ? `Next up · ${fmtDate(lastDoneByDay[nextDayKey])}` : 'Next up'}
-                </div>
+              <div className="space-y-2">
+                {Object.entries(workoutData).map(([day, data]) => {
+                  const accent = config.dayAccents[day];
+                  return (
+                    <button key={day} onClick={() => startDay(day)} className="w-full rounded-xl p-4 text-left transition-all active:scale-[0.98] border border-zinc-800/50" style={{ backgroundColor: '#12121a' }}>
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <div className="text-[9px] font-semibold uppercase tracking-widest mb-0.5" style={{ color: accent }}>Day {day.replace('day','')}</div>
+                          <div className="text-sm font-semibold text-zinc-100">{data.name}</div>
+                          <div className="text-[10px] text-zinc-600">{data.exercises.length} exercises</div>
+                        </div>
+                        <ChevronRight className="w-4 h-4" style={{ color: accent }} />
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
-              <div style={{ flex: 1, background: '#191919', borderRadius: 20, padding: 16 }}>
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
-                  <span style={{ fontSize: 32, fontWeight: 600, lineHeight: 1 }}>{weekNumber}</span>
-                  <span style={{ fontSize: 13, fontWeight: 400, color: '#9A9A9A' }}>wk</span>
-                </div>
-                <div style={{ fontSize: 12, color: '#9A9A9A', marginTop: 24 }}>{config.name}</div>
-              </div>
-            </div>
-            {/* Primary CTA */}
-            <button onClick={() => { setSelectedDay(nextDayKey); setView('dayOverview'); }} className="btn-primary" style={{ marginTop: 12, width: '100%', height: 54, borderRadius: 10, background: '#FFFFFF', color: '#0A0A0A', fontSize: 15, fontWeight: 600, border: 'none', cursor: 'pointer', fontFamily: 'inherit', flexShrink: 0 }}>
-              Start {nextDayData.name}
-            </button>
-            {/* Day list */}
-            <div style={{ marginTop: 20, display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {dayEntries.filter(([key]) => key !== nextDayKey).map(([key, data], i) => {
-                const num = key.replace('day', '');
-                const lastD = lastDoneByDay[key];
-                const caption = `${dayType(data)} · ${lastD ? `last done ${fmtDate(lastD)}` : 'not started'}`;
+              {(() => {
+                // Consistency: workouts per week over the last 8 weeks
+                const dates = [];
+                Object.values(workoutLog[selectedProgram] || {}).forEach(d => (d?.sessions || []).forEach(s => dates.push(new Date(s.date))));
+                if (dates.length === 0) return null;
+                const now = new Date();
+                const monday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - ((now.getDay() + 6) % 7));
+                const start = new Date(monday);
+                start.setDate(start.getDate() - 49);
+                const weeks = Array(8).fill(0);
+                dates.forEach(dt => {
+                  const idx = Math.floor((dt - start) / (7 * 864e5));
+                  if (idx >= 0 && idx < 8) weeks[idx]++;
+                });
+                const maxW = Math.max(...weeks, 1);
                 return (
-                  <button key={key} onClick={() => { setSelectedDay(key); setView('dayOverview'); }} className="press-row" style={{ background: '#191919', borderRadius: 18, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 14, border: 'none', cursor: 'pointer', color: '#FFFFFF', fontFamily: 'inherit', textAlign: 'left' }}>
-                    <span style={{ width: 38, height: 38, borderRadius: '50%', border: '1.5px solid #3A3A3A', boxSizing: 'border-box', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 500, flexShrink: 0 }}>{num}</span>
-                    <span style={{ flex: 1 }}>
-                      <span style={{ display: 'block', fontSize: 14.5, fontWeight: 500 }}>{data.name}</span>
-                      <span style={{ display: 'block', fontSize: 11.5, color: '#9A9A9A', marginTop: 2 }}>{caption}</span>
-                    </span>
+                  <div className="mt-6 p-3 rounded-xl border border-zinc-800/50" style={{ backgroundColor: '#12121a' }}>
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-[10px] text-zinc-500 font-medium">LAST 8 WEEKS</span>
+                      <span className="text-[10px] text-zinc-400">{weeks[7]} this week · {dates.length} total</span>
+                    </div>
+                    <div className="flex items-end gap-1.5 h-8">
+                      {weeks.map((c, i) => (
+                        <div key={i} className="flex-1 rounded-sm" style={{ height: `${c === 0 ? 10 : 30 + (c / maxW) * 70}%`, background: c === 0 ? '#27272a' : config.gradient, opacity: c === 0 ? 1 : 0.45 + 0.55 * (c / maxW) }} />
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()}
+              {(() => {
+                const totalSessions = Object.values(workoutLog[selectedProgram] || {}).reduce((a, d) => a + (d?.sessions?.length || 0), 0);
+                const ageDays = lastBackupAt ? Math.floor((Date.now() - new Date(lastBackupAt).getTime()) / 864e5) : null;
+                if (totalSessions < 3 || (ageDays !== null && ageDays <= 21)) return null;
+                return (
+                  <button onClick={exportBackup} className="mt-3 w-full text-left p-2.5 rounded-lg border border-amber-500/30 bg-amber-500/10 text-[10px] text-amber-300/90">
+                    {ageDays === null ? 'Never backed up' : `Last backup ${ageDays} days ago`} — your log lives only in this browser. Tap to save a backup file.
                   </button>
                 );
-              })}
-            </div>
-            {/* Volume row */}
-            <div style={{ marginTop: 8, background: '#191919', borderRadius: 18, padding: '14px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div>
-                <div style={{ fontSize: 12.5, color: '#9A9A9A' }}>Volume lifted</div>
-                <div style={{ fontSize: 10.5, color: '#9A9A9A' }}>Last 7 days</div>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
-                <span style={{ fontSize: 30, fontWeight: 600, lineHeight: 1 }}>{fmtVolume(volume7d)}</span>
-                <span style={{ fontSize: 13, color: '#9A9A9A' }}>lbs</span>
+              })()}
+              <div className="mt-4 flex gap-2 text-[10px]">
+                <button onClick={exportBackup} className="flex-1 text-zinc-500 flex items-center justify-center gap-1 py-2 border border-zinc-800 rounded-lg"><Download className="w-3 h-3" /> Backup</button>
+                <label className="flex-1 text-zinc-500 flex items-center justify-center gap-1 py-2 border border-zinc-800 rounded-lg cursor-pointer">
+                  <input type="file" accept=".json,application/json" className="hidden" onChange={(e) => { const f = e.target.files[0]; if (f) importBackup(f); e.target.value = ''; }} />
+                  <RotateCcw className="w-3 h-3" /> Restore
+                </label>
+                <button onClick={exportCSV} className="flex-1 text-zinc-600 flex items-center justify-center gap-1 py-2 border border-zinc-800 rounded-lg">CSV</button>
+                <button onClick={resetData} className="flex-1 text-zinc-700 flex items-center justify-center gap-1 py-2">Reset</button>
               </div>
             </div>
-            {/* Backup nudge */}
-            {showBackupNudge && (
-              <button onClick={exportBackup} style={{ marginTop: 8, width: '100%', textAlign: 'left', padding: '10px 14px', borderRadius: 10, border: '1px solid rgba(245,158,11,0.3)', background: 'rgba(245,158,11,0.08)', fontSize: 11, color: 'rgba(252,211,77,0.9)', cursor: 'pointer', fontFamily: 'inherit' }}>
-                {ageDays === null ? 'Never backed up' : `Last backup ${ageDays} days ago`} — your log lives only in this browser. Tap to save a backup file.
-              </button>
-            )}
-            <div style={{ height: 16 }} />
-            </div>
-            {/* Tab bar */}
-            <div style={{ paddingTop: 14, borderTop: '1px solid #1E1E1E', display: 'flex', justifyContent: 'space-around', flexShrink: 0 }}>
-              <span style={{ fontSize: 12, fontWeight: 500, color: '#FFFFFF' }}>Train</span>
-              <span style={{ fontSize: 12, fontWeight: 400, color: '#9A9A9A' }}>Log</span>
-              <span style={{ fontSize: 12, fontWeight: 400, color: '#9A9A9A' }}>Records</span>
-              <span style={{ fontSize: 12, fontWeight: 400, color: '#9A9A9A' }}>Program</span>
-            </div>
-            {/* Menu sheet */}
-            {showMenu && (
-              <div onClick={() => setShowMenu(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 50, display: 'flex', alignItems: 'flex-end' }}>
-                <div onClick={(e) => e.stopPropagation()} style={{ width: '100%', maxWidth: 430, margin: '0 auto', background: '#191919', borderRadius: '20px 20px 0 0', padding: '8px 20px calc(20px + env(safe-area-inset-bottom))', boxSizing: 'border-box' }}>
-                  <div style={{ width: 36, height: 4, borderRadius: 2, background: '#3A3A3A', margin: '8px auto 12px' }} />
-                  <button onClick={() => { setShowMenu(false); setView('programSelect'); }} className="press-row" style={{ display: 'block', width: '100%', textAlign: 'left', background: 'none', border: 'none', color: '#FFFFFF', fontSize: 15, fontWeight: 500, padding: '14px 0', cursor: 'pointer', fontFamily: 'inherit' }}>Switch program</button>
-                  <button onClick={() => { exportBackup(); setShowMenu(false); }} className="press-row" style={{ display: 'block', width: '100%', textAlign: 'left', background: 'none', border: 'none', color: '#FFFFFF', fontSize: 15, fontWeight: 500, padding: '14px 0', cursor: 'pointer', fontFamily: 'inherit', borderTop: '1px solid #262626' }}>Back up data</button>
-                  <label className="press-row" style={{ display: 'block', width: '100%', textAlign: 'left', color: '#FFFFFF', fontSize: 15, fontWeight: 500, padding: '14px 0', cursor: 'pointer', borderTop: '1px solid #262626' }}>
-                    <input type="file" accept=".json,application/json" style={{ display: 'none' }} onChange={(e) => { const f = e.target.files[0]; if (f) importBackup(f); e.target.value = ''; setShowMenu(false); }} />
-                    Restore from backup
-                  </label>
-                  <button onClick={() => { exportCSV(); setShowMenu(false); }} className="press-row" style={{ display: 'block', width: '100%', textAlign: 'left', background: 'none', border: 'none', color: '#FFFFFF', fontSize: 15, fontWeight: 500, padding: '14px 0', cursor: 'pointer', fontFamily: 'inherit', borderTop: '1px solid #262626' }}>Export CSV</button>
-                  <button onClick={() => { setShowMenu(false); resetData(); }} className="press-row" style={{ display: 'block', width: '100%', textAlign: 'left', background: 'none', border: 'none', color: '#9A9A9A', fontSize: 15, fontWeight: 500, padding: '14px 0', cursor: 'pointer', fontFamily: 'inherit', borderTop: '1px solid #262626' }}>Reset all data</button>
-                </div>
-              </div>
-            )}
           </div>
         );
       }
@@ -1483,95 +1347,56 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
       // DAY OVERVIEW
       if (view === 'dayOverview') {
         const dayData = workoutData[selectedDay];
-        const progLog = workoutLog[selectedProgram] || {};
-        const dayLog = progLog[selectedDay];
-        const sessions = dayLog?.sessions || [];
-        const lastSession = sessions.length > 0 ? sessions.reduce((a, s) => new Date(s.date) > new Date(a.date) ? s : a) : null;
-        const lastDoneStr = lastSession
-          ? new Date(lastSession.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-          : null;
-        const exercises = dayData.exercises;
-        const powerCount = exercises.filter(e => e.cls === 'power').length;
-        const sizeCount = exercises.filter(e => e.cls === 'size').length;
-        // Group by superset
-        const outerStyle = { width: '100%', maxWidth: 430, margin: '0 auto', color: '#FFFFFF', display: 'flex', flexDirection: 'column', padding: 'calc(28px + env(safe-area-inset-top)) 20px calc(16px + env(safe-area-inset-bottom))', boxSizing: 'border-box' };
-        // Build exercise rows with superset grouping
-        const rows = [];
-        let i2 = 0;
-        while (i2 < exercises.length) {
-          const ex = exercises[i2];
-          const ssId = ex.supersetGroupId;
-          if (ssId) {
-            // Find partner
-            const partnerIdx = exercises.findIndex((e, j) => j > i2 && e.supersetGroupId === ssId);
-            if (partnerIdx >= 0) {
-              rows.push({ type: 'superset', idx1: i2, idx2: partnerIdx });
-              i2 = partnerIdx + 1;
-              continue;
-            }
-          }
-          rows.push({ type: 'single', idx: i2 });
-          i2++;
-        }
-        const exRow = (ex, idx, borderRadius, isSecondSS) => {
-          const lastData = getLastSession(ex.id);
-          const workSets = lastData ? getWorkingSets(lastData) : [];
-          const lastWeight = workSets[0]?.weight ?? lastData?.weight ?? null;
-          const numWorking = (typeof ex.sets === 'number' ? ex.sets : 3) - (ex.warmupSets || 0);
-          const caption = lastWeight != null
-            ? `${numWorking}×${ex.reps} · ${lastWeight} lb`
-            : `${numWorking}×${ex.reps}`;
-          const name = ex.name.split(' / ')[0];
-          return (
-            <div key={`ex-${idx}`} onClick={() => beginWorkout(idx)} className="press-row" style={{ background: '#191919', borderRadius: borderRadius || 16, padding: '11px 14px', display: 'flex', alignItems: 'center', gap: 13, cursor: 'pointer' }}>
-              <span style={{ width: 38, height: 38, borderRadius: '50%', background: '#262626', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                {ex.cls === 'power' ? <PowerIcon size={15} /> : <SizeIcon size={15} />}
-              </span>
-              <span style={{ flex: 1 }}>
-                <span style={{ display: 'block', fontSize: 14, fontWeight: 500 }}>{name}</span>
-                <span style={{ display: 'block', fontSize: 11.5, color: '#9A9A9A', marginTop: 1 }}>{caption}</span>
-              </span>
-            </div>
-          );
-        };
+        const accent = config.dayAccents[selectedDay];
         return (
-          <div className="screen" style={outerStyle}>
-            {/* Nav row */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: '#9A9A9A' }}>
-              <button onClick={() => setView('home')} style={{ background: 'none', border: 'none', color: '#9A9A9A', fontSize: 13, cursor: 'pointer', fontFamily: 'inherit', padding: 0 }}>‹ Back</button>
-              <span>{lastDoneStr ? `Last done ${lastDoneStr}` : 'Not started'}</span>
-            </div>
-            {/* Title */}
-            <div style={{ fontSize: 28, fontWeight: 400, marginTop: 16 }}>{dayData.name}</div>
-            {/* Class legend */}
-            <div style={{ display: 'flex', gap: 16, marginTop: 8, fontSize: 11.5, color: '#9A9A9A', alignItems: 'center' }}>
-              <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><PowerIcon size={13} />{powerCount} power</span>
-              <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><SizeIcon size={13} />{sizeCount} size</span>
-            </div>
-            {/* Exercise list */}
-            <div className="scrollarea" style={{ marginTop: 14, display: 'flex', flexDirection: 'column', gap: 6, flex: 1, minHeight: 0 }}>
-              {rows.map((row, ri) => {
-                if (row.type === 'single') {
-                  return exRow(exercises[row.idx], row.idx, 16, false);
-                }
-                // Superset pair
-                const ex1 = exercises[row.idx1];
-                const ex2 = exercises[row.idx2];
-                return (
-                  <div key={`ss-${ri}`}>
-                    {exRow(ex1, row.idx1, '16px 16px 6px 6px', false)}
-                    <div style={{ display: 'flex', justifyContent: 'center', margin: '-2px 0', position: 'relative', zIndex: 1 }}>
-                      <span style={{ width: 16, height: 16, borderRadius: '50%', border: '1.5px solid #3A3A3A', background: '#0A0A0A', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 8, color: '#9A9A9A' }}>⋈</span>
-                    </div>
-                    {exRow(ex2, row.idx2, '6px 6px 16px 16px', true)}
+          <div className="min-h-screen text-white p-4 pb-24" style={{ background: config.bgGradient }}>
+            <div className="max-w-md mx-auto">
+              <button onClick={() => setView('home')} className="flex items-center text-zinc-500 mb-4 text-sm"><ChevronLeft className="w-4 h-4" /> Back</button>
+              <div className="mb-4">
+                <div className="text-[9px] font-semibold uppercase tracking-widest mb-0.5" style={{ color: accent }}>Day {selectedDay.replace('day','')}</div>
+                <h1 className="text-lg font-bold text-zinc-100">{dayData.name}</h1>
+                <p className="text-zinc-500 text-xs">{dayData.focus}</p>
+              </div>
+              {(() => { const adherence = getAbsAdherence(); return (
+                <button onClick={() => setAbsDone(!absDone)} className={`w-full rounded-lg p-3 mb-3 flex items-center gap-2.5 border transition-all active:scale-[0.98] ${absDone ? 'border-emerald-500/50 bg-emerald-500/10' : 'border-zinc-800/50'}`} style={absDone ? {} : { backgroundColor: '#12121a' }}>
+                  <div className={`w-6 h-6 rounded flex items-center justify-center flex-shrink-0 ${absDone ? 'bg-emerald-500 text-white' : 'bg-zinc-800 text-zinc-600'}`}>
+                    {absDone ? <Check className="w-4 h-4" /> : null}
                   </div>
-                );
-              })}
+                  <div className="flex-1 text-left">
+                    <div className={`text-sm font-medium ${absDone ? 'text-emerald-300' : 'text-zinc-200'}`}>Pre-workout ab routine</div>
+                    <div className="text-[10px] text-zinc-600">
+                      {adherence ? `Done ${adherence.done} of last ${adherence.total} workouts` : 'Tap when done — tracked with each workout'}
+                    </div>
+                  </div>
+                </button>
+              ); })()}
+              <div className="space-y-1.5 mb-4">
+                {dayData.exercises.map((ex, i) => {
+                  const lastData = getLastSession(ex.id);
+                  const primaryColor = muscleColors[ex.muscles[0]] || '#6b7280';
+                  // Equipment taken? Tap any exercise to jump straight to it
+                  const inSession = Object.keys(sessionData).length > 0 && sessionDay === selectedDay;
+                  const doneThisSession = inSession && sessionData[i]?.sets?.some(s => s.completed && !s.warmup);
+                  return (
+                    <button key={`${ex.id}-${i}`} onClick={() => beginWorkout(i)} className="w-full text-left rounded-lg p-3 flex items-center gap-2.5 border border-zinc-800/50 transition-all active:scale-[0.98]" style={{ backgroundColor: '#12121a' }}>
+                      <div className="w-7 h-7 rounded flex items-center justify-center text-xs font-bold flex-shrink-0" style={{ background: `${primaryColor}20`, color: primaryColor }}>{i + 1}</div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-medium text-zinc-200 truncate">{ex.name.split(' / ')[0]}</div>
+                        <div className="text-[10px] text-zinc-600">{ex.sets} × {ex.reps}{lastData ? (lastData.skipped ? ' · Skipped' : ` · ${lastData.weight} lbs`) : ''}</div>
+                      </div>
+                      {doneThisSession ? <Check className="w-4 h-4 text-emerald-500 flex-shrink-0" /> : <ChevronRight className="w-4 h-4 text-zinc-700 flex-shrink-0" />}
+                    </button>
+                  );
+                })}
+              </div>
+              <div className="fixed bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-zinc-950 to-transparent">
+                <div className="max-w-md mx-auto">
+                  <button onClick={() => beginWorkout(0)} className="w-full text-white font-semibold py-3.5 rounded-xl text-sm transition-all active:scale-[0.98] flex items-center justify-center gap-2" style={{ background: accent }}>
+                    <Play className="w-4 h-4" /> {Object.keys(sessionData).length > 0 && sessionDay === selectedDay ? 'Continue Workout' : 'Begin Workout'}
+                  </button>
+                </div>
+              </div>
             </div>
-            {/* Primary CTA */}
-            <button onClick={() => beginWorkout(0)} className="btn-primary" style={{ marginTop: 14, width: '100%', height: 54, borderRadius: 10, background: '#FFFFFF', color: '#0A0A0A', fontSize: 15, fontWeight: 600, border: 'none', cursor: 'pointer', fontFamily: 'inherit', flexShrink: 0 }}>
-              Start workout
-            </button>
           </div>
         );
       }
@@ -1579,176 +1404,211 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
       // EXERCISE
       if (view === 'exercise') {
         const dayData = workoutData[selectedDay];
-        const exercises = dayData.exercises;
-        const ex = exercises[currentExerciseIndex];
+        const exercise = dayData.exercises[currentExerciseIndex];
+        const progression = calculateProgression(exercise);
+        const exerciseConfig = getExerciseConfig(exercise);
+        const accent = config.dayAccents[selectedDay];
+        const weightIncrement = exerciseConfig.weightIncrement || 5;
+        const nameParts = exercise.name.split(' / ');
+        const hasAlt = nameParts.length > 1;
         const isUsingAlt = useAltExercise[currentExerciseIndex];
-        const nameParts = ex.name.split(' / ');
-        const displayName = isUsingAlt && nameParts.length > 1 ? nameParts[1] : nameParts[0];
+        const displayName = isUsingAlt && hasAlt ? nameParts[1] : nameParts[0];
+        const currentData = sessionData[currentExerciseIndex] || { sets: [], notes: '', selectedAbExercise: 'cable_crunch' };
 
-        const currentData = sessionData[currentExerciseIndex] || { sets: [], notes: '' };
-        const currentSets = currentData.sets || [];
-        const currentSetIdx = currentSets.findIndex(s => !s.completed);
-        const currentSet = currentSetIdx >= 0 ? currentSets[currentSetIdx] : null;
-        const isWarmup = currentSet?.warmup || false;
-        const workingSets = currentSets.filter(s => !s.warmup);
-        const doneWorkingSets = workingSets.filter(s => s.completed).length;
-        const totalWorkingSets = workingSets.length;
-        const exerciseConfig = getExerciseConfig(ex);
-        const weightInc = exerciseConfig.weightIncrement || 5;
+        // Format last workout date
+        const lastWorkoutDate = progression.lastSession?.date
+          ? new Date(progression.lastSession.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
+          : null;
 
-        // Progress counter across all exercises
-        let totalSets = 0, completedSets = 0;
-        exercises.forEach((_, idx) => {
-          const d = sessionData[idx];
-          if (!d) return;
-          (d.sets || []).forEach(s => { if (!s.warmup) { totalSets++; if (s.completed) completedSets++; } });
-        });
+        let suggestionColor = accent, suggestionBg = `${accent}15`;
+        if (progression.action === 'increase' || progression.action === 'progress') { suggestionColor = '#10b981'; suggestionBg = '#10b98115'; }
+        else if (progression.action === 'decrease' || progression.action === 'regress') { suggestionColor = '#f59e0b'; suggestionBg = '#f59e0b15'; }
 
-        const updateCurrentWeight = (delta) => {
-          if (currentSetIdx < 0) return;
-          setSessionData(prev => {
-            const sets = [...(prev[currentExerciseIndex]?.sets || [])];
-            sets[currentSetIdx] = { ...sets[currentSetIdx], weight: Math.max(0, (sets[currentSetIdx].weight || 0) + delta) };
-            return { ...prev, [currentExerciseIndex]: { ...prev[currentExerciseIndex], sets } };
-          });
-        };
-
-        const updateCurrentReps = (delta) => {
-          if (currentSetIdx < 0) return;
-          setSessionData(prev => {
-            const sets = [...(prev[currentExerciseIndex]?.sets || [])];
-            sets[currentSetIdx] = { ...sets[currentSetIdx], reps: Math.max(1, (sets[currentSetIdx].reps || 1) + delta) };
-            return { ...prev, [currentExerciseIndex]: { ...prev[currentExerciseIndex], sets } };
-          });
-        };
-
-        const completeCurrentSet = () => {
-          if (currentSetIdx < 0) {
-            if (currentExerciseIndex < exercises.length - 1) setCurrentExerciseIndex(i => i + 1);
-            else setView('summary');
-            return;
-          }
-          const allDoneAfter = currentSets.every((s, i) => i === currentSetIdx ? true : s.completed);
-          setSessionData(prev => {
-            const sets = [...(prev[currentExerciseIndex]?.sets || [])];
-            sets[currentSetIdx] = { ...sets[currentSetIdx], completed: true };
-            return { ...prev, [currentExerciseIndex]: { ...prev[currentExerciseIndex], sets } };
-          });
-          if (allDoneAfter) {
-            if (currentExerciseIndex < exercises.length - 1) setCurrentExerciseIndex(prev => prev + 1);
-            else setView('summary');
-          }
-        };
-
-        const outerStyle = { width: '100%', maxWidth: 430, margin: '0 auto', color: '#FFFFFF', display: 'flex', flexDirection: 'column', padding: 'calc(28px + env(safe-area-inset-top)) 20px calc(16px + env(safe-area-inset-bottom))', boxSizing: 'border-box' };
+        const StepBtn = ({ onClick, children }) => (
+          <button onClick={onClick} className="w-11 h-11 rounded-lg flex items-center justify-center text-lg font-bold transition-all active:scale-90" style={{ background: `${accent}20`, color: accent }}>{children}</button>
+        );
 
         return (
-          <div className="screen" style={outerStyle}>
-            {/* Header */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <button onClick={() => setView('dayOverview')} style={{ background: 'none', border: 'none', color: '#9A9A9A', fontSize: 16, cursor: 'pointer', padding: 0, fontFamily: 'inherit' }}>↓</button>
-              <span style={{ fontSize: 13, color: '#9A9A9A' }}>{dayData.name}</span>
-            </div>
-            {/* Counter */}
-            <div style={{ marginTop: 12 }}>
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
-                <span style={{ fontSize: 52, fontWeight: 600, lineHeight: 1 }}>{completedSets}</span>
-                <span style={{ fontSize: 22, fontWeight: 600, color: '#9A9A9A', lineHeight: 1 }}>/ {totalSets}</span>
+          <div className="min-h-screen text-white p-3 pb-24" style={{ background: config.bgGradient }}>
+            <div className="max-w-md mx-auto">
+              {/* Header */}
+              <div className="flex justify-between items-center mb-2">
+                <button onClick={() => setView('dayOverview')} className="text-zinc-500 p-1"><ChevronLeft className="w-5 h-5" /></button>
+                <div className="text-[10px] text-zinc-600">{currentExerciseIndex + 1}/{dayData.exercises.length}</div>
+                <button onClick={() => setShowNotes(!showNotes)} className="text-zinc-500 p-1">
+                  <StickyNote className="w-5 h-5" />
+                </button>
               </div>
-              <div style={{ fontSize: 12.5, color: '#9A9A9A', marginTop: 4 }}>Sets completed</div>
-            </div>
-            {/* Exercise list */}
-            <div className="scrollarea" style={{ marginTop: 18, flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', gap: 6 }}>
-              {exercises.map((exItem, idx) => {
-                const exName = exItem.name.split(' / ')[0];
-                const exData = sessionData[idx] || { sets: [] };
-                const exSets = exData.sets || [];
-                const allExDone = exSets.length > 0 && exSets.every(s => s.completed);
-                const isActive = idx === currentExerciseIndex;
-                const isCompleted = idx < currentExerciseIndex || allExDone;
-                const isUpcoming = !isActive && !isCompleted;
 
-                if (isCompleted) {
-                  const doneSets = exSets.filter(s => !s.warmup && s.completed);
-                  const topWeight = doneSets[0]?.weight ?? '';
-                  const repsList = doneSets.map(s => s.reps).join(', ');
-                  return (
-                    <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 13, padding: '9px 2px' }}>
-                      <span style={{ width: 38, height: 38, borderRadius: '50%', background: '#FFFFFF', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0A0A0A" strokeWidth="3.5"><polyline points="20,6 9,17 4,12"/></svg>
-                      </span>
-                      <span style={{ flex: 1 }}>
-                        <span style={{ display: 'block', fontSize: 14.5, fontWeight: 500 }}>{exName}</span>
-                        <span style={{ display: 'block', fontSize: 11.5, color: '#9A9A9A', marginTop: 1 }}>
-                          {topWeight ? `${topWeight} · ` : ''}{repsList}
-                        </span>
-                      </span>
-                    </div>
-                  );
-                }
+              {/* Progress bar */}
+              <div className="h-0.5 bg-zinc-800 rounded-full mb-3 overflow-hidden">
+                <div className="h-full rounded-full" style={{ width: `${((currentExerciseIndex + 1) / dayData.exercises.length) * 100}%`, background: accent }} />
+              </div>
 
-                if (isActive) {
-                  return (
-                    <div key={idx} style={{ background: '#191919', borderRadius: 20, padding: 16, flexShrink: 0 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 13 }}>
-                        <span style={{ width: 38, height: 38, borderRadius: '50%', border: '1.5px solid #FFFFFF', boxSizing: 'border-box', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 500, flexShrink: 0 }}>
-                          {isWarmup ? 'W' : doneWorkingSets + 1}<span style={{ color: '#9A9A9A' }}>/{totalWorkingSets}</span>
-                        </span>
-                        <span style={{ flex: 1 }}>
-                          <span style={{ display: 'block', fontSize: 15, fontWeight: 500 }}>{displayName}</span>
-                          <span style={{ display: 'block', fontSize: 11.5, color: '#9A9A9A', marginTop: 1 }}>
-                            {ex.cls === 'power' ? 'Power' : 'Size'} · {isWarmup ? 'Warm-up' : `target ${totalWorkingSets}×${ex.reps}`}
-                          </span>
-                        </span>
-                      </div>
-                      {currentSet && (
-                        <>
-                          <div style={{ display: 'grid', gridTemplateColumns: '44px 1fr 44px 24px 44px 1fr 44px', alignItems: 'center', gap: 6, marginTop: 14 }}>
-                            <button onClick={() => updateCurrentWeight(-weightInc)} className="btn-step" style={{ height: 48, border: 'none', borderRadius: 10, background: '#262626', color: '#FFFFFF', fontSize: 17, cursor: 'pointer', fontFamily: 'inherit' }}>−</button>
-                            <span style={{ fontSize: 28, fontWeight: 600, textAlign: 'center' }}>{currentSet.weight || 0}</span>
-                            <button onClick={() => updateCurrentWeight(weightInc)} className="btn-step" style={{ height: 48, border: 'none', borderRadius: 10, background: '#262626', color: '#FFFFFF', fontSize: 17, cursor: 'pointer', fontFamily: 'inherit' }}>+</button>
-                            <span style={{ fontSize: 12, color: '#9A9A9A', textAlign: 'center' }}>×</span>
-                            <button onClick={() => updateCurrentReps(-1)} className="btn-step" style={{ height: 48, border: 'none', borderRadius: 10, background: '#262626', color: '#FFFFFF', fontSize: 17, cursor: 'pointer', fontFamily: 'inherit' }}>−</button>
-                            <span style={{ fontSize: 28, fontWeight: 600, textAlign: 'center' }}>{currentSet.reps || 0}</span>
-                            <button onClick={() => updateCurrentReps(1)} className="btn-step" style={{ height: 48, border: 'none', borderRadius: 10, background: '#262626', color: '#FFFFFF', fontSize: 17, cursor: 'pointer', fontFamily: 'inherit' }}>+</button>
-                          </div>
-                          <div style={{ display: 'flex', gap: 6, marginTop: 6, fontSize: 10.5, color: '#9A9A9A' }}>
-                            <span style={{ flex: 1.9, textAlign: 'center' }}>{exerciseConfig.assisted ? 'lbs assist' : 'lbs'}</span>
-                            <span style={{ width: 24 }}></span>
-                            <span style={{ flex: 1.9, textAlign: 'center' }}>reps</span>
-                          </div>
-                          <button onClick={completeCurrentSet} className="btn-primary" style={{ width: '100%', height: 46, marginTop: 12, border: 'none', borderRadius: 10, background: '#FFFFFF', color: '#0A0A0A', fontSize: 13.5, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
-                            {isWarmup ? 'Done with warm-up' : `Complete set ${doneWorkingSets + 1}`}
-                          </button>
-                        </>
-                      )}
-                      {!currentSet && (
-                        <button onClick={completeCurrentSet} className="btn-primary" style={{ width: '100%', height: 46, marginTop: 12, border: 'none', borderRadius: 10, background: '#FFFFFF', color: '#0A0A0A', fontSize: 13.5, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
-                          Next exercise
-                        </button>
-                      )}
-                    </div>
-                  );
-                }
+              {/* Exercise name - always show */}
+              <h1 className="text-lg font-bold text-zinc-100 mb-1">{displayName}</h1>
 
-                // Upcoming
-                return (
-                  <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 13, padding: '9px 2px', opacity: 0.7 }}>
-                    <span style={{ width: 38, height: 38, borderRadius: '50%', border: '1.5px solid #3A3A3A', boxSizing: 'border-box', flexShrink: 0 }}></span>
-                    <span style={{ flex: 1 }}>
-                      <span style={{ display: 'block', fontSize: 14.5, fontWeight: 500 }}>{exName}</span>
-                      <span style={{ display: 'block', fontSize: 11.5, color: '#9A9A9A', marginTop: 1 }}>
-                        {exItem.cls === 'size' ? 'Size' : 'Power'} · {exItem.defaultWeight} lb · {(typeof exItem.sets === 'number' ? exItem.sets : 3) - (exItem.warmupSets || 0)}×{exItem.reps}
-                      </span>
-                    </span>
+              {/* Plan note (coaching cue from the program) */}
+              {exercise.notes && (
+                <p className="text-[11px] text-zinc-500 mb-2">{exercise.notes}</p>
+              )}
+
+              {/* Alt exercise toggle - show as secondary option */}
+              {hasAlt && (
+                <button
+                  onClick={toggleAltExercise}
+                  className="mb-3 py-1.5 px-3 rounded-lg flex items-center gap-2 text-xs border transition-all active:scale-[0.98]"
+                  style={{ borderColor: `${accent}50`, background: `${accent}10` }}
+                >
+                  <Swap className="w-4 h-4" style={{ color: accent }} />
+                  <span style={{ color: accent }}>Switch to {isUsingAlt ? nameParts[0] : nameParts[1]}</span>
+                </button>
+              )}
+
+              {/* Abs dropdown */}
+              {exercise.isAbsSlot && (
+                <div className="mb-3">
+                  <div className="relative">
+                    <select
+                      value={currentData.selectedAbExercise || 'cable_crunch'}
+                      onChange={(e) => updateAbExercise(e.target.value)}
+                      className="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white appearance-none"
+                    >
+                      {abExerciseOptions.map(opt => (
+                        <option key={opt.id} value={opt.id}>{opt.name}</option>
+                      ))}
+                    </select>
+                    <ChevronDown className="w-4 h-4 text-zinc-500 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                   </div>
-                );
-              })}
+                </div>
+              )}
+
+              {/* Last workout date + sets */}
+              {progression.lastSession && (
+                <div className="mb-3 p-3 rounded-xl bg-zinc-900/50 border border-zinc-800/50">
+                  <div className="text-xs text-zinc-400 mb-2">Last workout on <span className="text-zinc-200 font-medium">{lastWorkoutDate}</span></div>
+                  <div className="flex gap-2 flex-wrap">
+                    {progression.lastSession.sets.map((s, i) => (
+                      <span key={i} className={`px-2 py-1 rounded text-[11px] ${s.warmup ? 'bg-amber-500/10 text-amber-400/80' : 'bg-zinc-800/50 text-zinc-300'}`}>
+                        {s.warmup ? 'W: ' : ''}{s.weight} lbs × {s.reps} reps{s.completed ? ' ✓' : ''}
+                      </span>
+                    ))}
+                  </div>
+                  {progression.lastSession.notes && (
+                    <div className="mt-2 pt-2 border-t border-zinc-800/50 flex items-start gap-1.5">
+                      <StickyNote className="w-3.5 h-3.5 text-amber-400/70 mt-0.5 flex-shrink-0" />
+                      <span className="text-[11px] text-amber-200/80 italic">{progression.lastSession.notes}</span>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Working-weight trend across all logged sessions */}
+              <ProgressSpark
+                entries={getAllSessions(exercise.isAbsSlot ? (currentData.selectedAbExercise || 'cable_crunch') : exercise.id)}
+                accent={accent}
+                assisted={!!exerciseConfig.assisted}
+              />
+
+              {/* Progression suggestion with explanation */}
+              <div className="mb-3 p-3 rounded-xl border" style={{ background: suggestionBg, borderColor: `${suggestionColor}30` }}>
+                <div className="flex items-start gap-2">
+                  {progression.icon && <progression.icon className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: suggestionColor }} />}
+                  <div>
+                    <div className="text-sm font-medium" style={{ color: suggestionColor }}>
+                      {progression.suggestion || (progression.lastSession ? 'Keep building within your rep range' : 'First time - start with suggested weight')}
+                    </div>
+                    <div className="text-[10px] text-zinc-500 mt-1">
+                      {progression.action === 'increase' || progression.action === 'progress'
+                        ? 'You hit your rep target last time - try adding weight or reps today!'
+                        : progression.action === 'decrease' || progression.action === 'regress'
+                        ? 'Focus on form and control. Quality reps beat ego weight.'
+                        : progression.lastSession
+                        ? 'Aim for more reps at the same weight, or same reps with slightly more weight.'
+                        : 'Log your sets below. The app will suggest progression next time.'}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Exercise description with YouTube link */}
+              <ExerciseDescription exerciseId={exercise.isAbsSlot ? currentData.selectedAbExercise : exercise.id} accent={accent} config={exercise.isAbsSlot ? undefined : exerciseConfig} />
+
+              {/* Notes field - always visible but collapsed */}
+              <div className="mt-3">
+                <textarea
+                  value={currentData.notes || ''}
+                  onChange={(e) => updateNotes(e.target.value)}
+                  placeholder="Add workout notes..."
+                  className="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white"
+                  rows={showNotes ? 3 : 1}
+                  onFocus={() => setShowNotes(true)}
+                />
+              </div>
+
+              {/* Journal - Sets to log */}
+              <div className="mt-4">
+                <div className="text-xs text-zinc-500 mb-2 font-medium">LOG YOUR SETS</div>
+                <div className="space-y-2">
+                  {currentData.sets.map((set, i) => (
+                    <div key={i} className={`rounded-lg p-2 border ${set.completed ? 'border-emerald-500/50 bg-emerald-500/10' : set.warmup ? 'border-amber-500/30 bg-amber-500/5' : 'border-zinc-800/50 bg-zinc-900/30'}`}>
+                      {set.warmup && <div className="text-[8px] font-bold text-amber-400/80 tracking-widest mb-1 ml-11">WARM-UP · not counted for progression</div>}
+                      <div className="flex items-center gap-2">
+                        <button onClick={() => toggleSetComplete(i)} className={`w-9 h-11 rounded-lg flex items-center justify-center transition-all active:scale-90 flex-shrink-0 text-xs font-bold ${set.completed ? 'bg-emerald-500 text-white' : set.warmup ? 'bg-amber-500/20 text-amber-400' : 'bg-zinc-800 text-zinc-500'}`}>
+                          {set.completed ? <Check className="w-4 h-4" /> : set.warmup ? 'W' : i + 1 - currentData.sets.slice(0, i).filter(s => s.warmup).length}
+                        </button>
+                        <div className="flex items-center gap-1 flex-1">
+                          <StepBtn onClick={() => updateSet(i, 'weight', Math.max(0, set.weight - weightIncrement))}>−</StepBtn>
+                          <div className="flex-1 text-center"><div className="text-base font-bold text-zinc-100">{set.weight}</div><div className="text-[7px] text-zinc-600 -mt-0.5">{exerciseConfig.assisted ? 'lbs assist' : 'lbs'}</div></div>
+                          <StepBtn onClick={() => updateSet(i, 'weight', set.weight + weightIncrement)}>+</StepBtn>
+                        </div>
+                        <div className="w-px h-6 bg-zinc-800" />
+                        <div className="flex items-center gap-1 flex-1">
+                          <StepBtn onClick={() => updateSet(i, 'reps', Math.max(1, set.reps - 1))}>−</StepBtn>
+                          <div className="flex-1 text-center"><div className="text-base font-bold text-zinc-100">{set.reps}</div><div className="text-[7px] text-zinc-600 -mt-0.5">reps</div></div>
+                          <StepBtn onClick={() => updateSet(i, 'reps', set.reps + 1)}>+</StepBtn>
+                        </div>
+                        {i > 0 && !set.completed && (
+                          <button
+                            onClick={() => copyPreviousSet(i)}
+                            className="w-8 h-11 rounded flex items-center justify-center text-zinc-600 hover:text-zinc-400 active:scale-90"
+                            title="Copy previous set"
+                          >
+                            <Copy className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Navigation - BIGGER buttons */}
+              <div className="fixed bottom-4 left-0 right-0 pointer-events-none">
+                <div className="max-w-md mx-auto px-4 flex justify-between items-center">
+                  <button
+                    onClick={prevExercise}
+                    disabled={currentExerciseIndex === 0}
+                    className="pointer-events-auto w-16 h-16 rounded-xl flex items-center justify-center text-4xl text-zinc-600 disabled:opacity-20 active:scale-90 bg-zinc-900/80 border border-zinc-800"
+                  >
+                    ‹
+                  </button>
+                  <button
+                    onClick={skipExercise}
+                    className="pointer-events-auto px-4 py-2 rounded-lg flex items-center gap-1.5 text-xs font-medium active:scale-95 bg-zinc-800 border border-zinc-700 text-zinc-400"
+                  >
+                    <SkipForward className="w-4 h-4" /> Skip
+                  </button>
+                  <button
+                    onClick={nextExercise}
+                    className="pointer-events-auto w-16 h-16 rounded-xl flex items-center justify-center text-4xl active:scale-90 border"
+                    style={{ color: accent, background: `${accent}15`, borderColor: accent }}
+                  >
+                    ›
+                  </button>
+                </div>
+              </div>
             </div>
-            {/* End workout */}
-            <button onClick={() => setView('summary')} className="btn-secondary" style={{ height: 50, borderRadius: 10, border: '1px solid #2B2B2B', background: 'none', color: '#FFFFFF', fontSize: 14, fontWeight: 500, marginTop: 8, cursor: 'pointer', fontFamily: 'inherit', flexShrink: 0 }}>
-              End workout
-            </button>
           </div>
         );
       }
@@ -1756,40 +1616,79 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
       // SUMMARY (before final completion)
       if (view === 'summary') {
         const dayData = workoutData[selectedDay];
-        const outerStyle = { width: '100%', maxWidth: 430, margin: '0 auto', color: '#FFFFFF', display: 'flex', flexDirection: 'column', padding: 'calc(28px + env(safe-area-inset-top)) 20px calc(16px + env(safe-area-inset-bottom))', boxSizing: 'border-box' };
+        const accent = config.dayAccents[selectedDay];
+        const completedCount = Object.values(sessionData).filter(d => d && d.sets.every(s => s.completed)).length;
+
         return (
-          <div className="screen" style={outerStyle}>
-            <div style={{ fontSize: 18, fontWeight: 500 }}>Workout Summary</div>
-            <div className="scrollarea" style={{ flex: 1, minHeight: 0, marginTop: 16, display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {dayData.exercises.map((ex, i) => {
-                const data = sessionData[i];
-                if (!data) return null;
-                const completedSets = data.sets.filter(s => s.completed && !s.warmup).length;
-                const totalWorkSets = data.sets.filter(s => !s.warmup).length;
-                const nameParts = ex.name.split(' / ');
-                const usedAlt = useAltExercise[i] && nameParts.length > 1;
-                const dName = usedAlt ? nameParts[1] : nameParts[0];
-                const allDone = completedSets === totalWorkSets && totalWorkSets > 0;
-                return (
-                  <div key={i} style={{ background: '#191919', borderRadius: 16, padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div>
-                      <div style={{ fontSize: 14, fontWeight: 500 }}>{dName}</div>
-                      <div style={{ fontSize: 11, color: '#9A9A9A', marginTop: 2 }}>{completedSets}/{totalWorkSets} sets · {data.sets.find(s => !s.warmup)?.weight || 0} lbs</div>
+          <div className="min-h-screen text-white p-4 pb-24" style={{ background: config.bgGradient }}>
+            <div className="max-w-md mx-auto">
+              <h1 className="text-lg font-bold text-zinc-100 mb-1">Workout Summary</h1>
+              <p className="text-zinc-500 text-sm mb-4">{dayData.name}</p>
+
+              <div className="p-4 rounded-xl bg-zinc-900/50 border border-zinc-800 mb-4">
+                <div className="text-center">
+                  <div className="text-3xl font-bold" style={{ color: accent }}>{completedCount}/{dayData.exercises.length}</div>
+                  <div className="text-zinc-500 text-xs">Exercises Completed</div>
+                </div>
+              </div>
+
+              <button onClick={() => setAbsDone(!absDone)} className={`w-full rounded-lg p-3 mb-2 flex items-center gap-2.5 border transition-all active:scale-[0.98] ${absDone ? 'border-emerald-500/50 bg-emerald-500/10' : 'border-zinc-800/50'}`} style={absDone ? {} : { backgroundColor: '#12121a' }}>
+                <div className={`w-6 h-6 rounded flex items-center justify-center flex-shrink-0 ${absDone ? 'bg-emerald-500 text-white' : 'bg-zinc-800 text-zinc-600'}`}>
+                  {absDone ? <Check className="w-4 h-4" /> : null}
+                </div>
+                <div className="flex-1 text-left">
+                  <div className={`text-sm font-medium ${absDone ? 'text-emerald-300' : 'text-zinc-200'}`}>Pre-workout ab routine</div>
+                  <div className="text-[10px] text-zinc-600">Saved with this workout</div>
+                </div>
+              </button>
+
+              <div className="space-y-2 mb-4">
+                {dayData.exercises.map((ex, i) => {
+                  const data = sessionData[i];
+                  if (!data) return null;
+                  const completedSets = data.sets.filter(s => s.completed).length;
+                  const nameParts = ex.name.split(' / ');
+                  const usedAlt = useAltExercise[i] && nameParts.length > 1;
+                  const displayName = usedAlt ? nameParts[1] : nameParts[0];
+
+                  return (
+                    <div key={i} className="rounded-lg p-3 border border-zinc-800/50" style={{ backgroundColor: '#12121a' }}>
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <div className="text-sm font-medium text-zinc-200">{displayName}</div>
+                          <div className="text-[10px] text-zinc-500">
+                            {completedSets}/{data.sets.length} sets · {data.sets[0]?.weight || 0} lbs
+                          </div>
+                        </div>
+                        {completedSets === data.sets.length ? (
+                          <Check className="w-4 h-4 text-emerald-500" />
+                        ) : (
+                          <span className="text-[10px] text-amber-500">{completedSets}/{data.sets.length}</span>
+                        )}
+                      </div>
                     </div>
-                    {allDone
-                      ? <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="3"><polyline points="20,6 9,17 4,12"/></svg>
-                      : <span style={{ fontSize: 11, color: '#9A9A9A' }}>{completedSets}/{totalWorkSets}</span>
-                    }
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
+
+              <div className="fixed bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-zinc-950 to-transparent">
+                <div className="max-w-md mx-auto space-y-2">
+                  <button
+                    onClick={completeWorkout}
+                    className="w-full text-white font-semibold py-3.5 rounded-xl text-sm transition-all active:scale-[0.98]"
+                    style={{ background: accent }}
+                  >
+                    Complete workout, progress weight
+                  </button>
+                  <button
+                    onClick={() => startExercise(0)}
+                    className="w-full text-zinc-400 font-medium py-2 text-sm"
+                  >
+                    Review Exercises
+                  </button>
+                </div>
+              </div>
             </div>
-            <button onClick={completeWorkout} className="btn-primary" style={{ width: '100%', height: 54, borderRadius: 10, background: '#FFFFFF', color: '#0A0A0A', fontSize: 15, fontWeight: 600, border: 'none', cursor: 'pointer', fontFamily: 'inherit', marginTop: 12 }}>
-              Complete &amp; save
-            </button>
-            <button onClick={() => setView('exercise')} style={{ width: '100%', height: 44, background: 'none', border: 'none', color: '#9A9A9A', fontSize: 14, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit', marginTop: 8 }}>
-              Keep going
-            </button>
           </div>
         );
       }
@@ -1797,119 +1696,49 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
       // COMPLETE
       if (view === 'complete') {
         const dayData = workoutData[selectedDay];
-        // Compute stats from sessionData
-        const allExercises = dayData.exercises;
-        let totalVolume = 0, totalWorkingSetsCompleted = 0, totalRepsCompleted = 0;
-        let powerSetsCompleted = 0, sizeSetsCompleted = 0;
-        const completedExerciseIndices = new Set();
-        allExercises.forEach((ex, idx) => {
-          const d = sessionData[idx];
-          if (!d) return;
-          const workSets = (d.sets || []).filter(s => !s.warmup && s.completed);
-          if (workSets.length > 0) completedExerciseIndices.add(idx);
-          workSets.forEach(s => {
-            totalVolume += (s.weight || 0) * (s.reps || 0);
-            totalWorkingSetsCompleted++;
-            totalRepsCompleted += s.reps || 0;
-            if (ex.cls === 'power') powerSetsCompleted++;
-            else sizeSetsCompleted++;
-          });
-        });
-        const fmtVol = (v) => v >= 1000 ? `${(v / 1000).toFixed(1)}k` : String(v);
-        // Week number
-        const progLog2 = workoutLog[selectedProgram] || {};
-        const allSess2 = [];
-        Object.values(progLog2).forEach(d => (d?.sessions || []).forEach(s => allSess2.push(new Date(s.date))));
-        allSess2.sort((a, b) => a - b);
-        const weekNum2 = allSess2.length > 0
-          ? Math.floor((Date.now() - allSess2[0].getTime()) / (7 * 864e5)) + 1
-          : 1;
-        // Next day in rotation
-        const dayKeys = Object.keys(workoutData);
-        const curIdx = dayKeys.indexOf(selectedDay);
-        const nextDayName = workoutData[dayKeys[(curIdx + 1) % dayKeys.length]].name;
-        const outerStyle = { width: '100%', maxWidth: 430, margin: '0 auto', color: '#FFFFFF', display: 'flex', flexDirection: 'column', padding: 'calc(28px + env(safe-area-inset-top)) 20px calc(16px + env(safe-area-inset-bottom))', boxSizing: 'border-box' };
+        const accent = config.dayAccents[selectedDay];
+        const todayDate = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+
         return (
-          <div className="screen" style={outerStyle}>
-            <div className="scrollarea" style={{ flex: 1, minHeight: 0, margin: '0 -20px', padding: '0 20px' }}>
-            {/* Context */}
-            <div style={{ fontSize: 13, color: '#9A9A9A', textAlign: 'center', marginTop: 24 }}>
-              {dayData.name} · Week {weekNum2}
-            </div>
-            {/* Hero total */}
-            <div style={{ marginTop: 18, display: 'flex', justifyContent: 'center', alignItems: 'baseline', gap: 8 }}>
-              <span style={{ fontSize: 68, fontWeight: 600, lineHeight: 1 }}>{fmtVol(totalVolume)}</span>
-              <span style={{ fontSize: 18, fontWeight: 400, color: '#9A9A9A' }}>lbs</span>
-            </div>
-            <div style={{ fontSize: 13, color: '#9A9A9A', textAlign: 'center', marginTop: 6 }}>Total volume · workout complete</div>
-            {/* Stat triplet */}
-            <div style={{ marginTop: 28, display: 'flex', gap: 8 }}>
-              {[
-                { val: totalWorkingSetsCompleted, label: 'sets' },
-                { val: totalRepsCompleted, label: 'reps' },
-                { val: completedExerciseIndices.size, label: 'lifts' }
-              ].map(({ val, label }) => (
-                <div key={label} style={{ flex: 1, background: '#191919', borderRadius: 18, padding: '16px 0', textAlign: 'center' }}>
-                  <div style={{ fontSize: 30, fontWeight: 600, lineHeight: 1 }}>{val}</div>
-                  <div style={{ fontSize: 11.5, color: '#9A9A9A', marginTop: 3 }}>{label}</div>
-                </div>
-              ))}
-            </div>
-            {/* Records card */}
-            {completedPRs.length > 0 && (
-              <div style={{ marginTop: 8, background: '#191919', borderRadius: 18, padding: '16px 18px' }}>
-                <div style={{ fontSize: 11.5, fontWeight: 500, letterSpacing: '0.8px', color: '#9A9A9A' }}>
-                  {completedPRs.length} NEW RECORD{completedPRs.length !== 1 ? 'S' : ''}
-                </div>
-                {completedPRs.map((pr, i) => (
-                  <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 12, marginTop: i === 0 ? 12 : 8 }}>
-                    <span style={{ fontSize: 13.5, color: '#9A9A9A' }}>{pr.name} — was {pr.prev}</span>
-                    <span style={{ fontSize: 16, fontWeight: 400, color: '#FFFFFF', whiteSpace: 'nowrap' }}>{pr.detail}</span>
-                  </div>
-                ))}
+          <div className="min-h-screen text-white p-4 flex items-center justify-center" style={{ background: config.bgGradient }}>
+            <div className="max-w-md mx-auto text-center">
+              <div className="w-20 h-20 mx-auto rounded-2xl flex items-center justify-center mb-6" style={{ background: accent }}>
+                <Trophy className="w-9 h-9 text-white" />
               </div>
-            )}
-            {/* Class split */}
-            <div style={{ marginTop: 8, display: 'flex', gap: 8 }}>
-              <div style={{ flex: 1, background: '#191919', borderRadius: 18, padding: '14px 16px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-                  <PowerIcon size={12} />
-                  <span style={{ fontSize: 11.5, color: '#9A9A9A' }}>Power</span>
+              <h1 className="text-xl font-bold text-zinc-100 mb-1">Workout Complete!</h1>
+              <p className="text-zinc-500 text-sm mb-2">{dayData.name}</p>
+              <p className="text-zinc-600 text-xs mb-6">{todayDate}{lastDurationMin ? ` · ${lastDurationMin} min` : ''}</p>
+
+              {completedPRs.length > 0 && (
+                <div className="mb-6 space-y-2">
+                  <div className="text-[10px] font-semibold tracking-widest text-amber-400">PERSONAL RECORDS</div>
+                  {completedPRs.map((pr, i) => (
+                    <div key={i} className="p-3 rounded-xl border border-amber-500/30 bg-amber-500/10 text-left flex items-center gap-3">
+                      <Trophy className="w-4 h-4 text-amber-400 flex-shrink-0" />
+                      <div>
+                        <div className="text-sm font-medium text-zinc-100">{pr.name}</div>
+                        <div className="text-[11px] text-amber-300/90">{pr.detail} <span className="text-zinc-500">(was {pr.prev})</span></div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-                <div style={{ marginTop: 8, display: 'flex', alignItems: 'baseline', gap: 4 }}>
-                  <span style={{ fontSize: 22, fontWeight: 600 }}>{powerSetsCompleted}</span>
-                  <span style={{ fontSize: 12, color: '#9A9A9A' }}>sets</span>
-                </div>
-              </div>
-              <div style={{ flex: 1, background: '#191919', borderRadius: 18, padding: '14px 16px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-                  <SizeIcon size={12} />
-                  <span style={{ fontSize: 11.5, color: '#9A9A9A' }}>Size</span>
-                </div>
-                <div style={{ marginTop: 8, display: 'flex', alignItems: 'baseline', gap: 4 }}>
-                  <span style={{ fontSize: 22, fontWeight: 600 }}>{sizeSetsCompleted}</span>
-                  <span style={{ fontSize: 12, color: '#9A9A9A' }}>sets</span>
-                </div>
-              </div>
+              )}
+
+              <button
+                onClick={() => {
+                  setView('home');
+                  setSelectedDay(null);
+                  setSessionData({});
+                  setSessionDay(null);
+                  setWorkoutStartedAt(null);
+                  setCompletedPRs([]);
+                }}
+                className="w-full text-white font-semibold py-3.5 rounded-xl text-sm"
+                style={{ background: accent }}
+              >
+                Done
+              </button>
             </div>
-            <div style={{ height: 16 }} />
-            </div>
-            <div style={{ fontSize: 12.5, color: '#9A9A9A', textAlign: 'center', flexShrink: 0, paddingTop: 8 }}>Next in rotation: {nextDayName}</div>
-            <button
-              onClick={() => {
-                setView('home');
-                setSelectedDay(null);
-                setSessionData({});
-                setSessionDay(null);
-                setWorkoutStartedAt(null);
-                setCompletedPRs([]);
-                setCurrentExerciseIndex(0);
-              }}
-              className="btn-primary"
-              style={{ marginTop: 12, width: '100%', height: 54, borderRadius: 10, background: '#FFFFFF', color: '#0A0A0A', fontSize: 15, fontWeight: 600, border: 'none', cursor: 'pointer', fontFamily: 'inherit', flexShrink: 0 }}
-            >
-              Done
-            </button>
           </div>
         );
       }
