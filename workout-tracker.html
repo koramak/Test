@@ -1555,211 +1555,176 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
       // EXERCISE
       if (view === 'exercise') {
         const dayData = workoutData[selectedDay];
-        const exercise = dayData.exercises[currentExerciseIndex];
-        const progression = calculateProgression(exercise);
-        const exerciseConfig = getExerciseConfig(exercise);
-        const accent = config.dayAccents[selectedDay];
-        const weightIncrement = exerciseConfig.weightIncrement || 5;
-        const nameParts = exercise.name.split(' / ');
-        const hasAlt = nameParts.length > 1;
+        const exercises = dayData.exercises;
+        const ex = exercises[currentExerciseIndex];
         const isUsingAlt = useAltExercise[currentExerciseIndex];
-        const displayName = isUsingAlt && hasAlt ? nameParts[1] : nameParts[0];
-        const currentData = sessionData[currentExerciseIndex] || { sets: [], notes: '', selectedAbExercise: 'cable_crunch' };
+        const nameParts = ex.name.split(' / ');
+        const displayName = isUsingAlt && nameParts.length > 1 ? nameParts[1] : nameParts[0];
 
-        // Format last workout date
-        const lastWorkoutDate = progression.lastSession?.date
-          ? new Date(progression.lastSession.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
-          : null;
+        const currentData = sessionData[currentExerciseIndex] || { sets: [], notes: '' };
+        const currentSets = currentData.sets || [];
+        const currentSetIdx = currentSets.findIndex(s => !s.completed);
+        const currentSet = currentSetIdx >= 0 ? currentSets[currentSetIdx] : null;
+        const isWarmup = currentSet?.warmup || false;
+        const workingSets = currentSets.filter(s => !s.warmup);
+        const doneWorkingSets = workingSets.filter(s => s.completed).length;
+        const totalWorkingSets = workingSets.length;
+        const exerciseConfig = getExerciseConfig(ex);
+        const weightInc = exerciseConfig.weightIncrement || 5;
 
-        let suggestionColor = accent, suggestionBg = `${accent}15`;
-        if (progression.action === 'increase' || progression.action === 'progress') { suggestionColor = '#10b981'; suggestionBg = '#10b98115'; }
-        else if (progression.action === 'decrease' || progression.action === 'regress') { suggestionColor = '#f59e0b'; suggestionBg = '#f59e0b15'; }
+        // Progress counter across all exercises
+        let totalSets = 0, completedSets = 0;
+        exercises.forEach((_, idx) => {
+          const d = sessionData[idx];
+          if (!d) return;
+          (d.sets || []).forEach(s => { if (!s.warmup) { totalSets++; if (s.completed) completedSets++; } });
+        });
 
-        const StepBtn = ({ onClick, children }) => (
-          <button onClick={onClick} className="w-11 h-11 rounded-lg flex items-center justify-center text-lg font-bold transition-all active:scale-90" style={{ background: `${accent}20`, color: accent }}>{children}</button>
-        );
+        const updateCurrentWeight = (delta) => {
+          if (currentSetIdx < 0) return;
+          setSessionData(prev => {
+            const sets = [...(prev[currentExerciseIndex]?.sets || [])];
+            sets[currentSetIdx] = { ...sets[currentSetIdx], weight: Math.max(0, (sets[currentSetIdx].weight || 0) + delta) };
+            return { ...prev, [currentExerciseIndex]: { ...prev[currentExerciseIndex], sets } };
+          });
+        };
+
+        const updateCurrentReps = (delta) => {
+          if (currentSetIdx < 0) return;
+          setSessionData(prev => {
+            const sets = [...(prev[currentExerciseIndex]?.sets || [])];
+            sets[currentSetIdx] = { ...sets[currentSetIdx], reps: Math.max(1, (sets[currentSetIdx].reps || 1) + delta) };
+            return { ...prev, [currentExerciseIndex]: { ...prev[currentExerciseIndex], sets } };
+          });
+        };
+
+        const completeCurrentSet = () => {
+          if (currentSetIdx < 0) {
+            if (currentExerciseIndex < exercises.length - 1) setCurrentExerciseIndex(i => i + 1);
+            else setView('summary');
+            return;
+          }
+          const allDoneAfter = currentSets.every((s, i) => i === currentSetIdx ? true : s.completed);
+          setSessionData(prev => {
+            const sets = [...(prev[currentExerciseIndex]?.sets || [])];
+            sets[currentSetIdx] = { ...sets[currentSetIdx], completed: true };
+            return { ...prev, [currentExerciseIndex]: { ...prev[currentExerciseIndex], sets } };
+          });
+          if (allDoneAfter) {
+            if (currentExerciseIndex < exercises.length - 1) setCurrentExerciseIndex(prev => prev + 1);
+            else setView('summary');
+          }
+        };
+
+        const outerStyle = { width: '100%', maxWidth: 390, margin: '0 auto', height: '100dvh', background: '#0A0A0A', color: '#FFFFFF', fontFamily: 'system-ui,sans-serif', display: 'flex', flexDirection: 'column', padding: '28px 20px 20px', boxSizing: 'border-box' };
 
         return (
-          <div className="min-h-screen text-white p-3 pb-24" style={{ background: config.bgGradient }}>
-            <div className="max-w-md mx-auto">
-              {/* Header */}
-              <div className="flex justify-between items-center mb-2">
-                <button onClick={() => setView('dayOverview')} className="text-zinc-500 p-1"><ChevronLeft className="w-5 h-5" /></button>
-                <div className="text-[10px] text-zinc-600">{currentExerciseIndex + 1}/{dayData.exercises.length}</div>
-                <button onClick={() => setShowNotes(!showNotes)} className="text-zinc-500 p-1">
-                  <StickyNote className="w-5 h-5" />
-                </button>
-              </div>
-
-              {/* Progress bar */}
-              <div className="h-0.5 bg-zinc-800 rounded-full mb-3 overflow-hidden">
-                <div className="h-full rounded-full" style={{ width: `${((currentExerciseIndex + 1) / dayData.exercises.length) * 100}%`, background: accent }} />
-              </div>
-
-              {/* Exercise name - always show */}
-              <h1 className="text-lg font-bold text-zinc-100 mb-1">{displayName}</h1>
-
-              {/* Plan note (coaching cue from the program) */}
-              {exercise.notes && (
-                <p className="text-[11px] text-zinc-500 mb-2">{exercise.notes}</p>
-              )}
-
-              {/* Alt exercise toggle - show as secondary option */}
-              {hasAlt && (
-                <button
-                  onClick={toggleAltExercise}
-                  className="mb-3 py-1.5 px-3 rounded-lg flex items-center gap-2 text-xs border transition-all active:scale-[0.98]"
-                  style={{ borderColor: `${accent}50`, background: `${accent}10` }}
-                >
-                  <Swap className="w-4 h-4" style={{ color: accent }} />
-                  <span style={{ color: accent }}>Switch to {isUsingAlt ? nameParts[0] : nameParts[1]}</span>
-                </button>
-              )}
-
-              {/* Abs dropdown */}
-              {exercise.isAbsSlot && (
-                <div className="mb-3">
-                  <div className="relative">
-                    <select
-                      value={currentData.selectedAbExercise || 'cable_crunch'}
-                      onChange={(e) => updateAbExercise(e.target.value)}
-                      className="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white appearance-none"
-                    >
-                      {abExerciseOptions.map(opt => (
-                        <option key={opt.id} value={opt.id}>{opt.name}</option>
-                      ))}
-                    </select>
-                    <ChevronDown className="w-4 h-4 text-zinc-500 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                  </div>
-                </div>
-              )}
-
-              {/* Last workout date + sets */}
-              {progression.lastSession && (
-                <div className="mb-3 p-3 rounded-xl bg-zinc-900/50 border border-zinc-800/50">
-                  <div className="text-xs text-zinc-400 mb-2">Last workout on <span className="text-zinc-200 font-medium">{lastWorkoutDate}</span></div>
-                  <div className="flex gap-2 flex-wrap">
-                    {progression.lastSession.sets.map((s, i) => (
-                      <span key={i} className={`px-2 py-1 rounded text-[11px] ${s.warmup ? 'bg-amber-500/10 text-amber-400/80' : 'bg-zinc-800/50 text-zinc-300'}`}>
-                        {s.warmup ? 'W: ' : ''}{s.weight} lbs × {s.reps} reps{s.completed ? ' ✓' : ''}
-                      </span>
-                    ))}
-                  </div>
-                  {progression.lastSession.notes && (
-                    <div className="mt-2 pt-2 border-t border-zinc-800/50 flex items-start gap-1.5">
-                      <StickyNote className="w-3.5 h-3.5 text-amber-400/70 mt-0.5 flex-shrink-0" />
-                      <span className="text-[11px] text-amber-200/80 italic">{progression.lastSession.notes}</span>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Working-weight trend across all logged sessions */}
-              <ProgressSpark
-                entries={getAllSessions(exercise.isAbsSlot ? (currentData.selectedAbExercise || 'cable_crunch') : exercise.id)}
-                accent={accent}
-                assisted={!!exerciseConfig.assisted}
-              />
-
-              {/* Progression suggestion with explanation */}
-              <div className="mb-3 p-3 rounded-xl border" style={{ background: suggestionBg, borderColor: `${suggestionColor}30` }}>
-                <div className="flex items-start gap-2">
-                  {progression.icon && <progression.icon className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: suggestionColor }} />}
-                  <div>
-                    <div className="text-sm font-medium" style={{ color: suggestionColor }}>
-                      {progression.suggestion || (progression.lastSession ? 'Keep building within your rep range' : 'First time - start with suggested weight')}
-                    </div>
-                    <div className="text-[10px] text-zinc-500 mt-1">
-                      {progression.action === 'increase' || progression.action === 'progress'
-                        ? 'You hit your rep target last time - try adding weight or reps today!'
-                        : progression.action === 'decrease' || progression.action === 'regress'
-                        ? 'Focus on form and control. Quality reps beat ego weight.'
-                        : progression.lastSession
-                        ? 'Aim for more reps at the same weight, or same reps with slightly more weight.'
-                        : 'Log your sets below. The app will suggest progression next time.'}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Exercise description with YouTube link */}
-              <ExerciseDescription exerciseId={exercise.isAbsSlot ? currentData.selectedAbExercise : exercise.id} accent={accent} config={exercise.isAbsSlot ? undefined : exerciseConfig} />
-
-              {/* Notes field - always visible but collapsed */}
-              <div className="mt-3">
-                <textarea
-                  value={currentData.notes || ''}
-                  onChange={(e) => updateNotes(e.target.value)}
-                  placeholder="Add workout notes..."
-                  className="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white"
-                  rows={showNotes ? 3 : 1}
-                  onFocus={() => setShowNotes(true)}
-                />
-              </div>
-
-              {/* Journal - Sets to log */}
-              <div className="mt-4">
-                <div className="text-xs text-zinc-500 mb-2 font-medium">LOG YOUR SETS</div>
-                <div className="space-y-2">
-                  {currentData.sets.map((set, i) => (
-                    <div key={i} className={`rounded-lg p-2 border ${set.completed ? 'border-emerald-500/50 bg-emerald-500/10' : set.warmup ? 'border-amber-500/30 bg-amber-500/5' : 'border-zinc-800/50 bg-zinc-900/30'}`}>
-                      {set.warmup && <div className="text-[8px] font-bold text-amber-400/80 tracking-widest mb-1 ml-11">WARM-UP · not counted for progression</div>}
-                      <div className="flex items-center gap-2">
-                        <button onClick={() => toggleSetComplete(i)} className={`w-9 h-11 rounded-lg flex items-center justify-center transition-all active:scale-90 flex-shrink-0 text-xs font-bold ${set.completed ? 'bg-emerald-500 text-white' : set.warmup ? 'bg-amber-500/20 text-amber-400' : 'bg-zinc-800 text-zinc-500'}`}>
-                          {set.completed ? <Check className="w-4 h-4" /> : set.warmup ? 'W' : i + 1 - currentData.sets.slice(0, i).filter(s => s.warmup).length}
-                        </button>
-                        <div className="flex items-center gap-1 flex-1">
-                          <StepBtn onClick={() => updateSet(i, 'weight', Math.max(0, set.weight - weightIncrement))}>−</StepBtn>
-                          <div className="flex-1 text-center"><div className="text-base font-bold text-zinc-100">{set.weight}</div><div className="text-[7px] text-zinc-600 -mt-0.5">{exerciseConfig.assisted ? 'lbs assist' : 'lbs'}</div></div>
-                          <StepBtn onClick={() => updateSet(i, 'weight', set.weight + weightIncrement)}>+</StepBtn>
-                        </div>
-                        <div className="w-px h-6 bg-zinc-800" />
-                        <div className="flex items-center gap-1 flex-1">
-                          <StepBtn onClick={() => updateSet(i, 'reps', Math.max(1, set.reps - 1))}>−</StepBtn>
-                          <div className="flex-1 text-center"><div className="text-base font-bold text-zinc-100">{set.reps}</div><div className="text-[7px] text-zinc-600 -mt-0.5">reps</div></div>
-                          <StepBtn onClick={() => updateSet(i, 'reps', set.reps + 1)}>+</StepBtn>
-                        </div>
-                        {i > 0 && !set.completed && (
-                          <button
-                            onClick={() => copyPreviousSet(i)}
-                            className="w-8 h-11 rounded flex items-center justify-center text-zinc-600 hover:text-zinc-400 active:scale-90"
-                            title="Copy previous set"
-                          >
-                            <Copy className="w-3.5 h-3.5" />
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Navigation - BIGGER buttons */}
-              <div className="fixed bottom-4 left-0 right-0 pointer-events-none">
-                <div className="max-w-md mx-auto px-4 flex justify-between items-center">
-                  <button
-                    onClick={prevExercise}
-                    disabled={currentExerciseIndex === 0}
-                    className="pointer-events-auto w-16 h-16 rounded-xl flex items-center justify-center text-4xl text-zinc-600 disabled:opacity-20 active:scale-90 bg-zinc-900/80 border border-zinc-800"
-                  >
-                    ‹
-                  </button>
-                  <button
-                    onClick={skipExercise}
-                    className="pointer-events-auto px-4 py-2 rounded-lg flex items-center gap-1.5 text-xs font-medium active:scale-95 bg-zinc-800 border border-zinc-700 text-zinc-400"
-                  >
-                    <SkipForward className="w-4 h-4" /> Skip
-                  </button>
-                  <button
-                    onClick={nextExercise}
-                    className="pointer-events-auto w-16 h-16 rounded-xl flex items-center justify-center text-4xl active:scale-90 border"
-                    style={{ color: accent, background: `${accent}15`, borderColor: accent }}
-                  >
-                    ›
-                  </button>
-                </div>
-              </div>
+          <div style={outerStyle}>
+            {/* Header */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <button onClick={() => setView('dayOverview')} style={{ background: 'none', border: 'none', color: '#9A9A9A', fontSize: 16, cursor: 'pointer', padding: 0, fontFamily: 'inherit' }}>↓</button>
+              <span style={{ fontSize: 13, color: '#9A9A9A' }}>{dayData.name}</span>
             </div>
+            {/* Counter */}
+            <div style={{ marginTop: 12 }}>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
+                <span style={{ fontSize: 52, fontWeight: 600, lineHeight: 1 }}>{completedSets}</span>
+                <span style={{ fontSize: 22, fontWeight: 600, color: '#9A9A9A', lineHeight: 1 }}>/ {totalSets}</span>
+              </div>
+              <div style={{ fontSize: 12.5, color: '#9A9A9A', marginTop: 4 }}>Sets completed</div>
+            </div>
+            {/* Exercise list */}
+            <div style={{ marginTop: 18, flex: 1, display: 'flex', flexDirection: 'column', gap: 6, overflowY: 'auto', scrollbarWidth: 'none' }}>
+              {exercises.map((exItem, idx) => {
+                const exName = exItem.name.split(' / ')[0];
+                const exData = sessionData[idx] || { sets: [] };
+                const exSets = exData.sets || [];
+                const allExDone = exSets.length > 0 && exSets.every(s => s.completed);
+                const isActive = idx === currentExerciseIndex;
+                const isCompleted = idx < currentExerciseIndex || allExDone;
+                const isUpcoming = !isActive && !isCompleted;
+
+                if (isCompleted) {
+                  const doneSets = exSets.filter(s => !s.warmup && s.completed);
+                  const topWeight = doneSets[0]?.weight ?? '';
+                  const repsList = doneSets.map(s => s.reps).join(', ');
+                  return (
+                    <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 13, padding: '9px 2px' }}>
+                      <span style={{ width: 38, height: 38, borderRadius: '50%', background: '#FFFFFF', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0A0A0A" strokeWidth="3.5"><polyline points="20,6 9,17 4,12"/></svg>
+                      </span>
+                      <span style={{ flex: 1 }}>
+                        <span style={{ display: 'block', fontSize: 14.5, fontWeight: 500 }}>{exName}</span>
+                        <span style={{ display: 'block', fontSize: 11.5, color: '#9A9A9A', marginTop: 1 }}>
+                          {topWeight ? `${topWeight} · ` : ''}{repsList}
+                        </span>
+                      </span>
+                    </div>
+                  );
+                }
+
+                if (isActive) {
+                  return (
+                    <div key={idx} style={{ background: '#191919', borderRadius: 20, padding: 16, flexShrink: 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 13 }}>
+                        <span style={{ width: 38, height: 38, borderRadius: '50%', border: '1.5px solid #FFFFFF', boxSizing: 'border-box', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 500, flexShrink: 0 }}>
+                          {isWarmup ? 'W' : doneWorkingSets + 1}<span style={{ color: '#9A9A9A' }}>/{totalWorkingSets}</span>
+                        </span>
+                        <span style={{ flex: 1 }}>
+                          <span style={{ display: 'block', fontSize: 15, fontWeight: 500 }}>{displayName}</span>
+                          <span style={{ display: 'block', fontSize: 11.5, color: '#9A9A9A', marginTop: 1 }}>
+                            {ex.cls === 'power' ? 'Power' : 'Size'} · {isWarmup ? 'Warm-up' : `target ${totalWorkingSets}×${ex.reps}`}
+                          </span>
+                        </span>
+                      </div>
+                      {currentSet && (
+                        <>
+                          <div style={{ display: 'grid', gridTemplateColumns: '44px 1fr 44px 24px 44px 1fr 44px', alignItems: 'center', gap: 6, marginTop: 14 }}>
+                            <button onClick={() => updateCurrentWeight(-weightInc)} style={{ height: 48, border: 'none', borderRadius: 10, background: '#262626', color: '#FFFFFF', fontSize: 17, cursor: 'pointer' }}>−</button>
+                            <span style={{ fontSize: 28, fontWeight: 600, textAlign: 'center' }}>{currentSet.weight || 0}</span>
+                            <button onClick={() => updateCurrentWeight(weightInc)} style={{ height: 48, border: 'none', borderRadius: 10, background: '#262626', color: '#FFFFFF', fontSize: 17, cursor: 'pointer' }}>+</button>
+                            <span style={{ fontSize: 12, color: '#9A9A9A', textAlign: 'center' }}>×</span>
+                            <button onClick={() => updateCurrentReps(-1)} style={{ height: 48, border: 'none', borderRadius: 10, background: '#262626', color: '#FFFFFF', fontSize: 17, cursor: 'pointer' }}>−</button>
+                            <span style={{ fontSize: 28, fontWeight: 600, textAlign: 'center' }}>{currentSet.reps || 0}</span>
+                            <button onClick={() => updateCurrentReps(1)} style={{ height: 48, border: 'none', borderRadius: 10, background: '#262626', color: '#FFFFFF', fontSize: 17, cursor: 'pointer' }}>+</button>
+                          </div>
+                          <div style={{ display: 'flex', gap: 6, marginTop: 6, fontSize: 10.5, color: '#9A9A9A' }}>
+                            <span style={{ flex: 1.9, textAlign: 'center' }}>{exerciseConfig.assisted ? 'lbs assist' : 'lbs'}</span>
+                            <span style={{ width: 24 }}></span>
+                            <span style={{ flex: 1.9, textAlign: 'center' }}>reps</span>
+                          </div>
+                          <button onClick={completeCurrentSet} style={{ width: '100%', height: 46, marginTop: 12, border: 'none', borderRadius: 10, background: '#FFFFFF', color: '#0A0A0A', fontSize: 13.5, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+                            {isWarmup ? 'Done with warm-up' : `Complete set ${doneWorkingSets + 1}`}
+                          </button>
+                        </>
+                      )}
+                      {!currentSet && (
+                        <button onClick={completeCurrentSet} style={{ width: '100%', height: 46, marginTop: 12, border: 'none', borderRadius: 10, background: '#FFFFFF', color: '#0A0A0A', fontSize: 13.5, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+                          Next exercise
+                        </button>
+                      )}
+                    </div>
+                  );
+                }
+
+                // Upcoming
+                return (
+                  <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 13, padding: '9px 2px', opacity: 0.7 }}>
+                    <span style={{ width: 38, height: 38, borderRadius: '50%', border: '1.5px solid #3A3A3A', boxSizing: 'border-box', flexShrink: 0 }}></span>
+                    <span style={{ flex: 1 }}>
+                      <span style={{ display: 'block', fontSize: 14.5, fontWeight: 500 }}>{exName}</span>
+                      <span style={{ display: 'block', fontSize: 11.5, color: '#9A9A9A', marginTop: 1 }}>
+                        {exItem.cls === 'size' ? 'Size' : 'Power'} · {exItem.defaultWeight} lb · {(typeof exItem.sets === 'number' ? exItem.sets : 3) - (exItem.warmupSets || 0)}×{exItem.reps}
+                      </span>
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+            {/* End workout */}
+            <button onClick={() => setView('summary')} style={{ height: 50, borderRadius: 10, border: '1px solid #2B2B2B', background: 'none', color: '#FFFFFF', fontSize: 14, fontWeight: 500, marginTop: 8, cursor: 'pointer', fontFamily: 'inherit' }}>
+              End workout
+            </button>
           </div>
         );
       }
@@ -1767,79 +1732,40 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
       // SUMMARY (before final completion)
       if (view === 'summary') {
         const dayData = workoutData[selectedDay];
-        const accent = config.dayAccents[selectedDay];
-        const completedCount = Object.values(sessionData).filter(d => d && d.sets.every(s => s.completed)).length;
-
+        const outerStyle = { width: '100%', maxWidth: 390, margin: '0 auto', height: '100dvh', background: '#0A0A0A', color: '#FFFFFF', fontFamily: 'system-ui,sans-serif', display: 'flex', flexDirection: 'column', padding: '28px 20px 20px', boxSizing: 'border-box' };
         return (
-          <div className="min-h-screen text-white p-4 pb-24" style={{ background: config.bgGradient }}>
-            <div className="max-w-md mx-auto">
-              <h1 className="text-lg font-bold text-zinc-100 mb-1">Workout Summary</h1>
-              <p className="text-zinc-500 text-sm mb-4">{dayData.name}</p>
-
-              <div className="p-4 rounded-xl bg-zinc-900/50 border border-zinc-800 mb-4">
-                <div className="text-center">
-                  <div className="text-3xl font-bold" style={{ color: accent }}>{completedCount}/{dayData.exercises.length}</div>
-                  <div className="text-zinc-500 text-xs">Exercises Completed</div>
-                </div>
-              </div>
-
-              <button onClick={() => setAbsDone(!absDone)} className={`w-full rounded-lg p-3 mb-2 flex items-center gap-2.5 border transition-all active:scale-[0.98] ${absDone ? 'border-emerald-500/50 bg-emerald-500/10' : 'border-zinc-800/50'}`} style={absDone ? {} : { backgroundColor: '#12121a' }}>
-                <div className={`w-6 h-6 rounded flex items-center justify-center flex-shrink-0 ${absDone ? 'bg-emerald-500 text-white' : 'bg-zinc-800 text-zinc-600'}`}>
-                  {absDone ? <Check className="w-4 h-4" /> : null}
-                </div>
-                <div className="flex-1 text-left">
-                  <div className={`text-sm font-medium ${absDone ? 'text-emerald-300' : 'text-zinc-200'}`}>Pre-workout ab routine</div>
-                  <div className="text-[10px] text-zinc-600">Saved with this workout</div>
-                </div>
-              </button>
-
-              <div className="space-y-2 mb-4">
-                {dayData.exercises.map((ex, i) => {
-                  const data = sessionData[i];
-                  if (!data) return null;
-                  const completedSets = data.sets.filter(s => s.completed).length;
-                  const nameParts = ex.name.split(' / ');
-                  const usedAlt = useAltExercise[i] && nameParts.length > 1;
-                  const displayName = usedAlt ? nameParts[1] : nameParts[0];
-
-                  return (
-                    <div key={i} className="rounded-lg p-3 border border-zinc-800/50" style={{ backgroundColor: '#12121a' }}>
-                      <div className="flex justify-between items-center">
-                        <div>
-                          <div className="text-sm font-medium text-zinc-200">{displayName}</div>
-                          <div className="text-[10px] text-zinc-500">
-                            {completedSets}/{data.sets.length} sets · {data.sets[0]?.weight || 0} lbs
-                          </div>
-                        </div>
-                        {completedSets === data.sets.length ? (
-                          <Check className="w-4 h-4 text-emerald-500" />
-                        ) : (
-                          <span className="text-[10px] text-amber-500">{completedSets}/{data.sets.length}</span>
-                        )}
-                      </div>
+          <div style={outerStyle}>
+            <div style={{ fontSize: 18, fontWeight: 500 }}>Workout Summary</div>
+            <div style={{ flex: 1, overflowY: 'auto', marginTop: 16, display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {dayData.exercises.map((ex, i) => {
+                const data = sessionData[i];
+                if (!data) return null;
+                const completedSets = data.sets.filter(s => s.completed && !s.warmup).length;
+                const totalWorkSets = data.sets.filter(s => !s.warmup).length;
+                const nameParts = ex.name.split(' / ');
+                const usedAlt = useAltExercise[i] && nameParts.length > 1;
+                const dName = usedAlt ? nameParts[1] : nameParts[0];
+                const allDone = completedSets === totalWorkSets && totalWorkSets > 0;
+                return (
+                  <div key={i} style={{ background: '#191919', borderRadius: 16, padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div>
+                      <div style={{ fontSize: 14, fontWeight: 500 }}>{dName}</div>
+                      <div style={{ fontSize: 11, color: '#9A9A9A', marginTop: 2 }}>{completedSets}/{totalWorkSets} sets · {data.sets.find(s => !s.warmup)?.weight || 0} lbs</div>
                     </div>
-                  );
-                })}
-              </div>
-
-              <div className="fixed bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-zinc-950 to-transparent">
-                <div className="max-w-md mx-auto space-y-2">
-                  <button
-                    onClick={completeWorkout}
-                    className="w-full text-white font-semibold py-3.5 rounded-xl text-sm transition-all active:scale-[0.98]"
-                    style={{ background: accent }}
-                  >
-                    Complete workout, progress weight
-                  </button>
-                  <button
-                    onClick={() => startExercise(0)}
-                    className="w-full text-zinc-400 font-medium py-2 text-sm"
-                  >
-                    Review Exercises
-                  </button>
-                </div>
-              </div>
+                    {allDone
+                      ? <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="3"><polyline points="20,6 9,17 4,12"/></svg>
+                      : <span style={{ fontSize: 11, color: '#9A9A9A' }}>{completedSets}/{totalWorkSets}</span>
+                    }
+                  </div>
+                );
+              })}
             </div>
+            <button onClick={completeWorkout} style={{ width: '100%', height: 54, borderRadius: 10, background: '#FFFFFF', color: '#0A0A0A', fontSize: 15, fontWeight: 600, border: 'none', cursor: 'pointer', fontFamily: 'inherit', marginTop: 12 }}>
+              Complete &amp; save
+            </button>
+            <button onClick={() => setView('exercise')} style={{ width: '100%', height: 44, background: 'none', border: 'none', color: '#9A9A9A', fontSize: 14, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit', marginTop: 8 }}>
+              Keep going
+            </button>
           </div>
         );
       }
@@ -1847,49 +1773,116 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
       // COMPLETE
       if (view === 'complete') {
         const dayData = workoutData[selectedDay];
-        const accent = config.dayAccents[selectedDay];
-        const todayDate = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
-
+        // Compute stats from sessionData
+        const allExercises = dayData.exercises;
+        let totalVolume = 0, totalWorkingSetsCompleted = 0, totalRepsCompleted = 0;
+        let powerSetsCompleted = 0, sizeSetsCompleted = 0;
+        const completedExerciseIndices = new Set();
+        allExercises.forEach((ex, idx) => {
+          const d = sessionData[idx];
+          if (!d) return;
+          const workSets = (d.sets || []).filter(s => !s.warmup && s.completed);
+          if (workSets.length > 0) completedExerciseIndices.add(idx);
+          workSets.forEach(s => {
+            totalVolume += (s.weight || 0) * (s.reps || 0);
+            totalWorkingSetsCompleted++;
+            totalRepsCompleted += s.reps || 0;
+            if (ex.cls === 'power') powerSetsCompleted++;
+            else sizeSetsCompleted++;
+          });
+        });
+        const fmtVol = (v) => v >= 1000 ? `${(v / 1000).toFixed(1)}k` : String(v);
+        // Week number
+        const progLog2 = workoutLog[selectedProgram] || {};
+        const allSess2 = [];
+        Object.values(progLog2).forEach(d => (d?.sessions || []).forEach(s => allSess2.push(new Date(s.date))));
+        allSess2.sort((a, b) => a - b);
+        const weekNum2 = allSess2.length > 0
+          ? Math.floor((Date.now() - allSess2[0].getTime()) / (7 * 864e5)) + 1
+          : 1;
+        // Next day in rotation
+        const dayKeys = Object.keys(workoutData);
+        const curIdx = dayKeys.indexOf(selectedDay);
+        const nextDayName = workoutData[dayKeys[(curIdx + 1) % dayKeys.length]].name;
+        const outerStyle = { width: '100%', maxWidth: 390, margin: '0 auto', height: '100dvh', background: '#0A0A0A', color: '#FFFFFF', fontFamily: 'system-ui,sans-serif', display: 'flex', flexDirection: 'column', padding: '28px 20px 20px', boxSizing: 'border-box' };
         return (
-          <div className="min-h-screen text-white p-4 flex items-center justify-center" style={{ background: config.bgGradient }}>
-            <div className="max-w-md mx-auto text-center">
-              <div className="w-20 h-20 mx-auto rounded-2xl flex items-center justify-center mb-6" style={{ background: accent }}>
-                <Trophy className="w-9 h-9 text-white" />
-              </div>
-              <h1 className="text-xl font-bold text-zinc-100 mb-1">Workout Complete!</h1>
-              <p className="text-zinc-500 text-sm mb-2">{dayData.name}</p>
-              <p className="text-zinc-600 text-xs mb-6">{todayDate}{lastDurationMin ? ` · ${lastDurationMin} min` : ''}</p>
-
-              {completedPRs.length > 0 && (
-                <div className="mb-6 space-y-2">
-                  <div className="text-[10px] font-semibold tracking-widest text-amber-400">PERSONAL RECORDS</div>
-                  {completedPRs.map((pr, i) => (
-                    <div key={i} className="p-3 rounded-xl border border-amber-500/30 bg-amber-500/10 text-left flex items-center gap-3">
-                      <Trophy className="w-4 h-4 text-amber-400 flex-shrink-0" />
-                      <div>
-                        <div className="text-sm font-medium text-zinc-100">{pr.name}</div>
-                        <div className="text-[11px] text-amber-300/90">{pr.detail} <span className="text-zinc-500">(was {pr.prev})</span></div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              <button
-                onClick={() => {
-                  setView('home');
-                  setSelectedDay(null);
-                  setSessionData({});
-                  setSessionDay(null);
-                  setWorkoutStartedAt(null);
-                  setCompletedPRs([]);
-                }}
-                className="w-full text-white font-semibold py-3.5 rounded-xl text-sm"
-                style={{ background: accent }}
-              >
-                Done
-              </button>
+          <div style={outerStyle}>
+            {/* Context */}
+            <div style={{ fontSize: 13, color: '#9A9A9A', textAlign: 'center', marginTop: 24 }}>
+              {dayData.name} · Week {weekNum2}
             </div>
+            {/* Hero total */}
+            <div style={{ marginTop: 18, display: 'flex', justifyContent: 'center', alignItems: 'baseline', gap: 8 }}>
+              <span style={{ fontSize: 68, fontWeight: 600, lineHeight: 1 }}>{fmtVol(totalVolume)}</span>
+              <span style={{ fontSize: 18, fontWeight: 400, color: '#9A9A9A' }}>lbs</span>
+            </div>
+            <div style={{ fontSize: 13, color: '#9A9A9A', textAlign: 'center', marginTop: 6 }}>Total volume · workout complete</div>
+            {/* Stat triplet */}
+            <div style={{ marginTop: 28, display: 'flex', gap: 8 }}>
+              {[
+                { val: totalWorkingSetsCompleted, label: 'sets' },
+                { val: totalRepsCompleted, label: 'reps' },
+                { val: completedExerciseIndices.size, label: 'lifts' }
+              ].map(({ val, label }) => (
+                <div key={label} style={{ flex: 1, background: '#191919', borderRadius: 18, padding: '16px 0', textAlign: 'center' }}>
+                  <div style={{ fontSize: 30, fontWeight: 600, lineHeight: 1 }}>{val}</div>
+                  <div style={{ fontSize: 11.5, color: '#9A9A9A', marginTop: 3 }}>{label}</div>
+                </div>
+              ))}
+            </div>
+            {/* Records card */}
+            {completedPRs.length > 0 && (
+              <div style={{ marginTop: 8, background: '#191919', borderRadius: 18, padding: '16px 18px' }}>
+                <div style={{ fontSize: 11.5, fontWeight: 500, letterSpacing: '0.8px', color: '#9A9A9A' }}>
+                  {completedPRs.length} NEW RECORD{completedPRs.length !== 1 ? 'S' : ''}
+                </div>
+                {completedPRs.map((pr, i) => (
+                  <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginTop: i === 0 ? 12 : 8 }}>
+                    <span style={{ fontSize: 13.5, color: '#9A9A9A' }}>{pr.name} — {pr.prev} → {pr.detail}</span>
+                    <span style={{ fontSize: 16, fontWeight: 400, color: '#FFFFFF' }}>{pr.detail}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+            {/* Class split */}
+            <div style={{ marginTop: 8, display: 'flex', gap: 8 }}>
+              <div style={{ flex: 1, background: '#191919', borderRadius: 18, padding: '14px 16px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+                  <PowerIcon size={12} />
+                  <span style={{ fontSize: 11.5, color: '#9A9A9A' }}>Power</span>
+                </div>
+                <div style={{ marginTop: 8, display: 'flex', alignItems: 'baseline', gap: 4 }}>
+                  <span style={{ fontSize: 22, fontWeight: 600 }}>{powerSetsCompleted}</span>
+                  <span style={{ fontSize: 12, color: '#9A9A9A' }}>sets</span>
+                </div>
+              </div>
+              <div style={{ flex: 1, background: '#191919', borderRadius: 18, padding: '14px 16px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+                  <SizeIcon size={12} />
+                  <span style={{ fontSize: 11.5, color: '#9A9A9A' }}>Size</span>
+                </div>
+                <div style={{ marginTop: 8, display: 'flex', alignItems: 'baseline', gap: 4 }}>
+                  <span style={{ fontSize: 22, fontWeight: 600 }}>{sizeSetsCompleted}</span>
+                  <span style={{ fontSize: 12, color: '#9A9A9A' }}>sets</span>
+                </div>
+              </div>
+            </div>
+            <div style={{ flex: 1 }} />
+            <div style={{ fontSize: 12.5, color: '#9A9A9A', textAlign: 'center' }}>Next in rotation: {nextDayName}</div>
+            <button
+              onClick={() => {
+                setView('home');
+                setSelectedDay(null);
+                setSessionData({});
+                setSessionDay(null);
+                setWorkoutStartedAt(null);
+                setCompletedPRs([]);
+                setCurrentExerciseIndex(0);
+              }}
+              style={{ marginTop: 12, width: '100%', height: 54, borderRadius: 10, background: '#FFFFFF', color: '#0A0A0A', fontSize: 15, fontWeight: 600, border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}
+            >
+              Done
+            </button>
           </div>
         );
       }
