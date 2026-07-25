@@ -624,76 +624,88 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
       );
     };
 
+    // Power / Size class icons
+    const PowerIcon = ({ size = 15 }) => (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="#FFFFFF">
+        <path d="M13.5 2 5.5 13.2h4.6L8.9 22l8.4-11.6h-4.9z" />
+      </svg>
+    );
+    const SizeIcon = ({ size = 15 }) => (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="#9A9A9A" strokeWidth="2.4" strokeLinecap="round">
+        <path d="M5 19v-4M12 19v-8M19 19v-12" />
+      </svg>
+    );
+
     // Workout data
     const workoutData4Day = {
       day1: { name: "Upper Power + Biceps", focus: "Heavy pressing, pulling, bicep stretch", exercises: [
-        { id: "log_press", name: "Log Press / Standing DB Press", sets: 4, warmupSets: 1, reps: "3-5", defaultWeight: 95, muscles: ["shoulders", "triceps", "chest"], notes: "1 warm-up, then 3 heavy. 3-min rest" },
-        { id: "incline_db", name: "Incline Dumbbell Press (30°) / Machine Incline", sets: 4, warmupSets: 1, reps: "8-12", defaultWeight: 50, muscles: ["upperChest", "shoulders", "triceps"], notes: "1 intro set, then 3 at weight. Deep stretch" },
-        { id: "dips", name: "Assisted Dips / Machine Dip", sets: 3, reps: "8-12", defaultWeight: 60, muscles: ["chest", "triceps"], notes: "Weight = assistance, less is harder. Goal: 0 = bodyweight" },
-        { id: "seated_row", name: "Seated Row Machine / Cable Row", sets: 3, reps: "5-8", defaultWeight: 135, muscles: ["lats", "traps", "biceps", "rearDelts"], notes: "Strength focus" },
-        { id: "incline_curl", name: "Incline Dumbbell Curl / Bayesian Curl", sets: 3, reps: "10-12", defaultWeight: 20, muscles: ["biceps"], notes: "Arms behind torso, max stretch" },
-        { id: "face_pull", name: "Face Pull / Rear Delt Fly", sets: 3, reps: "15-20", defaultWeight: 40, muscles: ["rearDelts", "traps"], notes: "Shoulder health - form > load" },
-        { id: "hammer_curl", name: "Hammer Curl / Cross-Body Curl", sets: 3, reps: "10-15", defaultWeight: 25, muscles: ["biceps", "forearms"], notes: "Brachialis emphasis" },
-        { id: "lateral_raise", name: "Lateral Raise / Cable Lateral", sets: 3, reps: "12-20", defaultWeight: 15, muscles: ["sideDelts"], notes: "Microplates essential" }
+        { id: "log_press", name: "Log Press / Standing DB Press", sets: 4, warmupSets: 1, reps: "3-5", defaultWeight: 95, muscles: ["shoulders", "triceps", "chest"], notes: "1 warm-up, then 3 heavy. 3-min rest", cls: 'power' },
+        { id: "incline_db", name: "Incline Dumbbell Press (30°) / Machine Incline", sets: 4, warmupSets: 1, reps: "8-12", defaultWeight: 50, muscles: ["upperChest", "shoulders", "triceps"], notes: "1 intro set, then 3 at weight. Deep stretch", cls: 'power' },
+        { id: "dips", name: "Assisted Dips / Machine Dip", sets: 3, reps: "8-12", defaultWeight: 60, muscles: ["chest", "triceps"], notes: "Weight = assistance, less is harder. Goal: 0 = bodyweight", cls: 'size' },
+        { id: "seated_row", name: "Seated Row Machine / Cable Row", sets: 3, reps: "5-8", defaultWeight: 135, muscles: ["lats", "traps", "biceps", "rearDelts"], notes: "Strength focus", cls: 'power' },
+        { id: "incline_curl", name: "Incline Dumbbell Curl / Bayesian Curl", sets: 3, reps: "10-12", defaultWeight: 20, muscles: ["biceps"], notes: "Arms behind torso, max stretch", cls: 'size' },
+        { id: "face_pull", name: "Face Pull / Rear Delt Fly", sets: 3, reps: "15-20", defaultWeight: 40, muscles: ["rearDelts", "traps"], notes: "Shoulder health - form > load", cls: 'size', supersetGroupId: 'ss_facehammer' },
+        { id: "hammer_curl", name: "Hammer Curl / Cross-Body Curl", sets: 3, reps: "10-15", defaultWeight: 25, muscles: ["biceps", "forearms"], notes: "Brachialis emphasis", cls: 'size', supersetGroupId: 'ss_facehammer' },
+        { id: "lateral_raise", name: "Lateral Raise / Cable Lateral", sets: 3, reps: "12-20", defaultWeight: 15, muscles: ["sideDelts"], notes: "Microplates essential", cls: 'size' }
       ]},
       day2: { name: "Lower Power + Carries", focus: "Deadlift strength, carries for traps/forearms", exercises: [
-        { id: "deadlift", name: "Conventional Deadlift / Trap Bar Deadlift", sets: 5, warmupSets: 2, reps: "4-6", defaultWeight: 225, muscles: ["hamstrings", "glutes", "lats", "traps", "forearms"], notes: "2 warm-ups (~50%/75%), then 3 heavy sets" },
-        { id: "pause_squat", name: "Pause Squat / Front Squat", sets: 3, warmupSets: 1, reps: "3-6", defaultWeight: 115, muscles: ["quads", "glutes", "hamstrings"], notes: "2nd squat exposure for skill - skip when worn down" },
-        { id: "hack_squat", name: "Hack Squat / Leg Press", sets: 4, warmupSets: 1, reps: "6-10", defaultWeight: 180, muscles: ["quads", "glutes"], notes: "1 intro set, then 3 at weight. Push hard" },
-        { id: "farmers_walk", name: "Farmer's Walk / Suitcase Carry", sets: 3, reps: "50-70 ft", defaultWeight: 70, muscles: ["traps", "forearms", "abs"], notes: "Per hand. Distance before load." },
-        { id: "leg_curl", name: "Leg Curl / Nordic Curl", sets: 3, reps: "5-8", defaultWeight: 90, muscles: ["hamstrings"], notes: "Strength focus, control the negative. Swap in Nordics sometimes for long-length work", progression: { progressionType: "load-first", repRange: [5, 8] } },
-        { id: "leg_ext", name: "Leg Extension / Sissy Squat", sets: 3, reps: "5-8", defaultWeight: 100, muscles: ["quads"], notes: "Strength focus - heavy, controlled reps", progression: { progressionType: "load-first", repRange: [5, 8] } },
-        { id: "lat_pulldown", name: "Lat Pulldown / Pull-ups", sets: 3, reps: "5-8", defaultWeight: 100, muscles: ["lats", "biceps"], notes: "Strength focus", progression: { progressionType: "load-first", repRange: [5, 8] } },
-        { id: "bent_lateral", name: "Bent + Side Lateral / Rear Delt Machine", sets: 2, reps: "12-20", defaultWeight: 12, muscles: ["rearDelts", "sideDelts"], notes: "Microplates for laterals" },
-        { id: "calf_raise", name: "Calf Raises / Seated Calf", sets: 3, reps: "12-20", defaultWeight: 150, muscles: ["calves"], notes: "Full ROM, calves progress slowly" }
+        { id: "deadlift", name: "Conventional Deadlift / Trap Bar Deadlift", sets: 5, warmupSets: 2, reps: "4-6", defaultWeight: 225, muscles: ["hamstrings", "glutes", "lats", "traps", "forearms"], notes: "2 warm-ups (~50%/75%), then 3 heavy sets", cls: 'power' },
+        { id: "pause_squat", name: "Pause Squat / Front Squat", sets: 3, warmupSets: 1, reps: "3-6", defaultWeight: 115, muscles: ["quads", "glutes", "hamstrings"], notes: "2nd squat exposure for skill - skip when worn down", cls: 'power' },
+        { id: "hack_squat", name: "Hack Squat / Leg Press", sets: 4, warmupSets: 1, reps: "6-10", defaultWeight: 180, muscles: ["quads", "glutes"], notes: "1 intro set, then 3 at weight. Push hard", cls: 'power' },
+        { id: "farmers_walk", name: "Farmer's Walk / Suitcase Carry", sets: 3, reps: "50-70 ft", defaultWeight: 70, muscles: ["traps", "forearms", "abs"], notes: "Per hand. Distance before load.", cls: 'power' },
+        { id: "leg_curl", name: "Leg Curl / Nordic Curl", sets: 3, reps: "5-8", defaultWeight: 90, muscles: ["hamstrings"], notes: "Strength focus, control the negative. Swap in Nordics sometimes for long-length work", progression: { progressionType: "load-first", repRange: [5, 8] }, cls: 'power' },
+        { id: "leg_ext", name: "Leg Extension / Sissy Squat", sets: 3, reps: "5-8", defaultWeight: 100, muscles: ["quads"], notes: "Strength focus - heavy, controlled reps", progression: { progressionType: "load-first", repRange: [5, 8] }, cls: 'power' },
+        { id: "lat_pulldown", name: "Lat Pulldown / Pull-ups", sets: 3, reps: "5-8", defaultWeight: 100, muscles: ["lats", "biceps"], notes: "Strength focus", progression: { progressionType: "load-first", repRange: [5, 8] }, cls: 'power' },
+        { id: "bent_lateral", name: "Bent + Side Lateral / Rear Delt Machine", sets: 2, reps: "12-20", defaultWeight: 12, muscles: ["rearDelts", "sideDelts"], notes: "Microplates for laterals", cls: 'size' },
+        { id: "calf_raise", name: "Calf Raises / Seated Calf", sets: 3, reps: "12-20", defaultWeight: 150, muscles: ["calves"], notes: "Full ROM, calves progress slowly", cls: 'size' }
       ]},
       day3: { name: "Upper Hypertrophy + Arms", focus: "Upper chest volume, arm hypertrophy", exercises: [
-        { id: "incline_bb", name: "Incline Barbell Press (30°) / Smith Incline", sets: 4, warmupSets: 1, reps: "8-10", defaultWeight: 115, muscles: ["upperChest", "shoulders", "triceps"], notes: "1 intro set, then 3 at weight" },
-        { id: "cable_row", name: "Cable Row / Machine Row", sets: 3, reps: "5-8", defaultWeight: 120, muscles: ["lats", "traps", "biceps"], notes: "Strength focus", progression: { progressionType: "load-first", repRange: [5, 8] } },
-        { id: "low_high_fly", name: "Low-to-High Cable Fly / Incline DB Fly", sets: 3, reps: "12-15", defaultWeight: 25, muscles: ["upperChest"], notes: "Upper chest isolation" },
-        { id: "bayesian_curl", name: "Bayesian Cable Curl / Incline Curl", sets: 3, reps: "10-15", defaultWeight: 25, muscles: ["biceps"], notes: "Face away, constant tension" },
-        { id: "overhead_tri", name: "Overhead Tricep Extension / Skull Crushers", sets: 3, reps: "10-15", defaultWeight: 50, muscles: ["triceps"], notes: "Long head emphasis" },
-        { id: "preacher_curl", name: "Preacher Curl / Concentration Curl", sets: 3, reps: "10-12", defaultWeight: 50, muscles: ["biceps"], notes: "Short head emphasis" },
-        { id: "pushdown", name: "Rope Pushdown / V-Bar Pushdown", sets: 2, reps: "12-20", defaultWeight: 40, muscles: ["triceps"], notes: "Pump finisher" }
+        { id: "incline_bb", name: "Incline Barbell Press (30°) / Smith Incline", sets: 4, warmupSets: 1, reps: "8-10", defaultWeight: 115, muscles: ["upperChest", "shoulders", "triceps"], notes: "1 intro set, then 3 at weight", cls: 'power' },
+        { id: "cable_row", name: "Cable Row / Machine Row", sets: 3, reps: "5-8", defaultWeight: 120, muscles: ["lats", "traps", "biceps"], notes: "Strength focus", progression: { progressionType: "load-first", repRange: [5, 8] }, cls: 'power' },
+        { id: "low_high_fly", name: "Low-to-High Cable Fly / Incline DB Fly", sets: 3, reps: "12-15", defaultWeight: 25, muscles: ["upperChest"], notes: "Upper chest isolation", cls: 'size' },
+        { id: "bayesian_curl", name: "Bayesian Cable Curl / Incline Curl", sets: 3, reps: "10-15", defaultWeight: 25, muscles: ["biceps"], notes: "Face away, constant tension", cls: 'size' },
+        { id: "overhead_tri", name: "Overhead Tricep Extension / Skull Crushers", sets: 3, reps: "10-15", defaultWeight: 50, muscles: ["triceps"], notes: "Long head emphasis", cls: 'size' },
+        { id: "preacher_curl", name: "Preacher Curl / Concentration Curl", sets: 3, reps: "10-12", defaultWeight: 50, muscles: ["biceps"], notes: "Short head emphasis", cls: 'size' },
+        { id: "pushdown", name: "Rope Pushdown / V-Bar Pushdown", sets: 2, reps: "12-20", defaultWeight: 40, muscles: ["triceps"], notes: "Pump finisher", cls: 'size' }
       ]},
       day4: { name: "Lower Hypertrophy + Volume", focus: "Squat volume, additional upper work", exercises: [
-        { id: "squat", name: "Barbell Squat / Front Squat", sets: 5, warmupSets: 2, reps: "4-8", defaultWeight: 155, muscles: ["quads", "glutes", "hamstrings"], notes: "2 warm-ups (~50%/75%), then 3 heavy sets" },
-        { id: "leg_press", name: "Leg Press / Hack Squat", sets: 4, warmupSets: 1, reps: "8-12", defaultWeight: 270, muscles: ["quads", "glutes"], notes: "1 intro set, then 3 at weight" },
-        { id: "leg_ext", name: "Leg Extension / Sissy Squat", sets: 3, reps: "5-8", defaultWeight: 100, muscles: ["quads"], notes: "Strength focus - heavy, controlled reps", progression: { progressionType: "load-first", repRange: [5, 8] } },
-        { id: "leg_curl", name: "Leg Curl / Nordic Curl", sets: 3, reps: "5-8", defaultWeight: 70, muscles: ["hamstrings"], notes: "Strength focus, control negative. Nordics cover what RDLs used to", progression: { progressionType: "load-first", repRange: [5, 8] } },
-        { id: "back_extension", name: "45° Back Extension / Reverse Hyper", sets: 3, reps: "8-15", defaultWeight: 0, muscles: ["hamstrings", "glutes"], notes: "Replaces RDL. Hold a plate to add load" },
-        { id: "seated_row", name: "Seated Cable Row / T-Bar Row", sets: 3, reps: "5-8", defaultWeight: 130, muscles: ["lats", "traps", "biceps"], notes: "Strength focus" },
-        { id: "lat_pulldown", name: "Lat Pulldown / Pull-ups", sets: 3, reps: "5-8", defaultWeight: 100, muscles: ["lats", "biceps"], notes: "Strength focus", progression: { progressionType: "load-first", repRange: [5, 8] } },
-        { id: "machine_chest", name: "Machine Chest Press / Cable Crossover", sets: 3, reps: "10-15", defaultWeight: 140, muscles: ["chest", "triceps"], notes: "3 working sets - safe to push hard" },
-        { id: "high_rep_curl", name: "EZ Bar Curl / Cable Curl", sets: 3, reps: "12-15", defaultWeight: 45, muscles: ["biceps"], notes: "High rep pump" }
+        { id: "squat", name: "Barbell Squat / Front Squat", sets: 5, warmupSets: 2, reps: "4-8", defaultWeight: 155, muscles: ["quads", "glutes", "hamstrings"], notes: "2 warm-ups (~50%/75%), then 3 heavy sets", cls: 'power' },
+        { id: "leg_press", name: "Leg Press / Hack Squat", sets: 4, warmupSets: 1, reps: "8-12", defaultWeight: 270, muscles: ["quads", "glutes"], notes: "1 intro set, then 3 at weight", cls: 'size' },
+        { id: "leg_ext", name: "Leg Extension / Sissy Squat", sets: 3, reps: "5-8", defaultWeight: 100, muscles: ["quads"], notes: "Strength focus - heavy, controlled reps", progression: { progressionType: "load-first", repRange: [5, 8] }, cls: 'power' },
+        { id: "leg_curl", name: "Leg Curl / Nordic Curl", sets: 3, reps: "5-8", defaultWeight: 70, muscles: ["hamstrings"], notes: "Strength focus, control negative. Nordics cover what RDLs used to", progression: { progressionType: "load-first", repRange: [5, 8] }, cls: 'power' },
+        { id: "back_extension", name: "45° Back Extension / Reverse Hyper", sets: 3, reps: "8-15", defaultWeight: 0, muscles: ["hamstrings", "glutes"], notes: "Replaces RDL. Hold a plate to add load", cls: 'size' },
+        { id: "seated_row", name: "Seated Cable Row / T-Bar Row", sets: 3, reps: "5-8", defaultWeight: 130, muscles: ["lats", "traps", "biceps"], notes: "Strength focus", cls: 'power' },
+        { id: "lat_pulldown", name: "Lat Pulldown / Pull-ups", sets: 3, reps: "5-8", defaultWeight: 100, muscles: ["lats", "biceps"], notes: "Strength focus", progression: { progressionType: "load-first", repRange: [5, 8] }, cls: 'power' },
+        { id: "machine_chest", name: "Machine Chest Press / Cable Crossover", sets: 3, reps: "10-15", defaultWeight: 140, muscles: ["chest", "triceps"], notes: "3 working sets - safe to push hard", cls: 'size' },
+        { id: "high_rep_curl", name: "EZ Bar Curl / Cable Curl", sets: 3, reps: "12-15", defaultWeight: 45, muscles: ["biceps"], notes: "High rep pump", cls: 'size' }
       ]}
     };
 
     const workoutData3Day = {
       day1: { name: "Lower Power + Upper Maintenance", focus: "Heavy glute loading, hip hinge strength", exercises: [
-        { id: "deadlift", name: "Sumo Deadlift / Conventional Deadlift", sets: 4, reps: "4-6", defaultWeight: 185, muscles: ["glutes", "hamstrings", "lats", "traps"], notes: "Heavy, 2-3 min rest" },
-        { id: "hip_thrust", name: "Barbell Hip Thrust / Machine Hip Thrust", sets: 4, reps: "5-8", defaultWeight: 135, muscles: ["glutes", "hamstrings"], notes: "Progress fast - squeeze at top" },
-        { id: "db_bench", name: "DB Bench Press / Machine Chest Press", sets: 3, reps: "8-12", defaultWeight: 35, muscles: ["chest", "triceps"], notes: "Upper maintenance" },
-        { id: "cable_row", name: "Cable Row / Machine Row", sets: 3, reps: "10-12", defaultWeight: 100, muscles: ["lats", "traps", "biceps"], notes: "Upper maintenance" },
-        { id: "bulgarian_split", name: "Bulgarian Split Squat / Reverse Lunge", sets: 3, reps: "8-12", defaultWeight: 30, muscles: ["glutes", "quads"], notes: "Balance before load" }
+        { id: "deadlift", name: "Sumo Deadlift / Conventional Deadlift", sets: 4, reps: "4-6", defaultWeight: 185, muscles: ["glutes", "hamstrings", "lats", "traps"], notes: "Heavy, 2-3 min rest", cls: 'power' },
+        { id: "hip_thrust", name: "Barbell Hip Thrust / Machine Hip Thrust", sets: 4, reps: "5-8", defaultWeight: 135, muscles: ["glutes", "hamstrings"], notes: "Progress fast - squeeze at top", cls: 'power' },
+        { id: "db_bench", name: "DB Bench Press / Machine Chest Press", sets: 3, reps: "8-12", defaultWeight: 35, muscles: ["chest", "triceps"], notes: "Upper maintenance", cls: 'size' },
+        { id: "cable_row", name: "Cable Row / Machine Row", sets: 3, reps: "10-12", defaultWeight: 100, muscles: ["lats", "traps", "biceps"], notes: "Upper maintenance", cls: 'size' },
+        { id: "bulgarian_split", name: "Bulgarian Split Squat / Reverse Lunge", sets: 3, reps: "8-12", defaultWeight: 30, muscles: ["glutes", "quads"], notes: "Balance before load", cls: 'size' }
       ]},
       day2: { name: "Full Body Hypertrophy", focus: "Glute volume, unilateral work", exercises: [
-        { id: "rdl", name: "Romanian Deadlift / Stiff-Leg Deadlift", sets: 4, reps: "8-12", defaultWeight: 95, muscles: ["hamstrings", "glutes"], notes: "Form > load, feel stretch" },
-        { id: "walking_lunge", name: "Walking Lunges / Stationary Lunges", sets: 3, reps: "24-30 steps", defaultWeight: 25, muscles: ["glutes", "quads"], notes: "Per DB, metabolic stress" },
-        { id: "step_up", name: "Diagonal Step-Up / Box Step-Up", sets: 3, reps: "10-12", defaultWeight: 20, muscles: ["glutes", "quads"], notes: "Highest glute EMG activation" },
-        { id: "log_press", name: "Log Press / Standing DB Press", sets: 3, reps: "3-5", defaultWeight: 70, muscles: ["shoulders", "triceps"], notes: "Primary press - microplates!" },
-        { id: "lat_pulldown", name: "Lat Pulldown / Assisted Pull-ups", sets: 3, reps: "10-12", defaultWeight: 100, muscles: ["lats", "biceps"], notes: "Upper maintenance" },
-        { id: "cable_kickback", name: "Cable Kickback / Donkey Kick", sets: 3, reps: "12-15", defaultWeight: 25, muscles: ["glutes"], notes: "Mind-muscle connection" }
+        { id: "rdl", name: "Romanian Deadlift / Stiff-Leg Deadlift", sets: 4, reps: "8-12", defaultWeight: 95, muscles: ["hamstrings", "glutes"], notes: "Form > load, feel stretch", cls: 'power' },
+        { id: "walking_lunge", name: "Walking Lunges / Stationary Lunges", sets: 3, reps: "24-30 steps", defaultWeight: 25, muscles: ["glutes", "quads"], notes: "Per DB, metabolic stress", cls: 'size' },
+        { id: "step_up", name: "Diagonal Step-Up / Box Step-Up", sets: 3, reps: "10-12", defaultWeight: 20, muscles: ["glutes", "quads"], notes: "Highest glute EMG activation", cls: 'size' },
+        { id: "log_press", name: "Log Press / Standing DB Press", sets: 3, reps: "3-5", defaultWeight: 70, muscles: ["shoulders", "triceps"], notes: "Primary press - microplates!", cls: 'power' },
+        { id: "lat_pulldown", name: "Lat Pulldown / Assisted Pull-ups", sets: 3, reps: "10-12", defaultWeight: 100, muscles: ["lats", "biceps"], notes: "Upper maintenance", cls: 'size' },
+        { id: "cable_kickback", name: "Cable Kickback / Donkey Kick", sets: 3, reps: "12-15", defaultWeight: 25, muscles: ["glutes"], notes: "Mind-muscle connection", cls: 'size' }
       ]},
       day3: { name: "Lower Volume + Finisher", focus: "Glute pump, quad balance", exercises: [
-        { id: "hip_thrust", name: "Hip Thrust / Glute Bridge", sets: 3, reps: "12-15", defaultWeight: 115, muscles: ["glutes"], notes: "Focus on squeeze/contraction" },
-        { id: "leg_press", name: "Leg Press / Hack Squat", sets: 3, reps: "8-12", defaultWeight: 200, muscles: ["glutes", "quads"], notes: "Glute-biased foot position" },
-        { id: "leg_curl", name: "Leg Curl / Nordic Curl", sets: 3, reps: "8-12", defaultWeight: 70, muscles: ["hamstrings"], notes: "Control negative" },
-        { id: "leg_ext", name: "Leg Extension / Sissy Squat", sets: 3, reps: "10-12", defaultWeight: 80, muscles: ["quads"], notes: "Controlled reps for knee health" },
-        { id: "single_leg_rdl", name: "Single-Leg RDL / Kickstand RDL", sets: 3, reps: "10-12", defaultWeight: 25, muscles: ["glutes", "hamstrings"], notes: "Balance first, then load" },
-        { id: "push_ups", name: "Push-ups / Knee Push-ups", sets: 3, reps: "12-20", defaultWeight: 0, muscles: ["chest", "triceps"], notes: "Upper maintenance" },
-        { id: "face_pull", name: "Face Pulls / Band Pull-Aparts", sets: 3, reps: "15-20", defaultWeight: 35, muscles: ["rearDelts", "traps"], notes: "Shoulder health > ego" },
-        { id: "calf_raise", name: "Calf Raises / Seated Calf Raise", sets: 3, reps: "12-20", defaultWeight: 120, muscles: ["calves"], notes: "Full ROM, patient progression" }
+        { id: "hip_thrust", name: "Hip Thrust / Glute Bridge", sets: 3, reps: "12-15", defaultWeight: 115, muscles: ["glutes"], notes: "Focus on squeeze/contraction", cls: 'size' },
+        { id: "leg_press", name: "Leg Press / Hack Squat", sets: 3, reps: "8-12", defaultWeight: 200, muscles: ["glutes", "quads"], notes: "Glute-biased foot position", cls: 'size' },
+        { id: "leg_curl", name: "Leg Curl / Nordic Curl", sets: 3, reps: "8-12", defaultWeight: 70, muscles: ["hamstrings"], notes: "Control negative", cls: 'size' },
+        { id: "leg_ext", name: "Leg Extension / Sissy Squat", sets: 3, reps: "10-12", defaultWeight: 80, muscles: ["quads"], notes: "Controlled reps for knee health", cls: 'size' },
+        { id: "single_leg_rdl", name: "Single-Leg RDL / Kickstand RDL", sets: 3, reps: "10-12", defaultWeight: 25, muscles: ["glutes", "hamstrings"], notes: "Balance first, then load", cls: 'size' },
+        { id: "push_ups", name: "Push-ups / Knee Push-ups", sets: 3, reps: "12-20", defaultWeight: 0, muscles: ["chest", "triceps"], notes: "Upper maintenance", cls: 'size' },
+        { id: "face_pull", name: "Face Pulls / Band Pull-Aparts", sets: 3, reps: "15-20", defaultWeight: 35, muscles: ["rearDelts", "traps"], notes: "Shoulder health > ego", cls: 'size' },
+        { id: "calf_raise", name: "Calf Raises / Seated Calf Raise", sets: 3, reps: "12-20", defaultWeight: 120, muscles: ["calves"], notes: "Full ROM, patient progression", cls: 'size' }
       ]}
     };
 
@@ -883,19 +895,21 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
       const ACTIVE_SESSION_KEY = 'activeWorkoutSession';
 
       const beginWorkout = (startIndex = 0) => {
-        // Already mid-workout on this day: jump straight to the tapped exercise
+        // Already mid-workout on this day: resume in place
         if (Object.keys(sessionData).length > 0 && sessionDay === selectedDay) {
-          startExercise(startIndex);
+          setCurrentExerciseIndex(startIndex);
+          setView('exercise');
           return;
         }
         let resumed = false;
+        let resumedData = {};
         try {
           const saved = JSON.parse(localStorage.getItem(ACTIVE_SESSION_KEY));
           if (saved && saved.program === selectedProgram && saved.day === selectedDay &&
               saved.sessionData && Object.keys(saved.sessionData).length > 0) {
             const hoursAgo = (Date.now() - new Date(saved.savedAt).getTime()) / 36e5;
             if (hoursAgo < 12 && confirm('You have an unfinished workout for this day. Resume it? (Cancel starts fresh)')) {
-              setSessionData(saved.sessionData);
+              resumedData = saved.sessionData;
               setUseAltExercise(saved.useAltExercise || {});
               setAbsDone(!!saved.absDone);
               setWorkoutStartedAt(saved.startedAt || saved.savedAt);
@@ -904,12 +918,40 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
           }
         } catch {}
         if (!resumed) {
-          setSessionData({});
           setUseAltExercise({});
           setWorkoutStartedAt(new Date().toISOString());
         }
         setSessionDay(selectedDay);
-        startExercise(startIndex);
+
+        // Pre-initialize all exercises
+        const cfg = programConfigs[selectedProgram];
+        const exercises = cfg.data[selectedDay].exercises;
+        const initAll = {};
+        exercises.forEach((exercise, index) => {
+          const progression = calculateProgression(exercise);
+          const exConfig = progression.config;
+          const numSets = typeof exercise.sets === 'number' ? exercise.sets : 3;
+          const numWarmups = Math.min(exercise.warmupSets || 0, numSets - 1);
+          const lastWorking = progression.lastSession ? getWorkingSets(progression.lastSession) : [];
+          const startWeight = lastWorking[0]?.weight ?? progression.lastSession?.weight ?? progression.weight;
+          const startReps = lastWorking.length > 0
+            ? Math.round(lastWorking.reduce((a, s) => a + s.reps, 0) / lastWorking.length)
+            : progression.reps;
+          const inc = exConfig.weightIncrement || 5;
+          const warmupPcts = numWarmups >= 2 ? [0.5, 0.75] : [0.6];
+          const warmupWeight = (i) => Math.max(inc, Math.round((startWeight * warmupPcts[Math.min(i, warmupPcts.length - 1)]) / inc) * inc);
+          initAll[index] = {
+            sets: Array(numSets).fill(null).map((_, i) => i < numWarmups
+              ? { weight: warmupWeight(i), reps: startReps, completed: false, warmup: true }
+              : { weight: startWeight, reps: startReps, completed: false }),
+            notes: '',
+            selectedAbExercise: exercise.isAbsSlot ? 'cable_crunch' : null
+          };
+        });
+        // Merge: resumed session data wins over fresh init
+        setSessionData(prev => ({ ...initAll, ...resumedData }));
+        setCurrentExerciseIndex(startIndex);
+        setView('exercise');
       };
 
       const startExercise = (index) => {
@@ -1265,80 +1307,150 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
 
       // HOME
       if (view === 'home') {
-        return (
-          <div className="min-h-screen text-white p-4" style={{ background: config.bgGradient }}>
-            <div className="max-w-md mx-auto">
-              <div className="text-center mb-8 pt-4">
-                <button onClick={() => setView('programSelect')} className="text-zinc-600 text-xs mb-3 hover:text-white transition-colors flex items-center justify-center gap-1 mx-auto"><ChevronLeft className="w-3 h-3" /> Switch</button>
-                <div className="w-14 h-14 mx-auto mb-3 rounded-xl flex items-center justify-center" style={{ background: config.gradient }}><config.icon className="w-7 h-7 text-white" /></div>
-                <h1 className="text-xl font-bold tracking-tight">{config.name}</h1>
-                <p className="text-zinc-500 text-xs mt-1">{config.subtitle}</p>
-              </div>
-              <div className="space-y-2">
-                {Object.entries(workoutData).map(([day, data]) => {
-                  const accent = config.dayAccents[day];
-                  return (
-                    <button key={day} onClick={() => startDay(day)} className="w-full rounded-xl p-4 text-left transition-all active:scale-[0.98] border border-zinc-800/50" style={{ backgroundColor: '#12121a' }}>
-                      <div className="flex justify-between items-center">
-                        <div>
-                          <div className="text-[9px] font-semibold uppercase tracking-widest mb-0.5" style={{ color: accent }}>Day {day.replace('day','')}</div>
-                          <div className="text-sm font-semibold text-zinc-100">{data.name}</div>
-                          <div className="text-[10px] text-zinc-600">{data.exercises.length} exercises</div>
-                        </div>
-                        <ChevronRight className="w-4 h-4" style={{ color: accent }} />
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-              {(() => {
-                // Consistency: workouts per week over the last 8 weeks
-                const dates = [];
-                Object.values(workoutLog[selectedProgram] || {}).forEach(d => (d?.sessions || []).forEach(s => dates.push(new Date(s.date))));
-                if (dates.length === 0) return null;
-                const now = new Date();
-                const monday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - ((now.getDay() + 6) % 7));
-                const start = new Date(monday);
-                start.setDate(start.getDate() - 49);
-                const weeks = Array(8).fill(0);
-                dates.forEach(dt => {
-                  const idx = Math.floor((dt - start) / (7 * 864e5));
-                  if (idx >= 0 && idx < 8) weeks[idx]++;
+        const progLog = workoutLog[selectedProgram] || {};
+        // Compute last done date per day
+        const lastDoneByDay = {};
+        Object.entries(progLog).forEach(([dayKey, dayData]) => {
+          const sessions = dayData?.sessions || [];
+          if (sessions.length > 0) {
+            const latest = sessions.reduce((a, s) => new Date(s.date) > new Date(a.date) ? s : a);
+            lastDoneByDay[dayKey] = new Date(latest.date);
+          }
+        });
+        // Next day: day with oldest lastDone (or first day if none logged)
+        const dayEntries = Object.entries(workoutData);
+        let nextDayKey = dayEntries[0][0];
+        let oldestDate = lastDoneByDay[nextDayKey] || null;
+        dayEntries.forEach(([key]) => {
+          const d = lastDoneByDay[key];
+          if (!d) { nextDayKey = key; oldestDate = null; return; }
+          if (oldestDate !== null && d < oldestDate) { nextDayKey = key; oldestDate = d; }
+        });
+        // If all days have been done, pick the one with the oldest date
+        if (Object.keys(lastDoneByDay).length === dayEntries.length) {
+          let minDate = null;
+          dayEntries.forEach(([key]) => {
+            const d = lastDoneByDay[key];
+            if (minDate === null || d < minDate) { minDate = d; nextDayKey = key; }
+          });
+        }
+        const nextDayData = workoutData[nextDayKey];
+        const nextDayNum = nextDayKey.replace('day', '');
+        // Week number
+        const allSessions = [];
+        Object.values(progLog).forEach(d => (d?.sessions || []).forEach(s => allSessions.push(new Date(s.date))));
+        allSessions.sort((a, b) => a - b);
+        const weekNumber = allSessions.length > 0
+          ? Math.floor((Date.now() - allSessions[0].getTime()) / (7 * 864e5)) + 1
+          : 1;
+        // 7-day volume
+        const sevenDaysAgo = Date.now() - 7 * 864e5;
+        let volume7d = 0;
+        Object.values(progLog).forEach(dayD => {
+          Object.values(dayD?.exercises || {}).forEach(entries => {
+            entries.forEach(entry => {
+              if (new Date(entry.date).getTime() >= sevenDaysAgo) {
+                (entry.sets || []).forEach(s => {
+                  if (!s.warmup && s.completed) volume7d += (s.weight || 0) * (s.reps || 0);
                 });
-                const maxW = Math.max(...weeks, 1);
+              }
+            });
+          });
+        });
+        const fmtVolume = (v) => v >= 1000 ? `${(v / 1000).toFixed(1)}k` : String(v);
+        const fmtDate = (d) => d ? d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : null;
+        // Day type label (Power vs Size) from majority of exercises
+        const dayType = (data) => {
+          const p = (data.exercises || []).filter(e => e.cls === 'power').length;
+          const s = (data.exercises || []).filter(e => e.cls === 'size').length;
+          return p >= s ? 'Power' : 'Size';
+        };
+        // Backup nudge
+        const totalSessions = allSessions.length;
+        const ageDays = lastBackupAt ? Math.floor((Date.now() - new Date(lastBackupAt).getTime()) / 864e5) : null;
+        const showBackupNudge = totalSessions >= 3 && (ageDays === null || ageDays > 21);
+        const outerStyle = { width: '100%', maxWidth: 390, margin: '0 auto', height: '100dvh', background: '#0A0A0A', color: '#FFFFFF', fontFamily: 'system-ui,sans-serif', display: 'flex', flexDirection: 'column', padding: '28px 20px 20px', boxSizing: 'border-box' };
+        return (
+          <div style={outerStyle}>
+            {/* Header */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span style={{ fontSize: 26, fontWeight: 500 }}>Workouts</span>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button onClick={() => setView('programSelect')} style={{ width: 36, height: 36, borderRadius: '50%', background: '#191919', border: 'none', color: '#9A9A9A', fontSize: 15, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>≡</button>
+                <button style={{ width: 36, height: 36, borderRadius: '50%', background: '#191919', border: 'none', color: '#FFFFFF', fontSize: 18, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>+</button>
+              </div>
+            </div>
+            {/* Hero tile pair */}
+            <div style={{ display: 'flex', gap: 10, marginTop: 18 }}>
+              <div style={{ flex: 1.2, background: '#191919', borderRadius: 20, padding: 16 }}>
+                <span style={{ width: 34, height: 34, borderRadius: '50%', border: '1.5px solid #3A3A3A', boxSizing: 'border-box', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 500 }}>{nextDayNum}</span>
+                <div style={{ fontSize: 15, fontWeight: 500, marginTop: 14 }}>{nextDayData.name}</div>
+                <div style={{ fontSize: 11.5, color: '#9A9A9A', marginTop: 4 }}>
+                  {lastDoneByDay[nextDayKey] ? `Next up · ${fmtDate(lastDoneByDay[nextDayKey])}` : 'Next up'}
+                </div>
+              </div>
+              <div style={{ flex: 1, background: '#191919', borderRadius: 20, padding: 16 }}>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
+                  <span style={{ fontSize: 32, fontWeight: 600, lineHeight: 1 }}>{weekNumber}</span>
+                  <span style={{ fontSize: 13, fontWeight: 400, color: '#9A9A9A' }}>wk</span>
+                </div>
+                <div style={{ fontSize: 12, color: '#9A9A9A', marginTop: 24 }}>{config.name}</div>
+              </div>
+            </div>
+            {/* Primary CTA */}
+            <button onClick={() => { setSelectedDay(nextDayKey); setView('dayOverview'); }} style={{ marginTop: 12, width: '100%', height: 54, borderRadius: 10, background: '#FFFFFF', color: '#0A0A0A', fontSize: 15, fontWeight: 600, border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>
+              Start {nextDayData.name}
+            </button>
+            {/* Day list */}
+            <div style={{ marginTop: 20, display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {dayEntries.filter(([key]) => key !== nextDayKey).map(([key, data], i) => {
+                const num = key.replace('day', '');
+                const lastD = lastDoneByDay[key];
+                const caption = `${dayType(data)} · ${lastD ? `last done ${fmtDate(lastD)}` : 'not started'}`;
                 return (
-                  <div className="mt-6 p-3 rounded-xl border border-zinc-800/50" style={{ backgroundColor: '#12121a' }}>
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-[10px] text-zinc-500 font-medium">LAST 8 WEEKS</span>
-                      <span className="text-[10px] text-zinc-400">{weeks[7]} this week · {dates.length} total</span>
-                    </div>
-                    <div className="flex items-end gap-1.5 h-8">
-                      {weeks.map((c, i) => (
-                        <div key={i} className="flex-1 rounded-sm" style={{ height: `${c === 0 ? 10 : 30 + (c / maxW) * 70}%`, background: c === 0 ? '#27272a' : config.gradient, opacity: c === 0 ? 1 : 0.45 + 0.55 * (c / maxW) }} />
-                      ))}
-                    </div>
-                  </div>
-                );
-              })()}
-              {(() => {
-                const totalSessions = Object.values(workoutLog[selectedProgram] || {}).reduce((a, d) => a + (d?.sessions?.length || 0), 0);
-                const ageDays = lastBackupAt ? Math.floor((Date.now() - new Date(lastBackupAt).getTime()) / 864e5) : null;
-                if (totalSessions < 3 || (ageDays !== null && ageDays <= 21)) return null;
-                return (
-                  <button onClick={exportBackup} className="mt-3 w-full text-left p-2.5 rounded-lg border border-amber-500/30 bg-amber-500/10 text-[10px] text-amber-300/90">
-                    {ageDays === null ? 'Never backed up' : `Last backup ${ageDays} days ago`} — your log lives only in this browser. Tap to save a backup file.
+                  <button key={key} onClick={() => { setSelectedDay(key); setView('dayOverview'); }} style={{ background: '#191919', borderRadius: 18, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 14, border: 'none', cursor: 'pointer', color: '#FFFFFF', fontFamily: 'inherit', textAlign: 'left' }}>
+                    <span style={{ width: 38, height: 38, borderRadius: '50%', border: '1.5px solid #3A3A3A', boxSizing: 'border-box', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 500, flexShrink: 0 }}>{num}</span>
+                    <span style={{ flex: 1 }}>
+                      <span style={{ display: 'block', fontSize: 14.5, fontWeight: 500 }}>{data.name}</span>
+                      <span style={{ display: 'block', fontSize: 11.5, color: '#9A9A9A', marginTop: 2 }}>{caption}</span>
+                    </span>
                   </button>
                 );
-              })()}
-              <div className="mt-4 flex gap-2 text-[10px]">
-                <button onClick={exportBackup} className="flex-1 text-zinc-500 flex items-center justify-center gap-1 py-2 border border-zinc-800 rounded-lg"><Download className="w-3 h-3" /> Backup</button>
-                <label className="flex-1 text-zinc-500 flex items-center justify-center gap-1 py-2 border border-zinc-800 rounded-lg cursor-pointer">
-                  <input type="file" accept=".json,application/json" className="hidden" onChange={(e) => { const f = e.target.files[0]; if (f) importBackup(f); e.target.value = ''; }} />
-                  <RotateCcw className="w-3 h-3" /> Restore
-                </label>
-                <button onClick={exportCSV} className="flex-1 text-zinc-600 flex items-center justify-center gap-1 py-2 border border-zinc-800 rounded-lg">CSV</button>
-                <button onClick={resetData} className="flex-1 text-zinc-700 flex items-center justify-center gap-1 py-2">Reset</button>
+              })}
+            </div>
+            {/* Volume row */}
+            <div style={{ marginTop: 8, background: '#191919', borderRadius: 18, padding: '14px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div>
+                <div style={{ fontSize: 12.5, color: '#9A9A9A' }}>Volume lifted</div>
+                <div style={{ fontSize: 10.5, color: '#9A9A9A' }}>Last 7 days</div>
               </div>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
+                <span style={{ fontSize: 30, fontWeight: 600, lineHeight: 1 }}>{fmtVolume(volume7d)}</span>
+                <span style={{ fontSize: 13, color: '#9A9A9A' }}>lbs</span>
+              </div>
+            </div>
+            {/* Backup nudge */}
+            {showBackupNudge && (
+              <button onClick={exportBackup} style={{ marginTop: 8, width: '100%', textAlign: 'left', padding: '10px 14px', borderRadius: 10, border: '1px solid rgba(245,158,11,0.3)', background: 'rgba(245,158,11,0.08)', fontSize: 11, color: 'rgba(252,211,77,0.9)', cursor: 'pointer', fontFamily: 'inherit' }}>
+                {ageDays === null ? 'Never backed up' : `Last backup ${ageDays} days ago`} — your log lives only in this browser. Tap to save a backup file.
+              </button>
+            )}
+            {/* Footer buttons */}
+            <div style={{ marginTop: 8, display: 'flex', gap: 8, fontSize: 11 }}>
+              <button onClick={exportBackup} style={{ flex: 1, background: 'none', border: '1px solid #2B2B2B', borderRadius: 10, color: '#9A9A9A', padding: '8px 0', cursor: 'pointer', fontFamily: 'inherit' }}>Backup</button>
+              <label style={{ flex: 1, background: 'none', border: '1px solid #2B2B2B', borderRadius: 10, color: '#9A9A9A', padding: '8px 0', cursor: 'pointer', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <input type="file" accept=".json,application/json" style={{ display: 'none' }} onChange={(e) => { const f = e.target.files[0]; if (f) importBackup(f); e.target.value = ''; }} />
+                Restore
+              </label>
+              <button onClick={exportCSV} style={{ flex: 1, background: 'none', border: '1px solid #2B2B2B', borderRadius: 10, color: '#9A9A9A', padding: '8px 0', cursor: 'pointer', fontFamily: 'inherit' }}>CSV</button>
+              <button onClick={resetData} style={{ flex: 1, background: 'none', border: 'none', color: '#3A3A3A', padding: '8px 0', cursor: 'pointer', fontFamily: 'inherit' }}>Reset</button>
+            </div>
+            {/* Tab bar */}
+            <div style={{ marginTop: 'auto', paddingTop: 14, borderTop: '1px solid #1E1E1E', display: 'flex', justifyContent: 'space-around' }}>
+              <span style={{ fontSize: 12, fontWeight: 500, color: '#FFFFFF' }}>Train</span>
+              <span style={{ fontSize: 12, fontWeight: 400, color: '#9A9A9A' }}>Log</span>
+              <span style={{ fontSize: 12, fontWeight: 400, color: '#9A9A9A' }}>Records</span>
+              <span style={{ fontSize: 12, fontWeight: 400, color: '#9A9A9A' }}>Program</span>
             </div>
           </div>
         );
@@ -1347,56 +1459,95 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
       // DAY OVERVIEW
       if (view === 'dayOverview') {
         const dayData = workoutData[selectedDay];
-        const accent = config.dayAccents[selectedDay];
-        return (
-          <div className="min-h-screen text-white p-4 pb-24" style={{ background: config.bgGradient }}>
-            <div className="max-w-md mx-auto">
-              <button onClick={() => setView('home')} className="flex items-center text-zinc-500 mb-4 text-sm"><ChevronLeft className="w-4 h-4" /> Back</button>
-              <div className="mb-4">
-                <div className="text-[9px] font-semibold uppercase tracking-widest mb-0.5" style={{ color: accent }}>Day {selectedDay.replace('day','')}</div>
-                <h1 className="text-lg font-bold text-zinc-100">{dayData.name}</h1>
-                <p className="text-zinc-500 text-xs">{dayData.focus}</p>
-              </div>
-              {(() => { const adherence = getAbsAdherence(); return (
-                <button onClick={() => setAbsDone(!absDone)} className={`w-full rounded-lg p-3 mb-3 flex items-center gap-2.5 border transition-all active:scale-[0.98] ${absDone ? 'border-emerald-500/50 bg-emerald-500/10' : 'border-zinc-800/50'}`} style={absDone ? {} : { backgroundColor: '#12121a' }}>
-                  <div className={`w-6 h-6 rounded flex items-center justify-center flex-shrink-0 ${absDone ? 'bg-emerald-500 text-white' : 'bg-zinc-800 text-zinc-600'}`}>
-                    {absDone ? <Check className="w-4 h-4" /> : null}
-                  </div>
-                  <div className="flex-1 text-left">
-                    <div className={`text-sm font-medium ${absDone ? 'text-emerald-300' : 'text-zinc-200'}`}>Pre-workout ab routine</div>
-                    <div className="text-[10px] text-zinc-600">
-                      {adherence ? `Done ${adherence.done} of last ${adherence.total} workouts` : 'Tap when done — tracked with each workout'}
-                    </div>
-                  </div>
-                </button>
-              ); })()}
-              <div className="space-y-1.5 mb-4">
-                {dayData.exercises.map((ex, i) => {
-                  const lastData = getLastSession(ex.id);
-                  const primaryColor = muscleColors[ex.muscles[0]] || '#6b7280';
-                  // Equipment taken? Tap any exercise to jump straight to it
-                  const inSession = Object.keys(sessionData).length > 0 && sessionDay === selectedDay;
-                  const doneThisSession = inSession && sessionData[i]?.sets?.some(s => s.completed && !s.warmup);
-                  return (
-                    <button key={`${ex.id}-${i}`} onClick={() => beginWorkout(i)} className="w-full text-left rounded-lg p-3 flex items-center gap-2.5 border border-zinc-800/50 transition-all active:scale-[0.98]" style={{ backgroundColor: '#12121a' }}>
-                      <div className="w-7 h-7 rounded flex items-center justify-center text-xs font-bold flex-shrink-0" style={{ background: `${primaryColor}20`, color: primaryColor }}>{i + 1}</div>
-                      <div className="flex-1 min-w-0">
-                        <div className="text-sm font-medium text-zinc-200 truncate">{ex.name.split(' / ')[0]}</div>
-                        <div className="text-[10px] text-zinc-600">{ex.sets} × {ex.reps}{lastData ? (lastData.skipped ? ' · Skipped' : ` · ${lastData.weight} lbs`) : ''}</div>
-                      </div>
-                      {doneThisSession ? <Check className="w-4 h-4 text-emerald-500 flex-shrink-0" /> : <ChevronRight className="w-4 h-4 text-zinc-700 flex-shrink-0" />}
-                    </button>
-                  );
-                })}
-              </div>
-              <div className="fixed bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-zinc-950 to-transparent">
-                <div className="max-w-md mx-auto">
-                  <button onClick={() => beginWorkout(0)} className="w-full text-white font-semibold py-3.5 rounded-xl text-sm transition-all active:scale-[0.98] flex items-center justify-center gap-2" style={{ background: accent }}>
-                    <Play className="w-4 h-4" /> {Object.keys(sessionData).length > 0 && sessionDay === selectedDay ? 'Continue Workout' : 'Begin Workout'}
-                  </button>
-                </div>
-              </div>
+        const progLog = workoutLog[selectedProgram] || {};
+        const dayLog = progLog[selectedDay];
+        const sessions = dayLog?.sessions || [];
+        const lastSession = sessions.length > 0 ? sessions.reduce((a, s) => new Date(s.date) > new Date(a.date) ? s : a) : null;
+        const lastDoneStr = lastSession
+          ? new Date(lastSession.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+          : null;
+        const exercises = dayData.exercises;
+        const powerCount = exercises.filter(e => e.cls === 'power').length;
+        const sizeCount = exercises.filter(e => e.cls === 'size').length;
+        // Group by superset
+        const outerStyle = { width: '100%', maxWidth: 390, margin: '0 auto', height: '100dvh', background: '#0A0A0A', color: '#FFFFFF', fontFamily: 'system-ui,sans-serif', display: 'flex', flexDirection: 'column', padding: '28px 20px 20px', boxSizing: 'border-box' };
+        // Build exercise rows with superset grouping
+        const rows = [];
+        let i2 = 0;
+        while (i2 < exercises.length) {
+          const ex = exercises[i2];
+          const ssId = ex.supersetGroupId;
+          if (ssId) {
+            // Find partner
+            const partnerIdx = exercises.findIndex((e, j) => j > i2 && e.supersetGroupId === ssId);
+            if (partnerIdx >= 0) {
+              rows.push({ type: 'superset', idx1: i2, idx2: partnerIdx });
+              i2 = partnerIdx + 1;
+              continue;
+            }
+          }
+          rows.push({ type: 'single', idx: i2 });
+          i2++;
+        }
+        const exRow = (ex, idx, borderRadius, isSecondSS) => {
+          const lastData = getLastSession(ex.id);
+          const workSets = lastData ? getWorkingSets(lastData) : [];
+          const lastWeight = workSets[0]?.weight ?? lastData?.weight ?? null;
+          const numWorking = (typeof ex.sets === 'number' ? ex.sets : 3) - (ex.warmupSets || 0);
+          const caption = lastWeight != null
+            ? `${numWorking}×${ex.reps} · ${lastWeight} lb`
+            : `${numWorking}×${ex.reps}`;
+          const name = ex.name.split(' / ')[0];
+          return (
+            <div key={`ex-${idx}`} onClick={() => beginWorkout(idx)} style={{ background: '#191919', borderRadius: borderRadius || 16, padding: '11px 14px', display: 'flex', alignItems: 'center', gap: 13, cursor: 'pointer' }}>
+              <span style={{ width: 38, height: 38, borderRadius: '50%', background: '#262626', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                {ex.cls === 'power' ? <PowerIcon size={15} /> : <SizeIcon size={15} />}
+              </span>
+              <span style={{ flex: 1 }}>
+                <span style={{ display: 'block', fontSize: 14, fontWeight: 500 }}>{name}</span>
+                <span style={{ display: 'block', fontSize: 11.5, color: '#9A9A9A', marginTop: 1 }}>{caption}</span>
+              </span>
             </div>
+          );
+        };
+        return (
+          <div style={outerStyle}>
+            {/* Nav row */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: '#9A9A9A' }}>
+              <button onClick={() => setView('home')} style={{ background: 'none', border: 'none', color: '#9A9A9A', fontSize: 13, cursor: 'pointer', fontFamily: 'inherit', padding: 0 }}>‹ Back</button>
+              <span>{lastDoneStr ? `Last done ${lastDoneStr}` : 'Not started'}</span>
+            </div>
+            {/* Title */}
+            <div style={{ fontSize: 28, fontWeight: 400, marginTop: 16 }}>{dayData.name}</div>
+            {/* Class legend */}
+            <div style={{ display: 'flex', gap: 16, marginTop: 8, fontSize: 11.5, color: '#9A9A9A', alignItems: 'center' }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><PowerIcon size={13} />{powerCount} power</span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><SizeIcon size={13} />{sizeCount} size</span>
+            </div>
+            {/* Exercise list */}
+            <div style={{ marginTop: 14, display: 'flex', flexDirection: 'column', gap: 6, flex: 1, overflow: 'hidden' }}>
+              {rows.map((row, ri) => {
+                if (row.type === 'single') {
+                  return exRow(exercises[row.idx], row.idx, 16, false);
+                }
+                // Superset pair
+                const ex1 = exercises[row.idx1];
+                const ex2 = exercises[row.idx2];
+                return (
+                  <div key={`ss-${ri}`}>
+                    {exRow(ex1, row.idx1, '16px 16px 6px 6px', false)}
+                    <div style={{ display: 'flex', justifyContent: 'center', margin: '-2px 0', position: 'relative', zIndex: 1 }}>
+                      <span style={{ width: 16, height: 16, borderRadius: '50%', border: '1.5px solid #3A3A3A', background: '#0A0A0A', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 8, color: '#9A9A9A' }}>⋈</span>
+                    </div>
+                    {exRow(ex2, row.idx2, '6px 6px 16px 16px', true)}
+                  </div>
+                );
+              })}
+            </div>
+            {/* Primary CTA */}
+            <button onClick={() => beginWorkout(0)} style={{ marginTop: 14, width: '100%', height: 54, borderRadius: 10, background: '#FFFFFF', color: '#0A0A0A', fontSize: 15, fontWeight: 600, border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>
+              Start workout
+            </button>
           </div>
         );
       }
