@@ -1707,14 +1707,12 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
               <h1 className="text-lg font-bold text-zinc-100 mb-1">Workout Summary</h1>
               <p className="text-zinc-500 text-sm mb-4">{dayData.name}</p>
 
-              <div className="p-4 rounded-xl bg-zinc-900/50 border border-zinc-800 mb-4">
-                <div className="text-center">
-                  <div className="text-3xl font-bold" style={{ color: accent }}>{completedCount}/{dayData.exercises.length}</div>
-                  <div className="text-zinc-500 text-xs">Exercises Completed</div>
-                </div>
+              <div className="px-4 py-2 rounded-xl bg-zinc-900/50 border border-zinc-800 mb-3 flex items-baseline justify-center gap-2">
+                <span className="text-2xl font-bold" style={{ color: accent }}>{completedCount}/{dayData.exercises.length}</span>
+                <span className="text-zinc-500 text-xs">exercises completed</span>
               </div>
 
-              <button onClick={() => setAbsDone(!absDone)} className={`w-full rounded-lg p-3 mb-2 flex items-center gap-2.5 border transition-all active:scale-[0.98] ${absDone ? 'border-emerald-500/50 bg-emerald-500/10' : 'border-zinc-800/50'}`} style={absDone ? {} : { backgroundColor: '#12121a' }}>
+              <button onClick={() => setAbsDone(!absDone)} className={`w-full rounded-lg px-3 py-2 mb-2 flex items-center gap-2.5 border transition-all active:scale-[0.98] ${absDone ? 'border-emerald-500/50 bg-emerald-500/10' : 'border-zinc-800/50'}`} style={absDone ? {} : { backgroundColor: '#12121a' }}>
                 <div className={`w-6 h-6 rounded flex items-center justify-center flex-shrink-0 ${absDone ? 'bg-emerald-500 text-white' : 'bg-zinc-800 text-zinc-600'}`}>
                   {absDone ? <Check className="w-4 h-4" /> : null}
                 </div>
@@ -1724,7 +1722,7 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
                 </div>
               </button>
 
-              <div className="space-y-2 mb-4">
+              <div className="space-y-1.5 mb-4">
                 {dayData.exercises.map((ex, i) => {
                   const data = sessionData[i];
                   if (!data) return null;
@@ -1734,7 +1732,7 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
                   const displayName = usedAlt ? nameParts[1] : nameParts[0];
 
                   return (
-                    <div key={i} className="rounded-lg p-3 border border-zinc-800/50" style={{ backgroundColor: '#12121a' }}>
+                    <div key={i} className="rounded-lg px-3 py-2 border border-zinc-800/50" style={{ backgroundColor: '#12121a' }}>
                       <div className="flex justify-between items-center">
                         <div>
                           <div className="text-sm font-medium text-zinc-200">{displayName}</div>

@@ -64,5 +64,12 @@ const USABLE = 852 - 59 - 34;
   await report('day-overview-9-exercises');
   await page.click('.exercise-row'); await page.waitForTimeout(500);
   await report(process.argv.includes('--seed') ? 'exercise-deadlift-5-sets-WITH-history' : 'exercise-deadlift-5-sets');
+  // Walk to summary and complete (worst case: 6-exercise day)
+  for (let i = 0; i < 8; i++) { const ok = await click('›'); if (!ok) break; }
+  await page.waitForTimeout(400);
+  await report('summary-6-exercises');
+  await click('Complete workout');
+  await page.waitForTimeout(600);
+  await report('complete');
   await browser.close();
 })();
