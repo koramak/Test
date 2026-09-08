@@ -19,7 +19,7 @@ const html = readFileSync(join(here, 'workout-tracker.html'), 'utf8');
 // Matches: exerciseId: { description: '...', source: '...', youtube: 'https://...' }
 const re = /(\w+): \{ description: '[^']*', source: '([^']*)', youtube: '([^']*)'/g;
 const entries = [];
-for (const m of html.matchAll(re)) entries.push({ id: m[1], source: m[2], url: m[3] });
+for (const m of html.matchAll(re)) { if (m[3]) entries.push({ id: m[1], source: m[2], url: m[3] }); else console.log(`SKIP  ${m[1]} — no video yet`); }
 
 if (entries.length === 0) {
   console.error('No links found — has the exercise description format changed?');
