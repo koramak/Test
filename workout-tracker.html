@@ -572,7 +572,7 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
       const improved = assisted ? delta < 0 : delta > 0;
       const fmt = (d) => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
       return (
-        <div className="mb-2 px-3 py-2 rounded-xl bg-zinc-900/50 border border-zinc-800/50">
+        <div className="mb-2 px-3 py-1.5 rounded-xl bg-zinc-900/50 border border-zinc-800/50">
           <div className="flex justify-between items-center mb-0.5">
             <span className="text-[10px] text-zinc-500 font-medium">PROGRESS · {pts.length} SESSIONS{assisted ? ' · LOWER = BETTER' : ''} <span className="text-zinc-600" style={{ fontWeight: 400 }}>· {fmt(pts[0].d)} {ws[0]} → {fmt(pts[pts.length - 1].d)} {ws[ws.length - 1]} lb</span></span>
             <span className={`text-[10px] font-semibold ${improved ? 'text-emerald-400' : delta === 0 ? 'text-zinc-500' : 'text-amber-400'}`}>{delta > 0 ? '+' : ''}{delta} lb</span>
@@ -1613,22 +1613,27 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
         if (progression.action === 'increase' || progression.action === 'progress') { suggestionColor = '#10b981'; suggestionBg = '#10b98115'; }
         else if (progression.action === 'decrease' || progression.action === 'regress') { suggestionColor = '#f59e0b'; suggestionBg = '#f59e0b15'; }
 
-        // Use the screen: fewer set rows -> bigger buttons and numerals. Tier 0 is the
-        // 5-row worst case that was measured to fit an iPhone 16 Pro with history + chart.
-        const tier = currentData.sets.length >= 5 ? 0 : currentData.sets.length === 4 ? 1 : 2;
-        const btnPx = [44, 50, 56][tier];
-        const valCls = ['text-base', 'text-xl', 'text-2xl'][tier];
-        const rowPad = ['3px 6px', '6px 8px', '8px 10px'][tier];
-        const rowGap = [2, 6, 8][tier];
+        // One fixed layout for every exercise, sized so the longest case (5 set rows with
+        // history + chart) fits an iPhone 16 Pro without scrolling. Shorter exercises
+        // simply leave room at the bottom; nothing resizes.
         const StepBtn = ({ onClick, children }) => (
-          <button onClick={onClick} className="rounded-lg flex items-center justify-center text-lg font-bold transition-all active:scale-90 flex-shrink-0" style={{ width: btnPx, height: btnPx, background: `${accent}20`, color: accent }}>{children}</button>
+          <button onClick={onClick} className="w-11 h-11 rounded-lg flex items-center justify-center text-lg font-bold transition-all active:scale-90 flex-shrink-0" style={{ background: `${accent}20`, color: accent }}>{children}</button>
         );
+        // Target line: the facts that used to sit in the description card
+        const workingSets = currentData.sets.filter(s => !s.warmup).length || (typeof exercise.sets === 'number' ? exercise.sets : 3);
+        const [rrLow, rrHigh] = exerciseConfig.repRange;
+        const targetBits = [`${workingSets} × ${exercise.reps}`];
+        if (exerciseConfig.restTime) targetBits.push(`rest ${exerciseConfig.restTime >= 60 ? (exerciseConfig.restTime / 60).toFixed(exerciseConfig.restTime % 60 ? 1 : 0) + ' min' : exerciseConfig.restTime + ' s'}`);
+        if (exerciseConfig.derivedFrom) targetBits.push(`${Math.round(exerciseConfig.pct * 100)}% of your heavy day`);
+        else if (exerciseConfig.assisted) targetBits.push(`−${exerciseConfig.weightIncrement} lb assist when every set hits ${rrHigh}`);
+        else if (exerciseConfig.weightIncrement > 0) targetBits.push(`+${exerciseConfig.incrementPct ? '~2%' : exerciseConfig.weightIncrement + ' lb'} when every set hits ${rrHigh}`);
+        if (typeof exerciseConfig.rirTarget === 'number') targetBits.push(`${exerciseConfig.rirTarget} in reserve`);
 
         return (
           <div className="min-h-screen text-white p-3 pb-24" style={{ background: config.bgGradient }}>
             <div className="max-w-md mx-auto">
               {/* Header */}
-              <div className="flex justify-between items-center mb-1">
+              <div className="flex justify-between items-center" style={{ marginBottom: 2 }}>
                 <button onClick={() => setView('dayOverview')} className="text-zinc-500 p-1"><ChevronLeft className="w-5 h-5" /></button>
                 <div className="text-[10px] text-zinc-600">{currentExerciseIndex + 1}/{dayData.exercises.length}</div>
                 <button onClick={() => setShowNotes(!showNotes)} className="text-zinc-500 p-1">
@@ -1637,7 +1642,7 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
               </div>
 
               {/* Progress bar */}
-              <div className="h-0.5 bg-zinc-800 rounded-full mb-2 overflow-hidden">
+              <div className="h-0.5 bg-zinc-800 rounded-full overflow-hidden" style={{ marginBottom: 6 }}>
                 <div className="h-full rounded-full" style={{ width: `${((currentExerciseIndex + 1) / dayData.exercises.length) * 100}%`, background: accent }} />
               </div>
 
@@ -1659,8 +1664,10 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
 
               {/* Plan note (coaching cue from the program) */}
               {exercise.notes && (
-                <p className="text-[11px] text-zinc-500 mb-2">{exercise.notes}</p>
+                <p className="text-[11px] text-zinc-500 mb-1">{exercise.notes}</p>
               )}
+              {/* Target: sets, reps, rest, progression rule */}
+              <p className="text-[11px] mb-1.5" style={{ color: accent }}>{targetBits.join(' · ')}</p>
 
               {/* Abs dropdown */}
               {exercise.isAbsSlot && (
@@ -1683,7 +1690,7 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
               {/* Last workout: compact set chips */}
               {progression.lastSession && (() => {
                 return (
-                  <div className="mb-2 px-3 py-2 rounded-xl bg-zinc-900/50 border border-zinc-800/50">
+                  <div className="mb-2 px-3 py-1.5 rounded-xl bg-zinc-900/50 border border-zinc-800/50">
                     <div className="flex justify-between items-center">
                       <span className="text-[10px] text-zinc-500">Last <span className="text-zinc-300 font-medium">{lastWorkoutDate}</span></span>
                     </div>
@@ -1706,7 +1713,7 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
               />
 
               {/* Progression suggestion with explanation */}
-              <div className="mb-2 px-3 py-1.5 rounded-xl border" style={{ background: suggestionBg, borderColor: `${suggestionColor}30` }}>
+              <div className="mb-2 px-3 py-1 rounded-xl border" style={{ background: suggestionBg, borderColor: `${suggestionColor}30` }}>
                 <div className="flex items-start gap-2">
                   {progression.icon && <progression.icon className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: suggestionColor }} />}
                   <div>
@@ -1770,22 +1777,22 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
                   <span className="text-xs text-zinc-500 font-medium">LOG YOUR SETS</span>
                   <span className="text-[9px] text-zinc-600">{exerciseConfig.assisted ? 'lbs assist' : 'lbs'} × reps{currentData.sets.some(s => s.warmup) ? ' · W = warm-up, not counted' : ''}</span>
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: rowGap }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                   {currentData.sets.map((set, i) => (
-                    <div key={i} className={`rounded-lg border ${set.completed ? 'border-emerald-500/50 bg-emerald-500/10' : set.warmup ? 'border-amber-500/30 bg-amber-500/5' : 'border-zinc-800/50 bg-zinc-900/30'}`} style={{ padding: rowPad }}>
+                    <div key={i} className={`rounded-lg border ${set.completed ? 'border-emerald-500/50 bg-emerald-500/10' : set.warmup ? 'border-amber-500/30 bg-amber-500/5' : 'border-zinc-800/50 bg-zinc-900/30'}`} style={{ padding: '3px 6px' }}>
                       <div className="flex items-center gap-2">
-                        <button onClick={() => toggleSetComplete(i)} style={{ width: [36, 42, 48][tier], height: btnPx }} className={`w-9 h-11 rounded-lg flex items-center justify-center transition-all active:scale-90 flex-shrink-0 text-xs font-bold ${set.completed ? 'bg-emerald-500 text-white' : set.warmup ? 'bg-amber-500/20 text-amber-400' : 'bg-zinc-800 text-zinc-500'}`}>
+                        <button onClick={() => toggleSetComplete(i)} className={`w-9 h-11 rounded-lg flex items-center justify-center transition-all active:scale-90 flex-shrink-0 text-xs font-bold ${set.completed ? 'bg-emerald-500 text-white' : set.warmup ? 'bg-amber-500/20 text-amber-400' : 'bg-zinc-800 text-zinc-500'}`}>
                           {set.completed ? <Check className="w-4 h-4" /> : set.warmup ? 'W' : i + 1 - currentData.sets.slice(0, i).filter(s => s.warmup).length}
                         </button>
                         <div className="flex items-center gap-1 flex-1">
                           <StepBtn onClick={() => updateSet(i, 'weight', Math.max(0, set.weight - weightIncrement))}>−</StepBtn>
-                          <div className={`flex-1 text-center ${valCls} font-bold text-zinc-100`}>{set.weight}</div>
+                          <div className="flex-1 text-center text-lg font-bold text-zinc-100">{set.weight}</div>
                           <StepBtn onClick={() => updateSet(i, 'weight', set.weight + weightIncrement)}>+</StepBtn>
                         </div>
                         <div className="w-px h-6 bg-zinc-800" />
                         <div className="flex items-center gap-1 flex-1">
                           <StepBtn onClick={() => updateSet(i, 'reps', Math.max(1, set.reps - 1))}>−</StepBtn>
-                          <div className={`flex-1 text-center ${valCls} font-bold text-zinc-100`}>{set.reps}</div>
+                          <div className="flex-1 text-center text-lg font-bold text-zinc-100">{set.reps}</div>
                           <StepBtn onClick={() => updateSet(i, 'reps', set.reps + 1)}>+</StepBtn>
                         </div>
                         {i > 0 && !set.completed && (
