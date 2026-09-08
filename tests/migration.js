@@ -92,6 +92,17 @@ const ok = (name, cond) => { console.log((cond ? 'PASS' : 'FAIL') + ' ' + name);
   btn('Upper Power').click(); await wait(500);
   const rowsCsv = [...root.querySelectorAll('.exercise-row')].map(r => r.textContent).join(' | ');
   ok('csv: imported log press history shows on the new Upper Power day (105 lbs)', /Log Strict Press[^|]*105 lbs/.test(rowsCsv));
+
+  // Same button, JSON backup: restores through the sniffing entry point
+  btn('Back').click(); await wait(300);
+  const backup = { app: 'workout-tracker-backup', version: 1, exportedAt: day(1), logs: { '4day': { day3: { exercises: { incline_bb: [entry(135, 8, 2)] }, sessions: [{ date: day(2), absDone: true }] } } } };
+  const input2 = root.querySelector('input.csv-import');
+  const file2 = new dom.window.File([JSON.stringify(backup)], 'workout_backup.json', { type: 'application/json' });
+  Object.defineProperty(input2, 'files', { value: [file2] });
+  input2.dispatchEvent(new dom.window.Event('change', { bubbles: true }));
+  await wait(800);
+  const stored2 = JSON.parse(dom.window.localStorage.getItem('workoutLog_4day'));
+  ok('json: same button restores a backup file (incline BB 135 present)', stored2?.day3?.exercises?.incline_bb?.[0]?.weight === 135);
   console.log(`${pass} passed, ${fail} failed`);
   process.exit(fail ? 1 : 0);
 })();
