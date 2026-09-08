@@ -84,3 +84,26 @@ These are the 8 DEAD entries. Each has a best candidate plus 3 alternates in `li
 ## Applying `link_fixes.json`
 
 Every key has `youtube`, `source`, `title`, plus `verified` (bool), `changed` (bool), `old_youtube`, and `pending_alternates`. To apply only what is rigorously verified: update `source`/`title` for all entries and `youtube` only where `verified` is true (which changes no URLs — all 41 verified entries keep their existing video). To also swap the 8 dead links for their unverified candidates, apply `youtube` where `changed` is true after re-running the ID check.
+
+
+---
+
+## Addendum — verification completed (2026-09-08, later session)
+
+Search access returned, so the eight replacement IDs were re-checked with the bare-ID method, and videos were found and verified for the three exercises added by the 6-day rotation.
+
+| Exercise | Video ID | Verified title | Method |
+|---|---|---|---|
+| log_press | `IjEgI_q6fy8` | How to log clean and press for strongman (in 2 minutes??) | bare-ID search, titled watch URL |
+| bayesian_curl | `aeS38n_Ht6A` | How To Bayesian Cable Curl | bare-ID search |
+| spider_curl | `CITtSuda0Fg` | HOW TO: Spider Curl (HUGE BICEPS BUILDER!) \|\| PERFECT FORM | bare-ID search (not in the program; media entry only) |
+| single_leg_rdl | `Zfr6wizR8rs` | The BEST Single-Leg RDL Tutorial (Romanian Deadlift) | bare-ID search |
+| cable_kickback | `5jJNfIlKTmg` | How to PROPERLY Cable Glute Kickback (GROW YOUR GLUTES) | bare-ID search |
+| side_plank_abduction | `ifYBvRihSEo` | Exercise Tutorial: Side Plank With Hip Abduction | bare-ID search |
+| suitcase_carry | `y-hn_Ha1-RE` | How To Perform The Suitcase Carry (Dr. Carl Baird) | topic search returned this exact ID as the top titled result (bare-ID search fails on hyphenated IDs) |
+| battle_rope | `nzlmTiKqno0` | How to Use Battle Ropes The RIGHT Way (Try These!) | bare-ID search |
+| **incline_machine** (new) | `7_scLkTCwTU` | How To Do A MACHINE INCLINE CHEST PRESS (Star Trac) \| Exercise Demonstration Video and Guide | topic search + bare-ID search |
+| **sled_push** (new) | `3KWK7SIdPz4` | Heavy Sled Push Technique: 60-SECOND TUTORIAL! [Hip Positioning] | topic search + bare-ID search |
+| **sled_drag** (new) | `hbCeJFBFyYk` | Backward Sled Drag Tutorial | topic search + bare-ID search (alternate verified: `VaSgSfkwYxM`) |
+
+Result: **all 52 exercise media entries now point at a video that is indexed on youtube.com under a matching title.** `verify-links.mjs` remains the belt-and-braces check from any machine that can reach YouTube directly.
