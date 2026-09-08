@@ -763,12 +763,6 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
         }
       }, [sessionData, useAltExercise, absDone, view]);
 
-      const getLogKey = (day) => day;
-      const getExerciseLog = (exerciseId, day) => {
-        if (!selectedProgram) return [];
-        const programLog = workoutLog[selectedProgram] || {};
-        return programLog[day]?.exercises?.[exerciseId] || [];
-      };
       // Shared progression: the same exercise done on any day of this program
       // pulls from one history, so leg curls on Day 2 and Day 4 progress together.
       // Programs stay separate (they are separate users' logs).
