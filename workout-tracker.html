@@ -1342,6 +1342,20 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
         reader.readAsText(file);
       };
 
+      // One import button for both formats: a JSON backup (Backup button) or a CSV
+      // export. Detects by content, not by file extension, so a renamed file still works.
+      const importAny = (file) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const text = String(reader.result || '').replace(/^\uFEFF/, '');
+          const head = text.trimStart();
+          if (head.startsWith('{')) importBackup(new File([text], file.name || 'backup.json', { type: 'application/json' }));
+          else if (/^date\s*,/i.test(head)) importCSV(new File([text], file.name || 'export.csv', { type: 'text/csv' }));
+          else alert('This file is neither a workout backup (.json from the Backup button) nor a CSV export.');
+        };
+        reader.readAsText(file);
+      };
+
       const exportCSV = () => {
         if (!selectedProgram) return;
         const programName = programConfigs[selectedProgram]?.name || selectedProgram;
@@ -1471,12 +1485,8 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
               <div className="mt-3 flex gap-2 text-[10px]">
                 <button onClick={exportBackup} className="flex-1 text-zinc-500 flex items-center justify-center gap-1 py-2 border border-zinc-800 rounded-lg"><Download className="w-3 h-3" /> Backup</button>
                 <label className="flex-1 text-zinc-500 flex items-center justify-center gap-1 py-2 border border-zinc-800 rounded-lg cursor-pointer">
-                  <input type="file" accept=".json,application/json" className="hidden" onChange={(e) => { const f = e.target.files[0]; if (f) importBackup(f); e.target.value = ''; }} />
-                  <RotateCcw className="w-3 h-3" /> Restore
-                </label>
-                <label className="flex-1 text-zinc-500 flex items-center justify-center gap-1 py-2 border border-zinc-800 rounded-lg cursor-pointer">
-                  <input type="file" accept=".csv,text/csv" className="hidden csv-import" onChange={(e) => { const f = e.target.files[0]; if (f) importCSV(f); e.target.value = ''; }} />
-                  Import CSV
+                  <input type="file" accept=".json,.csv,.txt,application/json,text/csv,text/plain" className="hidden csv-import" onChange={(e) => { const f = e.target.files[0]; if (f) importAny(f); e.target.value = ''; }} />
+                  <RotateCcw className="w-3 h-3" /> Restore / Import
                 </label>
               </div>
               <div className="mt-2 flex gap-2 text-[10px]">
