@@ -574,7 +574,7 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
       return (
         <div className="mb-2 px-3 py-2 rounded-xl bg-zinc-900/50 border border-zinc-800/50">
           <div className="flex justify-between items-center mb-0.5">
-            <span className="text-[10px] text-zinc-500 font-medium">PROGRESS · {pts.length} SESSIONS{assisted ? ' · LOWER = BETTER' : ''} <span className="text-zinc-600 font-normal">· {fmt(pts[0].d)} {ws[0]} → {fmt(pts[pts.length - 1].d)} {ws[ws.length - 1]} lb</span></span>
+            <span className="text-[10px] text-zinc-500 font-medium">PROGRESS · {pts.length} SESSIONS{assisted ? ' · LOWER = BETTER' : ''} <span className="text-zinc-600" style={{ fontWeight: 400 }}>· {fmt(pts[0].d)} {ws[0]} → {fmt(pts[pts.length - 1].d)} {ws[ws.length - 1]} lb</span></span>
             <span className={`text-[10px] font-semibold ${improved ? 'text-emerald-400' : delta === 0 ? 'text-zinc-500' : 'text-amber-400'}`}>{delta > 0 ? '+' : ''}{delta} lb</span>
           </div>
           <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ height: H }} preserveAspectRatio="none">
@@ -595,8 +595,8 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
         "Empty log press ×8 with a 2 s pause → first ramp set"
       ], exercises: [
         { id: "log_press", name: "Log Strict Press / Standing DB Press", sets: 4, warmupSets: 1, reps: "3-5", defaultWeight: 95, muscles: ["shoulders", "triceps", "chest"], notes: "1 ramp, then 3 heavy · 3 min rest. Every other loop add 1 AMRAP set at ~75-80% (clean once, press for reps)" },
+        { id: "seated_row", name: "Seated Row Machine / Cable Row", sets: 3, reps: "6-10", defaultWeight: 135, muscles: ["lats", "traps", "biceps", "rearDelts"], notes: "Between the two presses so chest and triceps recover · 90 s", progression: { repRange: [6, 10], restTime: 90 } },
         { id: "incline_bb", name: "Incline Barbell Press (30°) / Smith Incline", sets: 4, warmupSets: 1, reps: "6-10", defaultWeight: 115, muscles: ["upperChest", "shoulders", "triceps"], notes: "1 feeder, then 3 heavy · 2 min rest", progression: { repRange: [6, 10], restTime: 120 } },
-        { id: "seated_row", name: "Seated Row Machine / Cable Row", sets: 3, reps: "6-10", defaultWeight: 135, muscles: ["lats", "traps", "biceps", "rearDelts"], notes: "One row on every upper day · 90 s rest", progression: { repRange: [6, 10], restTime: 90 } },
         { id: "bayesian_curl", name: "Bayesian Cable Curl / Incline DB Curl", sets: 3, reps: "8-12", defaultWeight: 25, muscles: ["biceps"], notes: "⇄ Superset with face pulls · arm behind torso, full stretch, last set to failure", superset: 1, progression: { repRange: [8, 12], restTime: 75 } },
         { id: "face_pull", name: "Face Pull / Rear Delt Fly", sets: 3, reps: "15-20", defaultWeight: 40, muscles: ["rearDelts", "traps"], notes: "⇄ Superset with curls · shoulder health > load", superset: 1 }
       ]},
@@ -622,8 +622,8 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
         "Light incline DB press ×12, 2 s pause at bottom → first ramp set"
       ], exercises: [
         { id: "incline_db", name: "Incline Dumbbell Press (30°) / Machine Incline", sets: 4, warmupSets: 1, reps: "6-10", defaultWeight: 50, muscles: ["upperChest", "shoulders", "triceps"], notes: "1 feeder, then 3 working · deep stretch · 2 min", progression: { repRange: [6, 10], restTime: 120 } },
-        { id: "incline_machine", name: "Incline Machine Press (30°) / Incline Smith", sets: 3, reps: "8-12", defaultWeight: 120, muscles: ["upperChest", "shoulders", "triceps"], notes: "Third upper-chest exposure · 0-1 reps in reserve · 90 s" },
-        { id: "cable_row", name: "Cable Row / Machine Row", sets: 3, reps: "8-12", defaultWeight: 120, muscles: ["lats", "traps", "biceps"], notes: "90 s · squeeze, don't heave", progression: { repRange: [8, 12], restTime: 75 } },
+        { id: "cable_row", name: "Cable Row / Machine Row", sets: 3, reps: "8-12", defaultWeight: 120, muscles: ["lats", "traps", "biceps"], notes: "Between the two presses · squeeze, don't heave · 90 s", progression: { repRange: [8, 12], restTime: 75 } },
+        { id: "incline_machine", name: "Incline Machine Press (30°) / Incline Smith", sets: 3, reps: "8-12", defaultWeight: 120, muscles: ["upperChest", "shoulders", "triceps"], notes: "Second chest exposure, after the row · 0-1 reps in reserve · 90 s" },
         { id: "overhead_tri", name: "Overhead Tricep Extension / Skull Crushers", sets: 4, reps: "8-15", defaultWeight: 50, muscles: ["triceps"], notes: "⇄ Superset with EZ curl · long head, full stretch, last set to failure", superset: 1, progression: { repRange: [8, 15], restTime: 75 } },
         { id: "high_rep_curl", name: "EZ Bar Curl / Cable Curl", sets: 3, reps: "6-10", defaultWeight: 55, muscles: ["biceps"], notes: "⇄ Superset with overhead extension · heavy, strict, full range", superset: 1, progression: { progressionType: "load-first", repRange: [6, 10], restTime: 75 } },
         { id: "lateral_raise", name: "Lateral Raise / Cable Lateral", sets: 4, reps: "12-20", defaultWeight: 15, muscles: ["sideDelts"], notes: "60 s · microplates essential" }
@@ -664,9 +664,9 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
       ], exercises: [
         { id: "sled_push", name: "Sled Push / Prowler Push", sets: 6, reps: "50-65 ft", defaultWeight: 90, muscles: ["quads", "glutes", "calves"], notes: "Heavy · 90 s rest · ~12 min total" },
         { id: "sled_drag", name: "Backward Sled Drag / Sled Pull", sets: 4, reps: "80-100 ft", defaultWeight: 70, muscles: ["quads", "calves"], notes: "Moderate · short steps, knees over toes · 60 s" },
+        { id: "back_extension", name: "45° Back Extension / Reverse Hyper", sets: 3, reps: "12-15", defaultWeight: 0, muscles: ["hamstrings", "glutes"], notes: "Hold a plate · 60 s", progression: { repRange: [12, 15], restTime: 60 } },
         { id: "farmers_walk", name: "Farmer's Walk / Suitcase Carry", sets: 4, reps: "50-70 ft", defaultWeight: 55, muscles: ["traps", "forearms", "abs"], notes: "~80% of your deadlift-day carry · grip endurance, not max · 90 s" },
-        { id: "suitcase_carry", name: "Suitcase Carry / One-Arm Farmer's", sets: 3, reps: "60-80 ft", defaultWeight: 70, muscles: ["abs", "forearms", "traps"], notes: "Per side · hips level, no lean · 60 s" },
-        { id: "back_extension", name: "45° Back Extension / Reverse Hyper", sets: 3, reps: "12-15", defaultWeight: 0, muscles: ["hamstrings", "glutes"], notes: "Hold a plate · 60 s", progression: { repRange: [12, 15], restTime: 60 } }
+        { id: "suitcase_carry", name: "Suitcase Carry / One-Arm Farmer's", sets: 3, reps: "60-80 ft", defaultWeight: 70, muscles: ["abs", "forearms", "traps"], notes: "Per side · hips level, no lean · 60 s" }
       ]}
     };
 
@@ -696,6 +696,42 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
         { id: "face_pull", name: "Face Pulls / Band Pull-Aparts", sets: 3, reps: "15-20", defaultWeight: 35, muscles: ["rearDelts", "traps"], notes: "Shoulder health > ego" },
         { id: "calf_raise", name: "Calf Raises / Seated Calf Raise", sets: 3, reps: "12-20", defaultWeight: 120, muscles: ["calves"], notes: "Full ROM, patient progression" }
       ]}
+    };
+
+    // Minimal CSV parser: quoted fields, doubled quotes, newlines inside quotes.
+    const parseCSV = (text) => {
+      const rows = []; let row = [], field = '', inQ = false;
+      for (let i = 0; i < text.length; i++) {
+        const c = text[i];
+        if (inQ) {
+          if (c === '"') { if (text[i + 1] === '"') { field += '"'; i++; } else inQ = false; }
+          else field += c;
+        } else if (c === '"') inQ = true;
+        else if (c === ',') { row.push(field); field = ''; }
+        else if (c === '\n' || c === '\r') { if (c === '\r' && text[i + 1] === '\n') i++; row.push(field); rows.push(row); row = []; field = ''; }
+        else field += c;
+      }
+      if (field !== '' || row.length) { row.push(field); rows.push(row); }
+      return rows.filter(r => r.some(x => x !== ''));
+    };
+
+    // Exercise names from earlier versions of the program, so a CSV export made
+    // back then still imports. History stays under the old ID.
+    const retiredExerciseNames = {
+      'pause squat': { id: 'pause_squat', alt: false }, 'front squat': { id: 'pause_squat', alt: true },
+      'preacher curl': { id: 'preacher_curl', alt: false }, 'concentration curl': { id: 'preacher_curl', alt: true },
+      'machine chest press': { id: 'machine_chest', alt: false }, 'cable crossover': { id: 'machine_chest', alt: true },
+      'rope pushdown': { id: 'pushdown', alt: false }, 'v-bar pushdown': { id: 'pushdown', alt: true },
+      'incline dumbbell curl': { id: 'incline_curl', alt: false }, 'bayesian curl': { id: 'incline_curl', alt: true },
+      'bent + side lateral': { id: 'bent_lateral', alt: false }, 'rear delt machine': { id: 'bent_lateral', alt: true },
+      'low-to-high cable fly': { id: 'low_high_fly', alt: false }, 'incline db fly': { id: 'low_high_fly', alt: true },
+      'seated cable row': { id: 'seated_row', alt: false }, 't-bar row': { id: 'seated_row', alt: true },
+      'log press': { id: 'log_press', alt: false },
+      'incline dumbbell press (30°)': { id: 'incline_db', alt: false }, 'machine incline': { id: 'incline_db', alt: true },
+      'incline barbell press (30°)': { id: 'incline_bb', alt: false }, 'smith incline': { id: 'incline_bb', alt: true },
+      'overhead tricep extension': { id: 'overhead_tri', alt: false }, 'skull crushers': { id: 'overhead_tri', alt: true },
+      'ez bar curl': { id: 'high_rep_curl', alt: false }, 'cable curl': { id: 'high_rep_curl', alt: true },
+      'lat pulldown': { id: 'lat_pulldown', alt: false }, 'pull-ups': { id: 'lat_pulldown', alt: true }, 'assisted pull-ups': { id: 'lat_pulldown', alt: true }
     };
 
     const programConfigs = {
@@ -1227,6 +1263,85 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
         reader.readAsText(file);
       };
 
+      // Rebuild history from a CSV export. Recovery path for when the JSON backup is
+      // gone (e.g. the home-screen app was deleted). Merges: never deletes, and skips
+      // an exercise entry if one already exists for the same day and date.
+      const importCSV = (file) => {
+        if (!selectedProgram) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          try {
+            const rows = parseCSV(String(reader.result || ''));
+            if (rows.length < 2) { alert('That CSV is empty.'); return; }
+            const header = rows[0].map(h => h.trim().toLowerCase());
+            const col = (name) => header.indexOf(name);
+            const iDate = col('date'), iDay = col('day'), iEx = col('exercise'), iSet = col('set'), iWarm = col('warmup'),
+                  iW = col('weight'), iR = col('reps'), iDone = col('completed'), iSkip = col('skipped'), iNotes = col('notes');
+            if (iDate < 0 || iEx < 0 || iW < 0 || iR < 0) { alert('This is not a workout CSV export (missing Date/Exercise/Weight/Reps columns).'); return; }
+            const nameToId = {};
+            Object.values(programConfigs).forEach(cfg => Object.values(cfg.data).forEach(d => d.exercises.forEach(ex => {
+              const parts = ex.name.split(' / ');
+              nameToId[parts[0].trim().toLowerCase()] = { id: ex.id, alt: false };
+              if (parts[1]) nameToId[parts[1].trim().toLowerCase()] = { id: ex.id, alt: true };
+              nameToId[ex.id.toLowerCase()] = { id: ex.id, alt: false };
+            })));
+            Object.entries(retiredExerciseNames).forEach(([name, v]) => { if (!nameToId[name]) nameToId[name] = v; });
+            const log = JSON.parse(JSON.stringify(workoutLog[selectedProgram] || {}));
+            const groups = {}, sessionsSeen = {}, unknown = new Set();
+            let imported = 0;
+            rows.slice(1).forEach(r => {
+              if (!r[iDate] || !r[iEx]) return;
+              const dateObj = new Date(r[iDate]);
+              if (isNaN(dateObj)) return;
+              const dateISO = dateObj.toISOString();
+              const dayKey = (iDay >= 0 && r[iDay] && r[iDay].trim()) || 'day1';
+              const exName = r[iEx].trim();
+              const sessKey = dayKey + '|' + dateISO.slice(0, 10);
+              if (exName.toLowerCase().startsWith('ab routine')) {
+                sessionsSeen[sessKey] = { date: dateISO, absDone: iDone >= 0 ? /yes/i.test(r[iDone]) : undefined };
+                return;
+              }
+              const m = nameToId[exName.toLowerCase()];
+              if (!m) { unknown.add(exName); return; }
+              if (!sessionsSeen[sessKey]) sessionsSeen[sessKey] = { date: dateISO };
+              const key = sessKey + '|' + m.id;
+              if (!groups[key]) groups[key] = { dayKey, id: m.id, entry: { exerciseName: exName, usedAlt: m.alt, sets: [], weight: 0, notes: '', skipped: false, date: dateISO } };
+              const g = groups[key];
+              const idx = iSet >= 0 && r[iSet] ? Math.max(0, parseInt(r[iSet], 10) - 1) : g.entry.sets.length;
+              const set = { weight: parseFloat(r[iW]) || 0, reps: parseInt(r[iR], 10) || 0, completed: iDone >= 0 ? /yes/i.test(r[iDone]) : true };
+              if (iWarm >= 0 && /yes/i.test(r[iWarm])) set.warmup = true;
+              g.entry.sets[idx] = set;
+              if (iSkip >= 0 && /yes/i.test(r[iSkip])) g.entry.skipped = true;
+              if (iNotes >= 0 && r[iNotes]) g.entry.notes = r[iNotes];
+            });
+            Object.values(groups).forEach(({ dayKey, id, entry }) => {
+              entry.sets = entry.sets.filter(Boolean);
+              const work = entry.sets.filter(s => !s.warmup);
+              entry.weight = (work[0] || entry.sets[0] || {}).weight || 0;
+              if (!log[dayKey]) log[dayKey] = { exercises: {}, sessions: [] };
+              if (!log[dayKey].exercises) log[dayKey].exercises = {};
+              const list = log[dayKey].exercises[id] || [];
+              if (!list.some(e => (e.date || '').slice(0, 10) === entry.date.slice(0, 10))) { list.push(entry); imported++; }
+              log[dayKey].exercises[id] = list;
+            });
+            Object.entries(sessionsSeen).forEach(([k, s]) => {
+              const dayKey = k.split('|')[0];
+              if (!log[dayKey]) log[dayKey] = { exercises: {}, sessions: [] };
+              if (!log[dayKey].sessions) log[dayKey].sessions = [];
+              if (!log[dayKey].sessions.some(x => (x.date || '').slice(0, 10) === s.date.slice(0, 10))) log[dayKey].sessions.push(s);
+            });
+            const msg = `Import ${imported} exercise entries from this CSV into ${programConfigs[selectedProgram].name}?` +
+              (unknown.size ? `\n\nSkipped (unknown exercise names): ${[...unknown].join(', ')}` : '') +
+              '\n\nNothing is deleted; entries already logged on the same date are kept.';
+            if (!confirm(msg)) return;
+            try { localStorage.setItem(getStorageKey(selectedProgram), JSON.stringify(log)); } catch {}
+            setWorkoutLog(prev => ({ ...prev, [selectedProgram]: log }));
+            alert(`Imported ${imported} entries.`);
+          } catch (e) { alert('Could not read the CSV: ' + (e && e.message ? e.message : e)); }
+        };
+        reader.readAsText(file);
+      };
+
       const exportCSV = () => {
         if (!selectedProgram) return;
         const programName = programConfigs[selectedProgram]?.name || selectedProgram;
@@ -1292,9 +1407,9 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
         return (
           <div className="min-h-screen text-white p-4" style={{ background: config.bgGradient }}>
             <div className="max-w-md mx-auto">
-              <div className="text-center mb-4 pt-1">
+              <div className="text-center mb-3" style={{ paddingTop: 2 }}>
                 <button onClick={() => setView('programSelect')} className="text-zinc-600 text-xs mb-2 hover:text-white transition-colors flex items-center justify-center gap-1 mx-auto"><ChevronLeft className="w-3 h-3" /> Switch</button>
-                <div className="w-11 h-11 mx-auto mb-2 rounded-xl flex items-center justify-center" style={{ background: config.gradient }}><config.icon className="w-6 h-6 text-white" /></div>
+                <div className="w-10 h-10 mx-auto mb-2 rounded-xl flex items-center justify-center" style={{ background: config.gradient }}><config.icon className="w-5 h-5 text-white" /></div>
                 <h1 className="text-xl font-bold tracking-tight">{config.name}</h1>
                 <p className="text-zinc-500 text-xs mt-0.5">{config.subtitle}</p>
               </div>
@@ -1302,10 +1417,10 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
                 {Object.entries(workoutData).map(([day, data]) => {
                   const accent = config.dayAccents[day];
                   return (
-                    <button key={day} onClick={() => startDay(day)} className="w-full rounded-xl px-4 py-2.5 text-left transition-all active:scale-[0.98] border border-zinc-800/50" style={{ backgroundColor: '#12121a' }}>
+                    <button key={day} onClick={() => startDay(day)} className="w-full rounded-xl px-4 text-left transition-all active:scale-[0.98] border border-zinc-800/50" style={{ backgroundColor: '#12121a', paddingTop: 11, paddingBottom: 11 }}>
                       <div className="flex justify-between items-center">
                         <div className="min-w-0">
-                          <div className="text-[9px] font-semibold uppercase tracking-widest" style={{ color: accent }}>Day {day.replace('day','')} <span className="text-zinc-600 normal-case tracking-normal">· {data.exercises.length} exercises</span></div>
+                          <div className="text-[9px] font-semibold uppercase tracking-widest" style={{ color: accent }}>Day {day.replace('day','')} <span className="text-zinc-600" style={{ textTransform: 'none', letterSpacing: 0 }}>· {data.exercises.length} exercises</span></div>
                           <div className="text-sm font-semibold text-zinc-100 truncate">{data.name}</div>
                         </div>
                         <ChevronRight className="w-4 h-4" style={{ color: accent }} />
@@ -1330,7 +1445,7 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
                 });
                 const maxW = Math.max(...weeks, 1);
                 return (
-                  <div className="mt-6 p-3 rounded-xl border border-zinc-800/50" style={{ backgroundColor: '#12121a' }}>
+                  <div className="mt-3 p-3 rounded-xl border border-zinc-800/50" style={{ backgroundColor: '#12121a' }}>
                     <div className="flex justify-between items-center mb-2">
                       <span className="text-[10px] text-zinc-500 font-medium">LAST 8 WEEKS</span>
                       <span className="text-[10px] text-zinc-400">{weeks[7]} this week · {dates.length} total</span>
@@ -1348,18 +1463,24 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
                 const ageDays = lastBackupAt ? Math.floor((Date.now() - new Date(lastBackupAt).getTime()) / 864e5) : null;
                 if (totalSessions < 3 || (ageDays !== null && ageDays <= 21)) return null;
                 return (
-                  <button onClick={exportBackup} className="mt-3 w-full text-left p-2.5 rounded-lg border border-amber-500/30 bg-amber-500/10 text-[10px] text-amber-300/90">
-                    {ageDays === null ? 'Never backed up' : `Last backup ${ageDays} days ago`} — your log lives only in this browser. Tap to save a backup file.
+                  <button onClick={exportBackup} className="mt-2 w-full text-left px-3 py-2 rounded-lg border border-amber-500/30 bg-amber-500/10 text-[10px] text-amber-300/90 truncate">
+                    {ageDays === null ? 'Never backed up' : `Last backup ${ageDays} days ago`} — your log lives only on this phone. Tap to save a backup.
                   </button>
                 );
               })()}
-              <div className="mt-4 flex gap-2 text-[10px]">
+              <div className="mt-3 flex gap-2 text-[10px]">
                 <button onClick={exportBackup} className="flex-1 text-zinc-500 flex items-center justify-center gap-1 py-2 border border-zinc-800 rounded-lg"><Download className="w-3 h-3" /> Backup</button>
                 <label className="flex-1 text-zinc-500 flex items-center justify-center gap-1 py-2 border border-zinc-800 rounded-lg cursor-pointer">
                   <input type="file" accept=".json,application/json" className="hidden" onChange={(e) => { const f = e.target.files[0]; if (f) importBackup(f); e.target.value = ''; }} />
                   <RotateCcw className="w-3 h-3" /> Restore
                 </label>
-                <button onClick={exportCSV} className="flex-1 text-zinc-600 flex items-center justify-center gap-1 py-2 border border-zinc-800 rounded-lg">CSV</button>
+                <label className="flex-1 text-zinc-500 flex items-center justify-center gap-1 py-2 border border-zinc-800 rounded-lg cursor-pointer">
+                  <input type="file" accept=".csv,text/csv" className="hidden csv-import" onChange={(e) => { const f = e.target.files[0]; if (f) importCSV(f); e.target.value = ''; }} />
+                  Import CSV
+                </label>
+              </div>
+              <div className="mt-2 flex gap-2 text-[10px]">
+                <button onClick={exportCSV} className="flex-1 text-zinc-600 flex items-center justify-center gap-1 py-2 border border-zinc-800 rounded-lg">Export CSV</button>
                 <button onClick={resetData} className="flex-1 text-zinc-700 flex items-center justify-center gap-1 py-2">Reset</button>
               </div>
             </div>
@@ -1410,7 +1531,7 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
                   const inSession = Object.keys(sessionData).length > 0 && sessionDay === selectedDay;
                   const doneThisSession = inSession && sessionData[i]?.sets?.some(s => s.completed && !s.warmup);
                   return (
-                    <div key={`${ex.id}-${i}`} role="button" tabIndex={0} onClick={() => beginWorkout(i)} className="exercise-row w-full text-left rounded-lg px-3 py-2 flex items-center gap-2.5 border border-zinc-800/50 transition-all active:scale-[0.98] cursor-pointer" style={{ backgroundColor: '#12121a' }}>
+                    <div key={`${ex.id}-${i}`} role="button" tabIndex={0} onClick={() => beginWorkout(i)} className="exercise-row w-full text-left rounded-lg px-3 py-2 flex items-center gap-2.5 border border-zinc-800/50 transition-all active:scale-[0.98] cursor-pointer" style={{ backgroundColor: '#12121a', paddingTop: dayData.exercises.length <= 5 ? 12 : 8, paddingBottom: dayData.exercises.length <= 5 ? 12 : 8 }}>
                       <div className="w-7 h-7 rounded flex items-center justify-center text-xs font-bold flex-shrink-0" style={{ background: `${primaryColor}20`, color: primaryColor }}>{i + 1}</div>
                       <div className="flex-1 min-w-0">
                         <div className="text-sm font-medium text-zinc-200 truncate">{ex.superset ? <span className="text-zinc-500">⇄ </span> : null}{ex.name.split(' / ')[0]}</div>
@@ -1482,8 +1603,15 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
         if (progression.action === 'increase' || progression.action === 'progress') { suggestionColor = '#10b981'; suggestionBg = '#10b98115'; }
         else if (progression.action === 'decrease' || progression.action === 'regress') { suggestionColor = '#f59e0b'; suggestionBg = '#f59e0b15'; }
 
+        // Use the screen: fewer set rows -> bigger buttons and numerals. Tier 0 is the
+        // 5-row worst case that was measured to fit an iPhone 16 Pro with history + chart.
+        const tier = currentData.sets.length >= 5 ? 0 : currentData.sets.length === 4 ? 1 : 2;
+        const btnPx = [44, 50, 56][tier];
+        const valCls = ['text-base', 'text-xl', 'text-2xl'][tier];
+        const rowPad = ['3px 6px', '6px 8px', '8px 10px'][tier];
+        const rowGap = [2, 6, 8][tier];
         const StepBtn = ({ onClick, children }) => (
-          <button onClick={onClick} className="w-11 h-11 rounded-lg flex items-center justify-center text-lg font-bold transition-all active:scale-90" style={{ background: `${accent}20`, color: accent }}>{children}</button>
+          <button onClick={onClick} className="rounded-lg flex items-center justify-center text-lg font-bold transition-all active:scale-90 flex-shrink-0" style={{ width: btnPx, height: btnPx, background: `${accent}20`, color: accent }}>{children}</button>
         );
 
         return (
@@ -1632,22 +1760,22 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
                   <span className="text-xs text-zinc-500 font-medium">LOG YOUR SETS</span>
                   <span className="text-[9px] text-zinc-600">{exerciseConfig.assisted ? 'lbs assist' : 'lbs'} × reps{currentData.sets.some(s => s.warmup) ? ' · W = warm-up, not counted' : ''}</span>
                 </div>
-                <div className="space-y-1">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: rowGap }}>
                   {currentData.sets.map((set, i) => (
-                    <div key={i} className={`rounded-lg border ${set.completed ? 'border-emerald-500/50 bg-emerald-500/10' : set.warmup ? 'border-amber-500/30 bg-amber-500/5' : 'border-zinc-800/50 bg-zinc-900/30'}`} style={{ padding: '4px 6px' }}>
+                    <div key={i} className={`rounded-lg border ${set.completed ? 'border-emerald-500/50 bg-emerald-500/10' : set.warmup ? 'border-amber-500/30 bg-amber-500/5' : 'border-zinc-800/50 bg-zinc-900/30'}`} style={{ padding: rowPad }}>
                       <div className="flex items-center gap-2">
-                        <button onClick={() => toggleSetComplete(i)} className={`w-9 h-11 rounded-lg flex items-center justify-center transition-all active:scale-90 flex-shrink-0 text-xs font-bold ${set.completed ? 'bg-emerald-500 text-white' : set.warmup ? 'bg-amber-500/20 text-amber-400' : 'bg-zinc-800 text-zinc-500'}`}>
+                        <button onClick={() => toggleSetComplete(i)} style={{ width: [36, 42, 48][tier], height: btnPx }} className={`w-9 h-11 rounded-lg flex items-center justify-center transition-all active:scale-90 flex-shrink-0 text-xs font-bold ${set.completed ? 'bg-emerald-500 text-white' : set.warmup ? 'bg-amber-500/20 text-amber-400' : 'bg-zinc-800 text-zinc-500'}`}>
                           {set.completed ? <Check className="w-4 h-4" /> : set.warmup ? 'W' : i + 1 - currentData.sets.slice(0, i).filter(s => s.warmup).length}
                         </button>
                         <div className="flex items-center gap-1 flex-1">
                           <StepBtn onClick={() => updateSet(i, 'weight', Math.max(0, set.weight - weightIncrement))}>−</StepBtn>
-                          <div className="flex-1 text-center text-base font-bold text-zinc-100">{set.weight}</div>
+                          <div className={`flex-1 text-center ${valCls} font-bold text-zinc-100`}>{set.weight}</div>
                           <StepBtn onClick={() => updateSet(i, 'weight', set.weight + weightIncrement)}>+</StepBtn>
                         </div>
                         <div className="w-px h-6 bg-zinc-800" />
                         <div className="flex items-center gap-1 flex-1">
                           <StepBtn onClick={() => updateSet(i, 'reps', Math.max(1, set.reps - 1))}>−</StepBtn>
-                          <div className="flex-1 text-center text-base font-bold text-zinc-100">{set.reps}</div>
+                          <div className={`flex-1 text-center ${valCls} font-bold text-zinc-100`}>{set.reps}</div>
                           <StepBtn onClick={() => updateSet(i, 'reps', set.reps + 1)}>+</StepBtn>
                         </div>
                         {i > 0 && !set.completed && (
@@ -1707,7 +1835,7 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
               <h1 className="text-lg font-bold text-zinc-100 mb-1">Workout Summary</h1>
               <p className="text-zinc-500 text-sm mb-4">{dayData.name}</p>
 
-              <div className="px-4 py-2 rounded-xl bg-zinc-900/50 border border-zinc-800 mb-3 flex items-baseline justify-center gap-2">
+              <div className="px-4 py-2 rounded-xl bg-zinc-900/50 border border-zinc-800 mb-3 flex  justify-center gap-2" style={{ alignItems: 'baseline' }}>
                 <span className="text-2xl font-bold" style={{ color: accent }}>{completedCount}/{dayData.exercises.length}</span>
                 <span className="text-zinc-500 text-xs">exercises completed</span>
               </div>

@@ -73,12 +73,14 @@ After review the loop was tightened to **5–6 exercises per day** (the lifter c
 
 | Day | Exercises (⇄ = superset) |
 |---|---|
-| **1 Upper Power** (5) | Log strict press · Incline BB 30° · Seated row · Bayesian curl ⇄ Face pull |
+| **1 Upper Power** (5) | Log strict press · Seated row · Incline BB 30° · Bayesian curl ⇄ Face pull |
 | **2 Lower Power · Deadlift** (6) | Deadlift · Light squat (auto 78%) · Hack squat · Leg curl ⇄ Leg extension · Farmer's walk |
-| **3 Upper Size** (6) | Incline DB 30° · Incline machine · Cable row · Overhead extension ⇄ EZ-bar curl · Lateral raise |
+| **3 Upper Size** (6) | Incline DB 30° · Cable row · Incline machine · Overhead extension ⇄ EZ-bar curl · Lateral raise |
 | **4 Lower Size · Squat** (6) | Squat 4–6 · Light deadlift (auto 78%) · Leg press · Back extension ⇄ Calves · Sled push |
 | **5 Arms + Shoulders** (5) | Assisted dips ⇄ Lat pulldown · Overhead extension ⇄ Hammer curl · Lateral raise |
-| **6 Strongman Conditioning** (5) | Sled push · Backward drag · Farmer's walk · Suitcase carry · Back extension |
+| **6 Strongman Conditioning** (5) | Sled push · Backward drag · Back extension · Farmer's walk · Suitcase carry |
+
+**Order within a day** (checked after the lifter flagged two incline presses back to back): the main lift always goes first (exercise order drives strength gains — Nunes 2021); two exercises for the same muscle are never adjacent — a pull sits between the two presses on days 1 and 3 so chest and triceps recover (antagonist ordering preserves performance in the second exercise; same-muscle compound sets degrade it — Weakley 2025, Brentano 2017); light second exposures come right after the main lift while the lifter is warm; supersets are antagonist or non-competing pairs; carries and sled are last because grip fatigue would hurt rows and hinges (back extension moves ahead of the carries on day 6).
 
 Each day carries its own 5-minute mobility block on the day-overview screen. Engine rules implemented: derived light exposures, ~2% increments for deadlift/squat, double jump when every set beats the range by 2+, reactive −10% reset after three flat heavy sessions. RPE gate not implemented (no new inputs).
 

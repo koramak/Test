@@ -15,7 +15,7 @@ const USABLE = 852 - 59 - 34;
   if (process.argv.includes('--seed')) {
     const day = (n) => new Date(Date.now() - n * 864e5).toISOString();
     const entry = (w, r, n, extra = {}) => ({ exerciseName: 'x', usedAlt: false, weight: w, sets: [{ weight: Math.round(w*0.5), reps: 5, completed: true, warmup: true }, { weight: Math.round(w*0.7), reps: 3, completed: true, warmup: true }, { weight: w, reps: r, completed: true }, { weight: w, reps: r, completed: true }, { weight: w, reps: r, completed: true }], date: day(n), skipped: false, ...extra });
-    const seed = { day2: { exercises: { deadlift: [entry(215, 6, 40), entry(225, 5, 30, { notes: 'belt too loose, tighten before set 2' }), entry(230, 5, 20), entry(235, 4, 10)] }, sessions: [{ date: day(10), absDone: true }] } };
+    const seed = { day2: { exercises: { deadlift: [entry(215, 6, 40), entry(225, 5, 30, { notes: 'belt too loose, tighten before set 2' }), entry(230, 5, 20), entry(235, 4, 10)] }, sessions: [{ date: day(10), absDone: true }, { date: day(20), absDone: true }, { date: day(30), absDone: false }] } };
     await ctx.addInitScript((v) => { localStorage.setItem('workoutLog_4day', v); }, JSON.stringify(seed));
   }
   await page.goto('file://' + file, { waitUntil: 'load' });

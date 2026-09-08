@@ -58,6 +58,40 @@ const ok = (name, cond) => { console.log((cond ? 'PASS' : 'FAIL') + ' ' + name);
   [...root.querySelectorAll('.exercise-row')][1].querySelector('.info-btn').click(); await wait(300);
   ok('info sheet for light squat shows squat description', !!root.querySelector('.info-sheet') && root.querySelector('.info-sheet').textContent.length > 80);
   btn('Close').click(); await wait(200);
+
+  // CSV import: an export from the OLD 4-day program (old names, old day keys) rebuilds history
+  dom.window.confirm = () => true; dom.window.alert = () => {};
+  btn('Back').click(); await wait(300);
+  const csv = [
+    'Date,Day,Exercise,Variant,Set,Warmup,Weight,Reps,Completed,Skipped,Notes',
+    '8/1/2026,day1,Log Press,Main,1,Yes,55,5,Yes,No,""',
+    '8/1/2026,day1,Log Press,Main,2,No,105,5,Yes,No,"felt strong, add 5"',
+    '8/1/2026,day1,Log Press,Main,3,No,105,5,Yes,No,"felt strong, add 5"',
+    '8/1/2026,day1,Log Press,Main,4,No,105,4,Yes,No,"felt strong, add 5"',
+    '8/1/2026,day1,Incline Dumbbell Press (30°),Main,1,Yes,30,10,Yes,No,""',
+    '8/1/2026,day1,Incline Dumbbell Press (30°),Main,2,No,60,10,Yes,No,""',
+    '8/1/2026,day1,Incline Dumbbell Press (30°),Main,3,No,60,9,Yes,No,""',
+    '8/1/2026,day1,Incline Dumbbell Press (30°),Main,4,No,60,8,Yes,No,""',
+    '8/1/2026,day1,Preacher Curl,Main,1,No,50,10,Yes,No,""',
+    '8/1/2026,day1,Ab Routine (pre-workout),Main,1,No,0,0,Yes,No,""',
+    '8/3/2026,day3,Rope Pushdown,Main,1,No,40,15,Yes,No,""',
+    '8/3/2026,day3,Some Exercise Nobody Knows,Main,1,No,1,1,Yes,No,""'
+  ].join('\n');
+  const input = root.querySelector('input.csv-import');
+  const file = new dom.window.File([csv], 'export.csv', { type: 'text/csv' });
+  Object.defineProperty(input, 'files', { value: [file] });
+  input.dispatchEvent(new dom.window.Event('change', { bubbles: true }));
+  await wait(800);
+  const stored = JSON.parse(dom.window.localStorage.getItem('workoutLog_4day'));
+  const lp = stored?.day1?.exercises?.log_press?.[0];
+  ok('csv: log press entry rebuilt with 1 warm-up + 3 working sets', !!lp && lp.sets.length === 4 && lp.sets[0].warmup === true && lp.weight === 105 && lp.notes === 'felt strong, add 5');
+  ok('csv: incline DB (old day1) rebuilt', stored?.day1?.exercises?.incline_db?.[0]?.weight === 60);
+  ok('csv: retired name (Preacher Curl) kept under old id', !!stored?.day1?.exercises?.preacher_curl);
+  ok('csv: ab routine row became a session with absDone', stored?.day1?.sessions?.some(s => s.absDone === true));
+  ok('csv: unknown exercise skipped, nothing crashed', !JSON.stringify(stored).includes('Nobody Knows'));
+  btn('Upper Power').click(); await wait(500);
+  const rowsCsv = [...root.querySelectorAll('.exercise-row')].map(r => r.textContent).join(' | ');
+  ok('csv: imported log press history shows on the new Upper Power day (105 lbs)', /Log Strict Press[^|]*105 lbs/.test(rowsCsv));
   console.log(`${pass} passed, ${fail} failed`);
   process.exit(fail ? 1 : 0);
 })();
