@@ -1,0 +1,12 @@
+{
+  "name": "workout-tracker-tests",
+  "private": true,
+  "description": "Headless checks for workout-tracker.html: functional walkthrough, data-preservation/engine rules, and iPhone 16 Pro no-scroll measurement.",
+  "scripts": {
+    "walkthrough": "node walkthrough.js",
+    "migration": "node migration.js",
+    "measure": "node measure.js --seed",
+    "test": "node walkthrough.js && node migration.js"
+  },
+  "dependencies": { "@babel/standalone": "^7", "jsdom": "^24", "playwright-core": "^1" }
+}

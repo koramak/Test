@@ -370,6 +370,9 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
 
     // Exercise descriptions from NSCA (National Strength & Conditioning Association) and ACE (American Council on Exercise)
     const exerciseMedia = {
+      incline_machine: { description: 'Set the machine or Smith to about 30°. Elbows tucked ~45°, press through the upper chest and let the handles sink to a full stretch at the bottom. Third upper-chest exposure in the loop, so it is safe to push to 0-1 reps in reserve.', source: '', youtube: '' },
+      sled_push: { description: 'Load the sled so a 50-65 ft trip takes 20-30 seconds at a driving pace. Arms locked, hips low, short powerful steps. Concentric-only, so almost no soreness - fine the day before or after a heavy leg day.', source: '', youtube: '' },
+      sled_drag: { description: 'Face the sled and walk backwards with short steps, knees tracking over the toes. Moderate load, continuous movement. Quad work capacity that is friendly to the knees.', source: '', youtube: '' },
       // Compound lifts
       deadlift: { description: 'Hip hinge with barbell from floor. Drive through heels, keep back flat, extend hips and knees together.', source: 'Men\'s Health', youtube: 'https://www.youtube.com/watch?v=r4MzxtBKyNE' },
       squat: { description: 'Barbell on upper back, descend by bending hips and knees until thighs parallel. Drive up through heels.', source: 'CrossFit', youtube: 'https://www.youtube.com/watch?v=ultWZbUMPL8' },
@@ -438,7 +441,14 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
     // progressionType: load-first (add weight, reset reps to bottom) vs rep-first (build reps, small weight bumps)
     const progressionConfig = {
       deadlift: { progressionType: "load-first", weightIncrement: 5, repRange: [4, 6], rirTarget: 2, restTime: 180, cue: 'Building strength within range' },
-      squat: { progressionType: "load-first", weightIncrement: 5, repRange: [4, 8], rirTarget: 2, restTime: 180, cue: 'Building within range' },
+      squat: { progressionType: "load-first", weightIncrement: 5, repRange: [4, 6], rirTarget: 2, restTime: 180, cue: 'Building within range' },
+      // Light second exposures: load is derived from the heavy lift each session and never progresses on its own
+      squat_light: { progressionType: "load-first", weightIncrement: 5, repRange: [3, 5], rirTarget: 3, restTime: 120, derivedFrom: "squat", pct: 0.78, cue: 'Light exposure - every rep crisp' },
+      deadlift_light: { progressionType: "load-first", weightIncrement: 5, repRange: [3, 3], rirTarget: 3, restTime: 120, derivedFrom: "deadlift", pct: 0.78, cue: 'Light exposure - reset every rep' },
+      incline_machine: { progressionType: "rep-first", weightIncrement: 5, repRange: [8, 12], rirTarget: 1, restTime: 90, cue: 'Third upper-chest exposure - push close to failure' },
+      sled_push: { progressionType: "distance-first", weightIncrement: 10, repRange: [50, 65], rirTarget: 2, restTime: 90, cue: 'Heavy trips, 20-30 s each' },
+      sled_drag: { progressionType: "distance-first", weightIncrement: 10, repRange: [80, 100], rirTarget: 2, restTime: 60, cue: 'Short steps, knees over toes' },
+      suitcase_carry: { progressionType: "distance-first", weightIncrement: 5, repRange: [60, 80], rirTarget: 2, restTime: 60, cue: 'Hips level, no lean' },
       pause_squat: { progressionType: "load-first", weightIncrement: 5, repRange: [3, 6], rirTarget: 3, restTime: 180, cue: 'Skill work - crisp reps, never grind' },
       hack_squat: { progressionType: "load-first", weightIncrement: 10, repRange: [6, 10], rirTarget: 2, restTime: 150, cue: 'Building reps within range' },
       leg_press: { progressionType: "load-first", weightIncrement: 10, repRange: [8, 12], rirTarget: 2, restTime: 150, cue: 'Building within rep range' },
@@ -506,7 +516,10 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
       const avgReps = sets.reduce((a, s) => a + s.reps, 0) / sets.length;
       const allCompleted = sets.every(s => s.completed);
       const [low, high] = config.repRange;
-      const inc = config.weightIncrement;
+      const minReps = Math.min(...sets.map(s => s.reps));
+      // Number-agnostic increments for the big lifts: ~2% of the load rounded to 5, never below 5
+      const load = sets[0]?.weight || 0;
+      const inc = config.incrementPct ? Math.max(5, Math.round((load * config.incrementPct) / 5) * 5) : config.weightIncrement;
       if (config.assisted) {
         const assist = sets[0]?.weight ?? 0;
         if (allCompleted && avgReps >= high) {
@@ -518,8 +531,11 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
         return { action: 'maintain', reason: config.cue || 'Building within rep range' };
       }
       if (allCompleted && avgReps >= high) {
+        // Every set blew through the range -> double jump so a range can't strand you
+        const bigJump = inc > 0 && minReps >= high + 2;
+        const amount = bigJump ? inc * 2 : inc;
         return inc > 0
-          ? { action: 'increase', amount: inc, reason: `Hit ${high}+ on working sets → Add ${inc} lbs` }
+          ? { action: 'increase', amount, reason: bigJump ? `Every set ${high + 2}+ → Add ${amount} lbs (double jump)` : `Hit ${high}+ on working sets → Add ${amount} lbs` }
           : { action: 'progress', reason: `Hit ${high}+ → Progress difficulty (ROM, pause, or add weight)` };
       }
       if (avgReps < low) {
@@ -540,62 +556,117 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
 
     const muscleColors = { shoulders: '#f97316', triceps: '#ef4444', chest: '#ec4899', upperChest: '#f472b6', lats: '#8b5cf6', traps: '#a855f7', biceps: '#3b82f6', rearDelts: '#f59e0b', sideDelts: '#fb923c', forearms: '#6366f1', abs: '#10b981', hamstrings: '#14b8a6', glutes: '#06b6d4', quads: '#22d3d1', calves: '#84cc16' };
 
-    // Working-weight trend across all logged sessions, as one line of text.
-    // For assisted exercises the weight going DOWN is progress.
-    const computeTrend = (entries, assisted) => {
-      const pts = entries.filter(e => !e.skipped && typeof e.weight === 'number').map(e => e.weight);
+    // Working-weight trend across all logged sessions. For assisted exercises the
+    // weight going DOWN is progress.
+    const ProgressSpark = ({ entries, accent, assisted }) => {
+      const pts = entries.filter(e => !e.skipped && typeof e.weight === 'number').map(e => ({ d: new Date(e.date), w: e.weight }));
       if (pts.length < 3) return null;
-      const delta = pts[pts.length - 1] - pts[0];
+      const ws = pts.map(p => p.w);
+      const min = Math.min(...ws), max = Math.max(...ws);
+      const span = Math.max(max - min, 1);
+      const W = 280, H = 24, P = 4;
+      const x = (i) => P + (i / (pts.length - 1)) * (W - 2 * P);
+      const y = (w) => H - P - ((w - min) / span) * (H - 2 * P);
+      const line = pts.map((p, i) => `${x(i).toFixed(1)},${y(p.w).toFixed(1)}`).join(' ');
+      const delta = ws[ws.length - 1] - ws[0];
       const improved = assisted ? delta < 0 : delta > 0;
-      const arrow = delta > 0 ? '▲' : delta < 0 ? '▼' : '—';
-      return {
-        text: `${arrow} ${Math.abs(delta)} lb over ${pts.length} sessions`,
-        cls: improved ? 'text-emerald-400' : delta === 0 ? 'text-zinc-500' : 'text-amber-400'
-      };
+      const fmt = (d) => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      return (
+        <div className="mb-2 px-3 py-2 rounded-xl bg-zinc-900/50 border border-zinc-800/50">
+          <div className="flex justify-between items-center mb-0.5">
+            <span className="text-[10px] text-zinc-500 font-medium">PROGRESS · {pts.length} SESSIONS{assisted ? ' · LOWER = BETTER' : ''} <span className="text-zinc-600 font-normal">· {fmt(pts[0].d)} {ws[0]} → {fmt(pts[pts.length - 1].d)} {ws[ws.length - 1]} lb</span></span>
+            <span className={`text-[10px] font-semibold ${improved ? 'text-emerald-400' : delta === 0 ? 'text-zinc-500' : 'text-amber-400'}`}>{delta > 0 ? '+' : ''}{delta} lb</span>
+          </div>
+          <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ height: H }} preserveAspectRatio="none">
+            <polyline points={line} fill="none" stroke={accent} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+            <circle cx={x(pts.length - 1)} cy={y(ws[ws.length - 1])} r="3" fill={accent} />
+          </svg>
+        </div>
+      );
     };
 
     // Workout data
     const workoutData4Day = {
-      day1: { name: "Upper Power + Biceps", focus: "Heavy pressing, pulling, bicep stretch", exercises: [
-        { id: "log_press", name: "Log Press / Standing DB Press", sets: 4, warmupSets: 1, reps: "3-5", defaultWeight: 95, muscles: ["shoulders", "triceps", "chest"], notes: "1 warm-up, then 3 heavy. 3-min rest" },
-        { id: "incline_db", name: "Incline Dumbbell Press (30°) / Machine Incline", sets: 4, warmupSets: 1, reps: "8-12", defaultWeight: 50, muscles: ["upperChest", "shoulders", "triceps"], notes: "1 intro set, then 3 at weight. Deep stretch" },
-        { id: "dips", name: "Assisted Dips / Machine Dip", sets: 3, reps: "8-12", defaultWeight: 60, muscles: ["chest", "triceps"], notes: "Weight = assistance, less is harder. Goal: 0 = bodyweight" },
-        { id: "seated_row", name: "Seated Row Machine / Cable Row", sets: 3, reps: "5-8", defaultWeight: 135, muscles: ["lats", "traps", "biceps", "rearDelts"], notes: "Strength focus" },
-        { id: "incline_curl", name: "Incline Dumbbell Curl / Bayesian Curl", sets: 3, reps: "10-12", defaultWeight: 20, muscles: ["biceps"], notes: "Arms behind torso, max stretch" },
-        { id: "face_pull", name: "Face Pull / Rear Delt Fly", sets: 3, reps: "15-20", defaultWeight: 40, muscles: ["rearDelts", "traps"], notes: "Shoulder health - form > load" },
-        { id: "hammer_curl", name: "Hammer Curl / Cross-Body Curl", sets: 3, reps: "10-15", defaultWeight: 25, muscles: ["biceps", "forearms"], notes: "Brachialis emphasis" },
-        { id: "lateral_raise", name: "Lateral Raise / Cable Lateral", sets: 3, reps: "12-20", defaultWeight: 15, muscles: ["sideDelts"], notes: "Microplates essential" }
+      day1: { name: "Upper Power", focus: "Log strength · heavy incline · pull", mobility: [
+        "Foam-roller T-spine extensions · 3×5 breaths",
+        "Band pull-aparts ×15 + band dislocates ×8",
+        "Overhead lat stretch, elbows on bench · 2×20 s",
+        "Half-kneeling band overhead reach · 5/side",
+        "Empty log press ×8 with a 2 s pause → first ramp set"
+      ], exercises: [
+        { id: "log_press", name: "Log Strict Press / Standing DB Press", sets: 4, warmupSets: 1, reps: "3-5", defaultWeight: 95, muscles: ["shoulders", "triceps", "chest"], notes: "1 ramp, then 3 heavy · 3 min rest. Every other loop add 1 AMRAP set at ~75-80% (clean once, press for reps)" },
+        { id: "incline_bb", name: "Incline Barbell Press (30°) / Smith Incline", sets: 4, warmupSets: 1, reps: "6-10", defaultWeight: 115, muscles: ["upperChest", "shoulders", "triceps"], notes: "1 feeder, then 3 heavy · 2 min rest", progression: { repRange: [6, 10], restTime: 120 } },
+        { id: "seated_row", name: "Seated Row Machine / Cable Row", sets: 3, reps: "6-10", defaultWeight: 135, muscles: ["lats", "traps", "biceps", "rearDelts"], notes: "One row on every upper day · 90 s rest", progression: { repRange: [6, 10], restTime: 90 } },
+        { id: "bayesian_curl", name: "Bayesian Cable Curl / Incline DB Curl", sets: 3, reps: "8-12", defaultWeight: 25, muscles: ["biceps"], notes: "⇄ Superset with face pulls · arm behind torso, full stretch, last set to failure", superset: 1, progression: { repRange: [8, 12], restTime: 75 } },
+        { id: "face_pull", name: "Face Pull / Rear Delt Fly", sets: 3, reps: "15-20", defaultWeight: 40, muscles: ["rearDelts", "traps"], notes: "⇄ Superset with curls · shoulder health > load", superset: 1 }
       ]},
-      day2: { name: "Lower Power + Carries", focus: "Deadlift strength, carries for traps/forearms", exercises: [
-        { id: "deadlift", name: "Conventional Deadlift / Trap Bar Deadlift", sets: 5, warmupSets: 2, reps: "4-6", defaultWeight: 225, muscles: ["hamstrings", "glutes", "lats", "traps", "forearms"], notes: "2 warm-ups (~50%/75%), then 3 heavy sets" },
-        { id: "pause_squat", name: "Pause Squat / Front Squat", sets: 3, warmupSets: 1, reps: "3-6", defaultWeight: 115, muscles: ["quads", "glutes", "hamstrings"], notes: "2nd squat exposure for skill - skip when worn down" },
-        { id: "hack_squat", name: "Hack Squat / Leg Press", sets: 4, warmupSets: 1, reps: "6-10", defaultWeight: 180, muscles: ["quads", "glutes"], notes: "1 intro set, then 3 at weight. Push hard" },
-        { id: "farmers_walk", name: "Farmer's Walk / Suitcase Carry", sets: 3, reps: "50-70 ft", defaultWeight: 70, muscles: ["traps", "forearms", "abs"], notes: "Per hand. Distance before load." },
-        { id: "leg_curl", name: "Leg Curl / Nordic Curl", sets: 3, reps: "5-8", defaultWeight: 90, muscles: ["hamstrings"], notes: "Strength focus, control the negative. Swap in Nordics sometimes for long-length work", progression: { progressionType: "load-first", repRange: [5, 8] } },
-        { id: "leg_ext", name: "Leg Extension / Sissy Squat", sets: 3, reps: "5-8", defaultWeight: 100, muscles: ["quads"], notes: "Strength focus - heavy, controlled reps", progression: { progressionType: "load-first", repRange: [5, 8] } },
-        { id: "lat_pulldown", name: "Lat Pulldown / Pull-ups", sets: 3, reps: "5-8", defaultWeight: 100, muscles: ["lats", "biceps"], notes: "Strength focus", progression: { progressionType: "load-first", repRange: [5, 8] } },
-        { id: "bent_lateral", name: "Bent + Side Lateral / Rear Delt Machine", sets: 2, reps: "12-20", defaultWeight: 12, muscles: ["rearDelts", "sideDelts"], notes: "Microplates for laterals" },
-        { id: "calf_raise", name: "Calf Raises / Seated Calf", sets: 3, reps: "12-20", defaultWeight: 150, muscles: ["calves"], notes: "Full ROM, calves progress slowly" }
+      day2: { name: "Lower Power · Deadlift", focus: "Deadlift strength · light squat · quads · carry", mobility: [
+        "Cat-cow, slow segmental · 8 reps",
+        "90/90 hip switches, no hands · 5/side",
+        "Hip airplanes with a hand on the rack · 5/side",
+        "Weighted knee-to-wall (KB on knee) · 10/side",
+        "Empty-bar RDL ×8, 3 s eccentric → first ramp set"
+      ], exercises: [
+        { id: "deadlift", name: "Conventional Deadlift / Trap Bar Deadlift", sets: 5, warmupSets: 2, reps: "4-6", defaultWeight: 225, muscles: ["hamstrings", "glutes", "lats", "traps", "forearms"], notes: "2 ramp, then 3 heavy · 3 min · heavy day? add an ~85% single first", progression: { incrementPct: 0.02, stallReset: true } },
+        { id: "squat_light", name: "Light Squat / Paused Squat", sets: 3, warmupSets: 1, reps: "3-5", defaultWeight: 120, muscles: ["quads", "glutes", "hamstrings"], notes: "Weight is set for you at ~78% of squat day · 2 min · every rep crisp. Skip only if the deadlift was a grind" },
+        { id: "hack_squat", name: "Hack Squat / Leg Press", sets: 4, warmupSets: 1, reps: "6-10", defaultWeight: 180, muscles: ["quads", "glutes"], notes: "1 feeder, then 3 at weight · 90 s · push hard", progression: { restTime: 90 } },
+        { id: "leg_curl", name: "Leg Curl / Nordic Curl", sets: 3, reps: "8-12", defaultWeight: 90, muscles: ["hamstrings"], notes: "⇄ Superset with leg extension · control the negative", superset: 1, progression: { progressionType: "load-first", repRange: [8, 12], restTime: 75 } },
+        { id: "leg_ext", name: "Leg Extension / Sissy Squat", sets: 3, reps: "10-15", defaultWeight: 100, muscles: ["quads"], notes: "⇄ Superset with leg curl · 1-2 reps in reserve", superset: 1, progression: { progressionType: "load-first", repRange: [10, 15], restTime: 60 } },
+        { id: "farmers_walk", name: "Farmer's Walk / Suitcase Carry", sets: 3, reps: "50-70 ft", defaultWeight: 70, muscles: ["traps", "forearms", "abs"], notes: "Per hand, heavy · 90 s · distance before load · last, so grip fatigue can't hurt anything" }
       ]},
-      day3: { name: "Upper Hypertrophy + Arms", focus: "Upper chest volume, arm hypertrophy", exercises: [
-        { id: "incline_bb", name: "Incline Barbell Press (30°) / Smith Incline", sets: 4, warmupSets: 1, reps: "8-10", defaultWeight: 115, muscles: ["upperChest", "shoulders", "triceps"], notes: "1 intro set, then 3 at weight" },
-        { id: "cable_row", name: "Cable Row / Machine Row", sets: 3, reps: "5-8", defaultWeight: 120, muscles: ["lats", "traps", "biceps"], notes: "Strength focus", progression: { progressionType: "load-first", repRange: [5, 8] } },
-        { id: "low_high_fly", name: "Low-to-High Cable Fly / Incline DB Fly", sets: 3, reps: "12-15", defaultWeight: 25, muscles: ["upperChest"], notes: "Upper chest isolation" },
-        { id: "bayesian_curl", name: "Bayesian Cable Curl / Incline Curl", sets: 3, reps: "10-15", defaultWeight: 25, muscles: ["biceps"], notes: "Face away, constant tension" },
-        { id: "overhead_tri", name: "Overhead Tricep Extension / Skull Crushers", sets: 3, reps: "10-15", defaultWeight: 50, muscles: ["triceps"], notes: "Long head emphasis" },
-        { id: "preacher_curl", name: "Preacher Curl / Concentration Curl", sets: 3, reps: "10-12", defaultWeight: 50, muscles: ["biceps"], notes: "Short head emphasis" },
-        { id: "pushdown", name: "Rope Pushdown / V-Bar Pushdown", sets: 2, reps: "12-20", defaultWeight: 40, muscles: ["triceps"], notes: "Pump finisher" }
+      day3: { name: "Upper Size", focus: "Upper chest volume · arms · delts", mobility: [
+        "Foam-roller T-spine extensions · 2×5 breaths",
+        "Doorway / rack pec stretch, elbow at 90° · 30 s/side",
+        "Wall slides · 10",
+        "Band face pulls · 15",
+        "Light incline DB press ×12, 2 s pause at bottom → first ramp set"
+      ], exercises: [
+        { id: "incline_db", name: "Incline Dumbbell Press (30°) / Machine Incline", sets: 4, warmupSets: 1, reps: "6-10", defaultWeight: 50, muscles: ["upperChest", "shoulders", "triceps"], notes: "1 feeder, then 3 working · deep stretch · 2 min", progression: { repRange: [6, 10], restTime: 120 } },
+        { id: "incline_machine", name: "Incline Machine Press (30°) / Incline Smith", sets: 3, reps: "8-12", defaultWeight: 120, muscles: ["upperChest", "shoulders", "triceps"], notes: "Third upper-chest exposure · 0-1 reps in reserve · 90 s" },
+        { id: "cable_row", name: "Cable Row / Machine Row", sets: 3, reps: "8-12", defaultWeight: 120, muscles: ["lats", "traps", "biceps"], notes: "90 s · squeeze, don't heave", progression: { repRange: [8, 12], restTime: 75 } },
+        { id: "overhead_tri", name: "Overhead Tricep Extension / Skull Crushers", sets: 4, reps: "8-15", defaultWeight: 50, muscles: ["triceps"], notes: "⇄ Superset with EZ curl · long head, full stretch, last set to failure", superset: 1, progression: { repRange: [8, 15], restTime: 75 } },
+        { id: "high_rep_curl", name: "EZ Bar Curl / Cable Curl", sets: 3, reps: "6-10", defaultWeight: 55, muscles: ["biceps"], notes: "⇄ Superset with overhead extension · heavy, strict, full range", superset: 1, progression: { progressionType: "load-first", repRange: [6, 10], restTime: 75 } },
+        { id: "lateral_raise", name: "Lateral Raise / Cable Lateral", sets: 4, reps: "12-20", defaultWeight: 15, muscles: ["sideDelts"], notes: "60 s · microplates essential" }
       ]},
-      day4: { name: "Lower Hypertrophy + Volume", focus: "Squat volume, additional upper work", exercises: [
-        { id: "squat", name: "Barbell Squat / Front Squat", sets: 5, warmupSets: 2, reps: "4-8", defaultWeight: 155, muscles: ["quads", "glutes", "hamstrings"], notes: "2 warm-ups (~50%/75%), then 3 heavy sets" },
-        { id: "leg_press", name: "Leg Press / Hack Squat", sets: 4, warmupSets: 1, reps: "8-12", defaultWeight: 270, muscles: ["quads", "glutes"], notes: "1 intro set, then 3 at weight" },
-        { id: "leg_ext", name: "Leg Extension / Sissy Squat", sets: 3, reps: "5-8", defaultWeight: 100, muscles: ["quads"], notes: "Strength focus - heavy, controlled reps", progression: { progressionType: "load-first", repRange: [5, 8] } },
-        { id: "leg_curl", name: "Leg Curl / Nordic Curl", sets: 3, reps: "5-8", defaultWeight: 70, muscles: ["hamstrings"], notes: "Strength focus, control negative. Nordics cover what RDLs used to", progression: { progressionType: "load-first", repRange: [5, 8] } },
-        { id: "back_extension", name: "45° Back Extension / Reverse Hyper", sets: 3, reps: "8-15", defaultWeight: 0, muscles: ["hamstrings", "glutes"], notes: "Replaces RDL. Hold a plate to add load" },
-        { id: "seated_row", name: "Seated Cable Row / T-Bar Row", sets: 3, reps: "5-8", defaultWeight: 130, muscles: ["lats", "traps", "biceps"], notes: "Strength focus" },
-        { id: "lat_pulldown", name: "Lat Pulldown / Pull-ups", sets: 3, reps: "5-8", defaultWeight: 100, muscles: ["lats", "biceps"], notes: "Strength focus", progression: { progressionType: "load-first", repRange: [5, 8] } },
-        { id: "machine_chest", name: "Machine Chest Press / Cable Crossover", sets: 3, reps: "10-15", defaultWeight: 140, muscles: ["chest", "triceps"], notes: "3 working sets - safe to push hard" },
-        { id: "high_rep_curl", name: "EZ Bar Curl / Cable Curl", sets: 3, reps: "12-15", defaultWeight: 45, muscles: ["biceps"], notes: "High rep pump" }
+      day4: { name: "Lower Size · Squat", focus: "Squat strength · light deadlift · posterior chain · sled", mobility: [
+        "Weighted knee-to-wall (KB or plate on knee) · 10/side",
+        "Adductor rock-backs · 8/side",
+        "Goblet deep-squat pry with a 10-25 lb plate · 3×5 breaths",
+        "90/90 hip switches · 5/side",
+        "Empty-bar squat ×8 with a 3 s pause at depth → first ramp set"
+      ], exercises: [
+        { id: "squat", name: "Barbell Squat / Front Squat", sets: 5, warmupSets: 2, reps: "4-6", defaultWeight: 155, muscles: ["quads", "glutes", "hamstrings"], notes: "2 ramp (~50%/70%), then 3 heavy · 3 min", progression: { repRange: [4, 6], incrementPct: 0.02, stallReset: true } },
+        { id: "deadlift_light", name: "Light Deadlift / Trap Bar Deadlift", sets: 3, warmupSets: 1, reps: "3", defaultWeight: 175, muscles: ["hamstrings", "glutes", "lats"], notes: "Weight is set for you at ~78% of deadlift day · 2 min · reset every rep. Trap bar when the back is beat" },
+        { id: "leg_press", name: "Leg Press / Bulgarian Split Squat", sets: 4, warmupSets: 1, reps: "8-12", defaultWeight: 270, muscles: ["quads", "glutes"], notes: "1 feeder, then 3 at weight · 90 s", progression: { restTime: 90 } },
+        { id: "back_extension", name: "45° Back Extension / Reverse Hyper", sets: 3, reps: "10-15", defaultWeight: 0, muscles: ["hamstrings", "glutes"], notes: "⇄ Superset with calves · hold a plate, full hip flexion at the bottom", superset: 1, progression: { repRange: [10, 15], restTime: 60 } },
+        { id: "calf_raise", name: "Calf Raises / Seated Calf", sets: 3, reps: "12-20", defaultWeight: 150, muscles: ["calves"], notes: "⇄ Superset with back extension · full range, pause at the stretch", superset: 1 },
+        { id: "sled_push", name: "Sled Push / Prowler Push", sets: 4, reps: "50-65 ft", defaultWeight: 90, muscles: ["quads", "glutes", "calves"], notes: "Heavy · each trip 20-30 s · 90 s rest · concentric only, so no soreness. Drop if over 50 min" }
+      ]},
+      day5: { name: "Arms + Shoulders", focus: "Dips toward bodyweight · triceps · biceps · delts · pull", mobility: [
+        "Shoulder CARs, slow full circles · 3/side",
+        "Band external rotation ×15 + pull-aparts ×15",
+        "Wrist flexor / extensor stretch on the floor · 20 s each",
+        "Overhead lat stretch · 2×20 s",
+        "Light lateral raises ×15 + hammer curls ×15 → first working set"
+      ], exercises: [
+        { id: "dips", name: "Assisted Dips / Machine Dip", sets: 3, reps: "6-10", defaultWeight: 60, muscles: ["triceps", "chest"], notes: "⇄ Superset with pulldown · weight = assistance, less is harder · goal: 0 = bodyweight", superset: 1, progression: { repRange: [6, 10], restTime: 90 } },
+        { id: "lat_pulldown", name: "Lat Pulldown / Pull-ups", sets: 3, reps: "6-10", defaultWeight: 100, muscles: ["lats", "biceps"], notes: "⇄ Superset with dips · counts as biceps work too", superset: 1, progression: { progressionType: "load-first", repRange: [6, 10], restTime: 90 } },
+        { id: "overhead_tri", name: "Overhead Tricep Extension / Skull Crushers", sets: 3, reps: "8-15", defaultWeight: 50, muscles: ["triceps"], notes: "⇄ Superset with hammer curls · long head, full stretch", superset: 2, progression: { repRange: [8, 15], restTime: 75 } },
+        { id: "hammer_curl", name: "Hammer Curl / Cross-Body Curl", sets: 3, reps: "10-15", defaultWeight: 25, muscles: ["biceps", "forearms"], notes: "⇄ Superset with overhead extension · brachialis + grip for the log and carries", superset: 2, progression: { restTime: 75 } },
+        { id: "lateral_raise", name: "Lateral Raise / Cable Lateral", sets: 4, reps: "12-20", defaultWeight: 15, muscles: ["sideDelts"], notes: "60 s · microplates essential" }
+      ]},
+      day6: { name: "Strongman Conditioning", focus: "Sled · carries · back extension · no pressing", mobility: [
+        "Ankle rocks / bodyweight knee-to-wall · 10/side",
+        "Walking lunge with overhead reach · 10 steps",
+        "Spiderman lunge with T-spine rotation · 5/side",
+        "Cossack squats · 6/side",
+        "Light farmer's carry 60 ft out and back → first sled trip"
+      ], exercises: [
+        { id: "sled_push", name: "Sled Push / Prowler Push", sets: 6, reps: "50-65 ft", defaultWeight: 90, muscles: ["quads", "glutes", "calves"], notes: "Heavy · 90 s rest · ~12 min total" },
+        { id: "sled_drag", name: "Backward Sled Drag / Sled Pull", sets: 4, reps: "80-100 ft", defaultWeight: 70, muscles: ["quads", "calves"], notes: "Moderate · short steps, knees over toes · 60 s" },
+        { id: "farmers_walk", name: "Farmer's Walk / Suitcase Carry", sets: 4, reps: "50-70 ft", defaultWeight: 55, muscles: ["traps", "forearms", "abs"], notes: "~80% of your deadlift-day carry · grip endurance, not max · 90 s" },
+        { id: "suitcase_carry", name: "Suitcase Carry / One-Arm Farmer's", sets: 3, reps: "60-80 ft", defaultWeight: 70, muscles: ["abs", "forearms", "traps"], notes: "Per side · hips level, no lean · 60 s" },
+        { id: "back_extension", name: "45° Back Extension / Reverse Hyper", sets: 3, reps: "12-15", defaultWeight: 0, muscles: ["hamstrings", "glutes"], notes: "Hold a plate · 60 s", progression: { repRange: [12, 15], restTime: 60 } }
       ]}
     };
 
@@ -628,7 +699,7 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
     };
 
     const programConfigs = {
-      '4day': { name: "Strongman Hypertrophy", subtitle: "4-Day Power + Armor", data: workoutData4Day, dayCount: 4, icon: Dumbbell, gradient: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)', bgGradient: 'linear-gradient(180deg, #0a0a0f 0%, #0f0f18 100%)', dayAccents: { day1: '#3b82f6', day2: '#10b981', day3: '#8b5cf6', day4: '#f97316' } },
+      '4day': { name: "Strongman Hypertrophy", subtitle: "6-Day Rotation · Power + Size + Strongman", data: workoutData4Day, dayCount: 6, icon: Dumbbell, gradient: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)', bgGradient: 'linear-gradient(180deg, #0a0a0f 0%, #0f0f18 100%)', dayAccents: { day1: '#3b82f6', day2: '#10b981', day3: '#8b5cf6', day4: '#f97316', day5: '#ec4899', day6: '#eab308' } },
       '3day': { name: "Peach Protocol", subtitle: "3-Day Glute & Core Sculpt", data: workoutData3Day, dayCount: 3, icon: Sparkles, gradient: 'linear-gradient(135deg, #f472b6 0%, #fb923c 100%)', bgGradient: 'linear-gradient(180deg, #0f0a0d 0%, #1a0f14 100%)', dayAccents: { day1: '#f472b6', day2: '#fb7185', day3: '#fb923c' } }
     };
 
@@ -740,6 +811,18 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
       const calculateProgression = (exercise) => {
         const lastData = getLastSession(exercise.id);
         const config = getExerciseConfig(exercise);
+
+        // Light second exposure: load follows the heavy lift's current working weight
+        if (config.derivedFrom) {
+          const parentLast = getLastSession(config.derivedFrom);
+          const prog = programConfigs[selectedProgram];
+          const parentEx = prog ? Object.values(prog.data).flatMap(d => d.exercises).find(e => e.id === config.derivedFrom) : null;
+          const parentBase = parentLast ? (getWorkingSets(parentLast)[0]?.weight ?? parentLast.weight) : (parentEx?.defaultWeight ?? exercise.defaultWeight);
+          const derived = Math.max(5, Math.round((parentBase * config.pct) / 5) * 5);
+          const parentName = (parentEx?.name || config.derivedFrom).split(' / ')[0];
+          return { weight: derived, reps: config.repRange[1], suggestion: `${Math.round(config.pct * 100)}% of your ${parentName} (${parentBase} lb) — no need to push this`, action: 'maintain', icon: Minus, config, lastWeight: derived, lastSession: lastData };
+        }
+
         if (!lastData) return { weight: exercise.defaultWeight, reps: config.repRange[1], suggestion: null, action: 'start', icon: null, config };
 
         const workSets = getWorkingSets(lastData);
@@ -752,6 +835,22 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
         }
 
         const result = runProgression(config, lastData);
+
+        // Reactive reset for the big lifts: three straight sessions with no load or rep
+        // gain -> drop 10% and rebuild. No calendar deloads.
+        if (config.stallReset && result.action === 'maintain') {
+          const hist = getAllSessions(exercise.id).filter(e => !e.skipped).slice(-4);
+          if (hist.length >= 4) {
+            const w = hist.map(e => getWorkingSets(e)[0]?.weight ?? e.weight);
+            const r = hist.map(e => { const ws = getWorkingSets(e); return ws.reduce((a, s) => a + s.reps, 0) / Math.max(1, ws.length); });
+            const stalled = [1, 2, 3].every(i => w[i] <= w[i - 1] && r[i] <= r[i - 1]);
+            if (stalled) {
+              const reset = Math.max(5, Math.round((lastWeight * 0.9) / 5) * 5);
+              return { weight: reset, reps: config.repRange[1], suggestion: `Stalled 3 sessions → reset to ${reset} lb and rebuild to ${config.repRange[1]} reps`, action: 'decrease', icon: TrendingDown, config, lastWeight, lastSession: lastData };
+            }
+          }
+        }
+
         let newWeight = lastWeight, newReps = lastAvgReps, icon = Minus;
 
         // Progression strategy based on exercise type from research
@@ -1193,22 +1292,21 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
         return (
           <div className="min-h-screen text-white p-4" style={{ background: config.bgGradient }}>
             <div className="max-w-md mx-auto">
-              <div className="text-center mb-8 pt-4">
-                <button onClick={() => setView('programSelect')} className="text-zinc-600 text-xs mb-3 hover:text-white transition-colors flex items-center justify-center gap-1 mx-auto"><ChevronLeft className="w-3 h-3" /> Switch</button>
-                <div className="w-14 h-14 mx-auto mb-3 rounded-xl flex items-center justify-center" style={{ background: config.gradient }}><config.icon className="w-7 h-7 text-white" /></div>
+              <div className="text-center mb-4 pt-1">
+                <button onClick={() => setView('programSelect')} className="text-zinc-600 text-xs mb-2 hover:text-white transition-colors flex items-center justify-center gap-1 mx-auto"><ChevronLeft className="w-3 h-3" /> Switch</button>
+                <div className="w-11 h-11 mx-auto mb-2 rounded-xl flex items-center justify-center" style={{ background: config.gradient }}><config.icon className="w-6 h-6 text-white" /></div>
                 <h1 className="text-xl font-bold tracking-tight">{config.name}</h1>
-                <p className="text-zinc-500 text-xs mt-1">{config.subtitle}</p>
+                <p className="text-zinc-500 text-xs mt-0.5">{config.subtitle}</p>
               </div>
               <div className="space-y-2">
                 {Object.entries(workoutData).map(([day, data]) => {
                   const accent = config.dayAccents[day];
                   return (
-                    <button key={day} onClick={() => startDay(day)} className="w-full rounded-xl p-4 text-left transition-all active:scale-[0.98] border border-zinc-800/50" style={{ backgroundColor: '#12121a' }}>
+                    <button key={day} onClick={() => startDay(day)} className="w-full rounded-xl px-4 py-2.5 text-left transition-all active:scale-[0.98] border border-zinc-800/50" style={{ backgroundColor: '#12121a' }}>
                       <div className="flex justify-between items-center">
-                        <div>
-                          <div className="text-[9px] font-semibold uppercase tracking-widest mb-0.5" style={{ color: accent }}>Day {day.replace('day','')}</div>
-                          <div className="text-sm font-semibold text-zinc-100">{data.name}</div>
-                          <div className="text-[10px] text-zinc-600">{data.exercises.length} exercises</div>
+                        <div className="min-w-0">
+                          <div className="text-[9px] font-semibold uppercase tracking-widest" style={{ color: accent }}>Day {day.replace('day','')} <span className="text-zinc-600 normal-case tracking-normal">· {data.exercises.length} exercises</span></div>
+                          <div className="text-sm font-semibold text-zinc-100 truncate">{data.name}</div>
                         </div>
                         <ChevronRight className="w-4 h-4" style={{ color: accent }} />
                       </div>
@@ -1282,8 +1380,17 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
                 <h1 className="text-lg font-bold text-zinc-100">{dayData.name}</h1>
                 <p className="text-zinc-500 text-xs">{dayData.focus}</p>
               </div>
+              {dayData.mobility && (
+                <div className="mb-3 px-3 py-2 rounded-lg border border-zinc-800/50" style={{ backgroundColor: '#12121a' }}>
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="text-[9px] font-semibold tracking-widest text-zinc-500">MOBILITY WARM-UP</span>
+                    <span className="text-[9px] text-zinc-600">5 min · ends in your first ramp set</span>
+                  </div>
+                  {dayData.mobility.map((m, i) => <div key={i} className="text-[10px] text-zinc-400" style={{ lineHeight: 1.4 }}>{m}</div>)}
+                </div>
+              )}
               {(() => { const adherence = getAbsAdherence(); return (
-                <button onClick={() => setAbsDone(!absDone)} className={`w-full rounded-lg p-3 mb-3 flex items-center gap-2.5 border transition-all active:scale-[0.98] ${absDone ? 'border-emerald-500/50 bg-emerald-500/10' : 'border-zinc-800/50'}`} style={absDone ? {} : { backgroundColor: '#12121a' }}>
+                <button onClick={() => setAbsDone(!absDone)} className={`w-full rounded-lg px-3 py-2 mb-3 flex items-center gap-2.5 border transition-all active:scale-[0.98] ${absDone ? 'border-emerald-500/50 bg-emerald-500/10' : 'border-zinc-800/50'}`} style={absDone ? {} : { backgroundColor: '#12121a' }}>
                   <div className={`w-6 h-6 rounded flex items-center justify-center flex-shrink-0 ${absDone ? 'bg-emerald-500 text-white' : 'bg-zinc-800 text-zinc-600'}`}>
                     {absDone ? <Check className="w-4 h-4" /> : null}
                   </div>
@@ -1303,10 +1410,10 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
                   const inSession = Object.keys(sessionData).length > 0 && sessionDay === selectedDay;
                   const doneThisSession = inSession && sessionData[i]?.sets?.some(s => s.completed && !s.warmup);
                   return (
-                    <div key={`${ex.id}-${i}`} role="button" tabIndex={0} onClick={() => beginWorkout(i)} className="exercise-row w-full text-left rounded-lg p-3 flex items-center gap-2.5 border border-zinc-800/50 transition-all active:scale-[0.98] cursor-pointer" style={{ backgroundColor: '#12121a' }}>
+                    <div key={`${ex.id}-${i}`} role="button" tabIndex={0} onClick={() => beginWorkout(i)} className="exercise-row w-full text-left rounded-lg px-3 py-2 flex items-center gap-2.5 border border-zinc-800/50 transition-all active:scale-[0.98] cursor-pointer" style={{ backgroundColor: '#12121a' }}>
                       <div className="w-7 h-7 rounded flex items-center justify-center text-xs font-bold flex-shrink-0" style={{ background: `${primaryColor}20`, color: primaryColor }}>{i + 1}</div>
                       <div className="flex-1 min-w-0">
-                        <div className="text-sm font-medium text-zinc-200 truncate">{ex.name.split(' / ')[0]}</div>
+                        <div className="text-sm font-medium text-zinc-200 truncate">{ex.superset ? <span className="text-zinc-500">⇄ </span> : null}{ex.name.split(' / ')[0]}</div>
                         <div className="text-[10px] text-zinc-600">{ex.sets} × {ex.reps}{lastData ? (lastData.skipped ? ' · Skipped' : ` · ${lastData.weight} lbs`) : ''}</div>
                       </div>
                       <button onClick={(e) => { e.stopPropagation(); setInfoExerciseId(ex.isAbsSlot ? 'cable_crunch' : ex.id); }} className="info-btn w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold text-zinc-500 border border-zinc-800 flex-shrink-0 active:scale-90" title="How to do it">?</button>
@@ -1316,7 +1423,7 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
                 })}
               </div>
               {infoExerciseId && (() => {
-                const media = exerciseMedia[infoExerciseId];
+                const media = exerciseMedia[infoExerciseId] || exerciseMedia[progressionConfig[infoExerciseId]?.derivedFrom];
                 const cfg = progressionConfig[infoExerciseId] || defaultProgressionConfig;
                 return (
                   <div className="fixed flex items-end" style={{ top: 0, left: 0, right: 0, bottom: 0, zIndex: 50, background: 'rgba(0,0,0,0.7)' }} onClick={() => setInfoExerciseId(null)}>
@@ -1383,7 +1490,7 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
           <div className="min-h-screen text-white p-3 pb-24" style={{ background: config.bgGradient }}>
             <div className="max-w-md mx-auto">
               {/* Header */}
-              <div className="flex justify-between items-center mb-2">
+              <div className="flex justify-between items-center mb-1">
                 <button onClick={() => setView('dayOverview')} className="text-zinc-500 p-1"><ChevronLeft className="w-5 h-5" /></button>
                 <div className="text-[10px] text-zinc-600">{currentExerciseIndex + 1}/{dayData.exercises.length}</div>
                 <button onClick={() => setShowNotes(!showNotes)} className="text-zinc-500 p-1">
@@ -1392,7 +1499,7 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
               </div>
 
               {/* Progress bar */}
-              <div className="h-0.5 bg-zinc-800 rounded-full mb-3 overflow-hidden">
+              <div className="h-0.5 bg-zinc-800 rounded-full mb-2 overflow-hidden">
                 <div className="h-full rounded-full" style={{ width: `${((currentExerciseIndex + 1) / dayData.exercises.length) * 100}%`, background: accent }} />
               </div>
 
@@ -1435,14 +1542,12 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
                 </div>
               )}
 
-              {/* Last workout: sets + one-line trend */}
+              {/* Last workout: compact set chips */}
               {progression.lastSession && (() => {
-                const trend = computeTrend(getAllSessions(exercise.isAbsSlot ? (currentData.selectedAbExercise || 'cable_crunch') : exercise.id), !!exerciseConfig.assisted);
                 return (
                   <div className="mb-2 px-3 py-2 rounded-xl bg-zinc-900/50 border border-zinc-800/50">
                     <div className="flex justify-between items-center">
                       <span className="text-[10px] text-zinc-500">Last <span className="text-zinc-300 font-medium">{lastWorkoutDate}</span></span>
-                      {trend && <span className={`text-[10px] font-semibold ${trend.cls}`}>{trend.text}</span>}
                     </div>
                     <div className="flex gap-1.5 flex-wrap mt-1">
                       {progression.lastSession.sets.map((s, i) => (
@@ -1455,8 +1560,15 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
                 );
               })()}
 
+              {/* Working-weight trend chart across all logged sessions */}
+              <ProgressSpark
+                entries={getAllSessions(exercise.isAbsSlot ? (currentData.selectedAbExercise || 'cable_crunch') : exercise.id)}
+                accent={accent}
+                assisted={!!exerciseConfig.assisted}
+              />
+
               {/* Progression suggestion with explanation */}
-              <div className="mb-2 px-3 py-2 rounded-xl border" style={{ background: suggestionBg, borderColor: `${suggestionColor}30` }}>
+              <div className="mb-2 px-3 py-1.5 rounded-xl border" style={{ background: suggestionBg, borderColor: `${suggestionColor}30` }}>
                 <div className="flex items-start gap-2">
                   {progression.icon && <progression.icon className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: suggestionColor }} />}
                   <div>
@@ -1515,12 +1627,12 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
               })()}
 
               {/* Journal - Sets to log */}
-              <div className="mt-3">
-                <div className="flex justify-between items-center mb-1.5">
+              <div className="mt-2">
+                <div className="flex justify-between items-center mb-1">
                   <span className="text-xs text-zinc-500 font-medium">LOG YOUR SETS</span>
                   <span className="text-[9px] text-zinc-600">{exerciseConfig.assisted ? 'lbs assist' : 'lbs'} × reps{currentData.sets.some(s => s.warmup) ? ' · W = warm-up, not counted' : ''}</span>
                 </div>
-                <div className="space-y-1.5">
+                <div className="space-y-1">
                   {currentData.sets.map((set, i) => (
                     <div key={i} className={`rounded-lg border ${set.completed ? 'border-emerald-500/50 bg-emerald-500/10' : set.warmup ? 'border-amber-500/30 bg-amber-500/5' : 'border-zinc-800/50 bg-zinc-900/30'}`} style={{ padding: '4px 6px' }}>
                       <div className="flex items-center gap-2">

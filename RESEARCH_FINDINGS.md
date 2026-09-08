@@ -67,7 +67,22 @@
 
 ---
 
-## 3. Proposed 6-day loop (5 slots/day, supersets count as one slot)
+## 3a. Implemented loop (what is in the app)
+
+After review the loop was tightened to **5–6 exercises per day** (the lifter counts exercises, not slots) and preacher curls were removed at the lifter's request (no spider curls either). Bayesian cable curl is the primary curl on Upper Power (incline DB curl as its alternate); the heavy strict slot is the EZ-bar curl at 6–10 on Upper Size — lengthened + heavy + hammer covers what preacher did. The cable fly and rear-delt partner were dropped to stay at six.
+
+| Day | Exercises (⇄ = superset) |
+|---|---|
+| **1 Upper Power** (5) | Log strict press · Incline BB 30° · Seated row · Bayesian curl ⇄ Face pull |
+| **2 Lower Power · Deadlift** (6) | Deadlift · Light squat (auto 78%) · Hack squat · Leg curl ⇄ Leg extension · Farmer's walk |
+| **3 Upper Size** (6) | Incline DB 30° · Incline machine · Cable row · Overhead extension ⇄ EZ-bar curl · Lateral raise |
+| **4 Lower Size · Squat** (6) | Squat 4–6 · Light deadlift (auto 78%) · Leg press · Back extension ⇄ Calves · Sled push |
+| **5 Arms + Shoulders** (5) | Assisted dips ⇄ Lat pulldown · Overhead extension ⇄ Hammer curl · Lateral raise |
+| **6 Strongman Conditioning** (5) | Sled push · Backward drag · Farmer's walk · Suitcase carry · Back extension |
+
+Each day carries its own 5-minute mobility block on the day-overview screen. Engine rules implemented: derived light exposures, ~2% increments for deadlift/squat, double jump when every set beats the range by 2+, reactive −10% reset after three flat heavy sessions. RPE gate not implemented (no new inputs).
+
+## 3. Original proposal (research version, 5 slots/day)
 
 Each day opens with a **5-minute mobility block that ends in the first ramp set** of the main lift (loaded end-range drills, ≤30 s holds, never on the prime mover). Minute budgets include warm-up sets and rests. Ab routine remains the checkbox. Program key stays `4day`; all existing exercise IDs are unchanged so history carries over.
 
