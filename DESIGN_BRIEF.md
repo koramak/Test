@@ -15,6 +15,8 @@ A previous redesign was rejected and reverted. It looked good in mockups and bro
 - It assumed a fixed 390×800 frame that "never scrolls" and then couldn't hold real data.
 - It was "too radical a change" — the lifter had muscle memory for where things were.
 
+A second lesson from a later round: **reactive sizing was tried and rejected.** Making buttons and numerals bigger on exercises with fewer sets "to use the vertical space" grew the rows *horizontally* until controls fell off the right edge. The lifter's instruction: design one fixed layout for the longest workout (5 set rows), let shorter workouts leave room, and spend any spare vertical space on **information**, never on inflating controls.
+
 The lifter's own words on what to keep: *"It works well and the buttons are easy to hit."* Optimize for that.
 
 **Rule of thumb:** if a change alters *what* is on a screen, *where* a control is, or *how* an interaction works, it's out of scope. Color, type, spacing, radius, iconography, and surface treatment are in scope.
@@ -29,7 +31,7 @@ Every one of these must exist, unchanged in behavior, on the same screen it is o
 1. **Every set is its own row**, all visible at once (up to 5). Each row: a complete toggle, weight − / value / +, reps − / value / +, and (rows 2+) a copy-previous-set button.
 2. Any set can be **toggled complete and back**, and edited **at any time**, in any order. Nothing ever locks.
 3. **Prev / Skip / Next** fixed at the bottom. Skip is a real action (it marks the exercise skipped for progression).
-4. Exercise name with an inline **alternate-exercise toggle** ("Trap Bar Deadlift" ⇄) and the program's one-line coaching cue under it.
+4. Exercise name with an inline **alternate-exercise toggle** ("Trap Bar Deadlift" ⇄), the program's one-line coaching cue under it, and a **target line** in the accent color: sets × reps, rest, the progression rule ("+5 lb when every set hits 12", "78% of your heavy day"), reps in reserve.
 5. **Last-workout row**: date + a chip per set (`W 118×5 ✓` for warm-ups, `235×4 ✓`).
 6. **Progress chart** (sparkline across all sessions, with the delta). The lifter explicitly asked to keep this.
 7. **Suggestion banner**: what the app recommends today and one line of why (increase / hold / decrease / reset / "78% of your squat").
@@ -42,7 +44,7 @@ Every one of these must exist, unchanged in behavior, on the same screen it is o
 12. Tapping any exercise row jumps straight into that exercise (equipment-taken use case).
 
 ### Home
-13. Switch-program link, program name/subtitle, one row per day (6 for Strongman Hypertrophy, 3 for Peach Protocol), the **8-week consistency bars**, the backup nudge (conditional), and the Backup / Restore / CSV / Reset utilities.
+13. Switch-program link, program name/subtitle, one row per day (6 for Strongman Hypertrophy, 3 for Peach Protocol), the **8-week consistency bars**, the backup nudge (conditional), and two utility rows: **Backup · Restore / Import** (one button that accepts a JSON backup or a CSV export) and **Export CSV · Reset**.
 
 ### Summary → Complete
 14. Summary: count of exercises completed, the ab checkbox again, one row per exercise with sets done, **"Complete workout, progress weight"** primary and **"Review exercises"** secondary.
@@ -63,12 +65,16 @@ Every one of these must exist, unchanged in behavior, on the same screen it is o
 
 | Screen | Worst case | Content height today | Room |
 |---|---|---|---|
-| Exercise | 5 set rows + history + chart + 2-line cue | 725 pt of 730 | **~5 pt** |
-| Day overview | 6 exercises + mobility block | 719 of 738 | ~19 pt |
+| Exercise | 5 set rows + history + chart + 2-line cue + target line | 720 pt of 730 | **10 pt** |
+| Day overview | 6 exercises + mobility block | 719 of 738 | 19 pt |
 | Summary | 6 exercises | 610 of 694 | 84 pt |
-| Home | 6 days + consistency + nudge | ~720 of 818 | ~100 pt |
+| Home | 6 days + consistency bars + backup nudge + both utility rows | 788 of 818 | 30 pt |
+
+These come from `tests/measure.js --seed`, which renders each screen in Chromium at 393×852 with seeded history and the standalone insets applied. Re-run it on any layout proposal.
 
 - The exercise screen has essentially **zero vertical slack**. Any added padding, larger type, or taller cards there must be paid for elsewhere on the same screen. A design that adds 10 pt per set row is 50 pt over.
+- **One layout for all exercises.** Sizes do not change with the number of sets (see §1). A 3-set exercise shows the same 44 px steppers and 18 px numerals as a 5-set one and leaves the bottom of the screen empty.
+- The compiled stylesheet contains only the Tailwind classes the app already uses. A new utility class is silently ignored at runtime — one such class once collapsed every set row in Safari while passing the DOM tests. Anything new must be an inline style, and `tests/measure.js` is the check.
 - Content must never sit under the Dynamic Island or the home indicator.
 
 ### Touch targets
