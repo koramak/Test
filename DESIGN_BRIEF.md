@@ -100,6 +100,24 @@ Explicitly **not** wanted: pill buttons for primary actions (rejected last time)
 
 ---
 
+## 4b. Reference screenshots (attach these to the design session)
+
+`design/current-screens/` holds the app as it is today, rendered at iPhone 16 Pro size (2×) with representative history so the last-workout row, chart, and consistency bars are visible:
+
+| File | Screen | What to notice |
+|---|---|---|
+| `program_select.png` | Program picker | Two programs share every screen |
+| `home.png` | Home | 6 day rows, consistency bars, backup nudge, both utility rows |
+| `day_overview.png` | Day overview, 5 exercises | Mobility block, ab checkbox, "?" per row, superset ⇄ marker |
+| `day_overview_lower_power.png` | Day overview, 6 exercises | The tight case — 19 pt spare |
+| `exercise_deadlift_with_history.png` | Logging, worst case | 5 set rows + last-workout chips + chart + suggestion + target line — 10 pt spare |
+| `summary_6_exercises.png` | Summary | — |
+| `complete.png` | Complete | — |
+
+Design *from* these, not from memory of other fitness apps. Every element visible in them must be visible in your screens.
+
+Two rendering caveats: the screenshots come from headless Chromium on Linux, so the font is a generic sans rather than SF Pro, and the 59 pt status-bar inset is not drawn (on the phone, everything sits 59 pt lower under the Dynamic Island). Layout, spacing, and hit sizes are exact.
+
 ## 5. Deliverables
 
 1. **Tokens**: color, type scale (size/weight/line-height), spacing scale, radius scale — as a table.
