@@ -1795,7 +1795,7 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
                           <div className="flex-1 text-center text-lg font-bold text-zinc-100">{set.reps}</div>
                           <StepBtn onClick={() => updateSet(i, 'reps', set.reps + 1)}>+</StepBtn>
                         </div>
-                        {i > 0 && !set.completed && (
+                        {i > 0 && !set.completed ? (
                           <button
                             onClick={() => copyPreviousSet(i)}
                             className="w-8 h-11 rounded flex items-center justify-center text-zinc-600 hover:text-zinc-400 active:scale-90"
@@ -1803,6 +1803,8 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
                           >
                             <Copy className="w-3.5 h-3.5" />
                           </button>
+                        ) : (
+                          <div className="w-8 h-11 flex-shrink-0" />
                         )}
                       </div>
                     </div>
