@@ -1,0 +1,15 @@
+{
+  "artboards": [
+    { "file": "Home.dc.html", "x": 0, "y": 0, "w": 393, "h": 852, "title": "Home — current" },
+    { "file": "DayOverview.dc.html", "x": 473, "y": 0, "w": 393, "h": 852, "title": "Day overview — current" },
+    { "file": "Main.dc.html", "x": 946, "y": 0, "w": 393, "h": 852, "title": "Exercise — current (the base to restyle)" },
+    { "file": "Summary.dc.html", "x": 1419, "y": 0, "w": 393, "h": 852, "title": "Summary — current" },
+    { "file": "DirectionA.dc.html", "x": 946, "y": 992, "w": 393, "h": 852, "title": "Direction A — Warm graphite" },
+    { "file": "DirectionB.dc.html", "x": 1419, "y": 992, "w": 393, "h": 852, "title": "Direction B — Ink & outline" }
+  ],
+  "annotations": [
+    { "id": "brief-rules", "x": 0, "y": 992, "w": 420, "text": "VISUAL REFRESH ONLY — the contract\n\nEvery element on the four current screens must survive, on the same screen, with the same behavior. Recolor, retype, respace, reshape: yes. Remove, move, merge, or change how anything works: no.\n\nExercise screen must keep: every set as its own editable row (up to 5), complete toggle that also un-toggles, weight and reps − / +, copy-previous-set, Prev / Skip / Next, alternate-exercise toggle, cue + target line, last-workout chips, progress chart, suggestion banner, collapsed notes row with the \"Last time:\" preview, W warm-up marking.\n\nWhy: the last redesign looked great and broke all of this in the gym." },
+    { "id": "budget", "x": 470, "y": 992, "w": 400, "text": "HARD LIMITS\n\niPhone 16 Pro home-screen app, no vertical scrolling. The exercise screen (worst case, above right) has ~10 px of slack — anything taller must be paid for on the same screen.\n\nOne fixed layout for all exercises: sizes never change with the number of sets. Shorter exercises leave room at the bottom on purpose.\n\nHit sizes stay: steppers 44×44, set toggle 36×44, prev/next 64×64, ? 36×36.\n\nNo pills for primary buttons, no fake status bar, no tabs, no timer.\n\nDirections A and B below are two honest starting points — restyle either, or the current screen, in place." }
+  ],
+  "launch": { "view": "canvas" }
+}
