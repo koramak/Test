@@ -88,11 +88,13 @@ Every one of these must exist, unchanged in behavior, on the same screen it is o
 
 | Screen | Worst case | Content height today | Room |
 |---|---|---|---|
-| Exercise | 5 set rows + history + chart + 2-line cue + target line + effort chips | 719 pt of 730 | **11 pt** |
-| Exercise (superset) | 3 + 3 set rows, both with history | 710 of 730 | 20 pt |
-| Day overview | 6 exercises + mobility block | 719 of 738 | 19 pt |
-| Summary | 6 exercises | 610 of 694 | 84 pt |
-| Home | 6 days + consistency bars + backup nudge + both utility rows | 808 of 818 | **10 pt** |
+| Exercise | 5 set rows + history + chart + verdict + note row + effort chips | 715 pt of 723 | **8 pt** |
+| Exercise (superset) | 3 + 3 set rows, both with history | 714 of 723 | 9 pt |
+| Exercise (six sets) | Sled Push, Day 6: 6 set rows + history + chart, tighter gaps | 719 of 723 | **4 pt** |
+| Day overview | 6 exercises + mobility block | 733 of 738 | **5 pt** |
+| Day overview (Peach Protocol) | 8 exercises, no mobility block | 735 of 738 | **3 pt** |
+| Summary | 6 exercises | 636 of 674 | 38 pt |
+| Home | 6 days + consistency bars + backup nudge + both utility rows | 809 of 818 | **9 pt** |
 
 These come from `tests/measure.js --seed` (`npm run measure`), which renders each screen in Chromium at 393×852 with seeded history and the standalone insets applied. It also checks the touch-target sizes below and exits non-zero if a screen overflows or a target shrinks. Re-run it on any layout proposal.
 
@@ -134,8 +136,11 @@ Explicitly **not** wanted: pill buttons for primary actions (rejected last time)
 | `home.png` | Home | 6 day rows with "days ago", the Next badge, consistency bars, backup nudge, both utility rows (History is new) |
 | `day_overview.png` | Day overview, 5 exercises | Mobility block, ab checkbox, "?" per row, superset ⇄ marker |
 | `day_overview_info_sheet.png` | "?" bottom sheet | Description, rep-range and increment chips |
-| `day_overview_lower_power.png` | Day overview, 6 exercises | The tight case — 19 pt spare |
-| `exercise_deadlift_with_history.png` | Logging, worst case | 5 set rows + last-workout chips + chart + suggestion + target line + effort chips — 11 pt spare |
+| `day_overview_lower_power.png` | Day overview, 6 exercises | The tight case — 5 pt spare |
+| `day_overview_peach_8_exercises.png` | Day overview, Peach Protocol | 8 exercises; not drawn in the design round — 3 pt spare |
+| `exercise_deadlift_with_history.png` | Logging, worst case | 5 set rows + last-workout chips + chart + verdict + note row + effort chips, 87 px bottom bar — 8 pt spare |
+| `exercise_note_expanded.png` | Logging, note open | Not drawn in the design round; tokens applied |
+| `exercise_sled_push_6_sets.png` | Logging, six sets | The tighter-gap layout — 4 pt spare |
 | `exercise_superset_pair.png` | Logging, superset | Two compact panels on one screen; first set checked, Easy selected |
 | `summary_6_exercises.png` | Summary | — |
 | `complete.png` | Complete | — |
@@ -157,7 +162,7 @@ Two rendering caveats: the screenshots come from headless Chromium on Linux, so 
 
 ## 6. Acceptance checklist (the implementer will test these)
 
-- [ ] `cd tests && npm test` passes unchanged: walkthrough (25 functional checks, and it fails if `workout-tracker.html` was not rebuilt from `src/`), migration (19), engine (35).
+- [ ] `cd tests && npm test` passes: walkthrough (26 functional checks, and it fails if `workout-tracker.html` was not rebuilt from `src/`), migration (19), engine (40).
 - [ ] `npm run measure` ends with "All screens fit and all touch targets hold".
 - [ ] All hit sizes in §3 preserved (measured, not eyeballed).
 - [ ] A lifter who used the app last week can find every control without hunting.
