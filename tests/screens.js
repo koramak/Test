@@ -22,7 +22,10 @@ const seed = {
     lean_tri_ext: [three('Leaning Tricep Extension', 30, [10, 9, 8], 23), three('Leaning Tricep Extension', 30, [12, 11, 10], 16), three('Leaning Tricep Extension', 30, [13, 12, 12], 9, { notes: 'rope, step out one pace' })],
     high_rep_curl: [three('EZ Bar Curl', 55, [7, 6, 6], 23), three('EZ Bar Curl', 55, [8, 8, 7], 16), three('EZ Bar Curl', 55, [9, 8, 8], 9)],
     incline_db: [23, 16, 9].map((n, k) => entry('Incline Dumbbell Press (30°)', [set(30, 10, { warmup: true }), set(50, 7 + k), set(50, 7 + k), set(50, 6 + k)], n)),
-    lateral_raise: [entry('Lateral Raise + Bent-Over Fly', [set(10, 8), set(10, 7)], 9, { effort: 'easy' })] } }
+    lateral_raise: [entry('Lateral Raise + Bent-Over Fly', [set(10, 8), set(10, 7)], 9, { effort: 'easy' })] } },
+  day6: { sessions: [{ date: day(7), absDone: true, durationMin: 44 }], exercises: {
+    sled_push: [28, 21, 14, 7].map((n, k) => entry('Sled Push', Array(6).fill(0).map(() => set([70, 80, 80, 90][k], 50)), n)),
+    sled_drag: [entry('Backward Sled Drag', [set(70, 90), set(70, 90), set(70, 85), set(70, 80)], 7)] } }
 };
 (async () => {
   const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || '/opt/pw-browsers/chromium', args: ['--no-sandbox'] });
@@ -41,15 +44,20 @@ const seed = {
   await tap('Leaning Tricep Extension'); await page.waitForSelector('.set-row');
   await page.click('.set-row button'); await page.click('.effort-chips button');
   await shot('exercise_superset_pair');
-  await page.click('button.p-1'); await tap('Back');
+  await page.click('.nav-back'); await tap('Back');
+  await tap('Strongman Conditioning'); await tap('Sled Push'); await page.waitForSelector('.set-row');
+  await page.click('.set-row button'); await shot('exercise_sled_push_6_sets');
+  await page.click('.nav-back'); await tap('Back');
   await tap('Lower Power'); await shot('day_overview_lower_power');
-  await tap('Begin Workout'); await page.waitForSelector('text=LOG YOUR SETS');
+  await tap('Begin Workout'); await page.waitForSelector('.set-row');
   for (const b of (await page.$$('.set-row')).slice(0, 3)) await (await b.$('button')).click();
   await shot('exercise_deadlift_with_history');
-  for (let i = 0; i < 6 && await page.$('.set-row'); i++) await page.click('button:has-text("›")');
+  await page.click('.nav-note'); await page.fill('textarea', 'Straps on set 3'); await shot('exercise_note_expanded'); await tap('Done');
+  for (let i = 0; i < 6 && await page.$('.set-row'); i++) await page.click('.nav-next');
   await shot('summary_6_exercises');
   await tap('Complete workout'); await shot('complete');
   await tap('Done'); await tap('History'); await shot('history');
   await page.click('.history-row >> nth=1'); await shot('history_session');
+  await tap('Back'); await tap('Back'); await tap('Switch program'); await tap('Peach Protocol'); await tap('Lower Volume'); await shot('day_overview_peach_8_exercises');
   await browser.close();
 })();

@@ -18,6 +18,9 @@ let failures = 0;
     const entry = (w, r, n, extra = {}) => ({ exerciseName: 'x', usedAlt: false, weight: w, sets: [{ weight: Math.round(w*0.5), reps: 5, completed: true, warmup: true }, { weight: Math.round(w*0.7), reps: 3, completed: true, warmup: true }, { weight: w, reps: r, completed: true }, { weight: w, reps: r, completed: true }, { weight: w, reps: r, completed: true }], date: day(n), skipped: false, ...extra });
     const seed = { day2: { exercises: { deadlift: [entry(215, 6, 40), entry(225, 5, 30, { notes: 'belt too loose, tighten before set 2' }), entry(230, 5, 20), entry(235, 4, 10)] }, sessions: [{ date: day(10), absDone: true }, { date: day(20), absDone: true }, { date: day(30), absDone: false }] } };
     // History for a superset pair, so the two-panel screen is measured at its tallest
+    // Six set rows with history: Sled Push on Day 6, the one exercise with the tighter layout
+    const six = (w, n) => ({ exerciseName: 'Sled Push', usedAlt: false, weight: w, sets: Array(6).fill(0).map(() => ({ weight: w, reps: 50, completed: true })), date: day(n), skipped: false });
+    seed.day6 = { exercises: { sled_push: [six(70, 33), six(80, 26), six(80, 19), six(90, 12)] }, sessions: [{ date: day(12), absDone: true }] };
     seed.day2.exercises.leg_curl = [entry(90, 10, 10, { notes: 'pad one notch back' })];
     seed.day2.exercises.leg_ext = [entry(100, 12, 10)];
     await ctx.addInitScript((v) => { localStorage.setItem('workoutLog_4day', v); }, JSON.stringify(seed));
@@ -69,12 +72,12 @@ let failures = 0;
     }
   };
   const loggingTargets = [
-    ['set toggle', '.set-row > div > button:first-child', null, 36, 44],
+    ['set toggle', '.set-row .set-toggle', null, 36, 44],
     ['stepper −', '.set-row button', '−', 44, 44],
     ['stepper +', '.set-row button', '+', 44, 44],
-    ['prev', 'button', '‹', 64, 64],
-    ['next', 'button', '›', 64, 64],
-    ['skip', 'button', 'Skip*', 40, 32],
+    ['prev', '.nav-prev', null, 64, 87],
+    ['skip', '.nav-skip', null, 64, 87],
+    ['next', '.nav-next', null, 64, 87],
     ['effort chip', '.effort-chips button', null, 40, 26]
   ];
 
@@ -91,16 +94,26 @@ let failures = 0;
   await report(process.argv.includes('--seed') ? 'exercise-deadlift-5-sets-WITH-history' : 'exercise-deadlift-5-sets');
   await sizes('exercise', loggingTargets);
   // Superset pair (leg curl + leg extension): two panels on one screen
-  for (let i = 0; i < 3; i++) await click('›');
+  const next = async () => { const b = await page.$('.nav-next'); if (!b) return false; await b.click(); await page.waitForTimeout(400); return true; };
+  for (let i = 0; i < 3; i++) await next();
   await report('exercise-superset-pair');
   await sizes('superset', loggingTargets);
   // Walk to summary and complete (worst case: 6-exercise day)
-  for (let i = 0; i < 8; i++) { const ok = await click('›'); if (!ok) break; }
+  for (let i = 0; i < 8; i++) { const ok = await next(); if (!ok) break; }
   await page.waitForTimeout(400);
   await report('summary-6-exercises');
   await click('Complete workout');
   await page.waitForTimeout(600);
   await report('complete');
+  // Six-set layout (Sled Push, Day 6)
+  await click('Done'); await click('Strongman Conditioning');
+  await page.click('.exercise-row'); await page.waitForTimeout(500);
+  await report('exercise-sled-push-6-sets');
+  await sizes('six sets', loggingTargets);
+  // Peach Protocol's longest day (8 exercises): not drawn in the design round, must still fit
+  await page.click('.nav-back'); await page.waitForTimeout(300);
+  await click('Back'); await click('Switch program'); await click('Peach Protocol'); await click('Lower Volume');
+  await report('day-overview-peach-8-exercises');
   await browser.close();
   console.log(failures ? `\n${failures} check(s) FAILED` : '\nAll screens fit and all touch targets hold');
   process.exit(failures ? 1 : 0);

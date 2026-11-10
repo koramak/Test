@@ -1,23 +1,5 @@
 const { useState, useEffect } = React;
 
-// Icons
-const ChevronLeft = ({ className }) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>;
-const ChevronRight = ({ className }) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>;
-const Check = ({ className }) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>;
-const Dumbbell = ({ className }) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7h2v10H4zM18 7h2v10h-2zM6 9h2v6H6zM16 9h2v6h-2zM8 11h8v2H8z" /></svg>;
-const Trophy = ({ className }) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15l-2 5h4l-2-5zM8 15H5a2 2 0 01-2-2V6a2 2 0 012-2h3M16 15h3a2 2 0 002-2V6a2 2 0 00-2-2h-3M8 4h8v7a4 4 0 01-8 0V4z" /></svg>;
-const RotateCcw = ({ className }) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>;
-const Download = ({ className }) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>;
-const Sparkles = ({ className }) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3l.5 2M3 5l2 .5M5 7l-.5 2M7 5l-2-.5M12 3l1 4 4 1-4 1-1 4-1-4-4-1 4-1 1-4zM19 13l.5 2m-2.5.5l2 .5m-.5 2l-.5-2m-2-.5l2-.5" /></svg>;
-const TrendingUp = ({ className, style }) => <svg className={className} style={style} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>;
-const TrendingDown = ({ className, style }) => <svg className={className} style={style} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 17h8m0 0v-8m0 8l-8-8-4 4-6-6" /></svg>;
-const Minus = ({ className, style }) => <svg className={className} style={style} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" /></svg>;
-const StickyNote = ({ className }) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>;
-const Play = ({ className }) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>;
-const Swap = ({ className }) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" /></svg>;
-const Copy = ({ className }) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>;
-const SkipForward = ({ className }) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" /></svg>;
-
 // Exercise descriptions and demo links; the source is noted per entry
 const exerciseMedia = {
   incline_machine: { description: 'Set the machine or Smith to about 30°. Elbows tucked ~45°, press through the upper chest and let the handles sink to a full stretch at the bottom. Third upper-chest exposure in the loop, so it is safe to push to 0-1 reps in reserve.', source: 'YouTube (exercise demonstration)', youtube: 'https://www.youtube.com/watch?v=7_scLkTCwTU' },
@@ -208,7 +190,7 @@ const runProgression = (config, lastSession) => {
     const assist = sets[0]?.weight ?? 0;
     if (hitTop) {
       return assist <= 0
-        ? { action: 'maintain', reason: `Bodyweight × ${high}+! Time to switch to weighted` }
+        ? { action: 'maintain', addWeight: true, reason: `Bodyweight × ${high}+! Time to switch to weighted` }
         : { action: 'decrease', amount: inc, isProgress: true, reason: `Hit ${high}+ on every set → Reduce assistance ${inc} lbs` };
     }
     if (avgReps < low) return { action: 'increase', amount: inc, isRegress: true, reason: `Below ${low} reps → Add ${inc} lbs assistance` };
@@ -227,19 +209,125 @@ const runProgression = (config, lastSession) => {
       ? { action: 'decrease', amount: load - down, reason: `Below ${low} reps → Drop ${load - down} lbs` }
       : { action: 'regress', reason: `Below ${low} reps → Use an easier variation` };
   }
-  if (easy && avgReps >= low) return { action: 'maintain', reason: `Felt easy last time → push for ${high} on every set` };
+  if (easy && avgReps >= low) return { action: 'maintain', pushReps: true, reason: `Felt easy last time → push for ${high} on every set` };
   return { action: 'maintain', reason: config.cue || 'Building within rep range' };
 };
 
 // Per-exercise overrides in workout data (exercise.progression) win over the
 // shared config, so the same movement can be strength-biased in one program
 // and hypertrophy-biased in another without forking its logged history.
+// The one-line verdict shown on the logging screen. Wording agreed with the lifter:
+// four standard labels, two for assisted lifts (where the logged number is machine
+// assistance and going DOWN is progress), and three that explain a special case.
+const verdictFor = (p) => {
+  const v = (label, glyph, tone = 'accent') => ({ label, glyph, tone });
+  if (p.kind === 'light') return v(`Light day · ${Math.round(p.config.pct * 100)}%`, 'dash');
+  if (p.kind === 'first') return v('First session', 'dash');
+  if (p.kind === 'skipped') return v('Skipped last time', 'dash');
+  if (p.config.assisted && p.action === 'decrease') return v('Less assist', 'up');
+  if (p.config.assisted && p.action === 'increase') return v('More assist', 'down', 'warn');
+  if (p.action === 'increase' || p.addWeight) return v('Raise weight', 'up');
+  if (p.action === 'decrease' || p.action === 'regress') return v('Lower weight', 'down', 'warn');
+  if (p.action === 'progress' || p.pushReps) return v('Raise reps', 'plus');
+  return v('Hold', 'dash');
+};
+
 const getExerciseConfig = (exercise) => ({
   ...(progressionConfig[exercise.id] || defaultProgressionConfig),
   ...(exercise.progression || {})
 });
 
-const muscleColors = { shoulders: '#f97316', triceps: '#ef4444', chest: '#ec4899', upperChest: '#f472b6', lats: '#8b5cf6', traps: '#a855f7', biceps: '#3b82f6', rearDelts: '#f59e0b', sideDelts: '#fb923c', forearms: '#6366f1', abs: '#10b981', hamstrings: '#14b8a6', glutes: '#06b6d4', quads: '#22d3d1', calves: '#84cc16' };
+// ---------------------------------------------------------------------------
+// Visual system (design/handoff/HANDOFF.md). Everything is an inline style: the
+// compiled stylesheet only holds the Tailwind classes that existed before the
+// refresh, so a new class would be silently ignored on the phone.
+// ---------------------------------------------------------------------------
+const T = {
+  bg: '#111318', surface: '#1a1d24', line: '#2a2f39', lineStrong: '#3a4150',
+  ink: '#e3e6ec', ink2: '#b6bcc8', ink3: '#8b93a3', ink4: '#5e6676',
+  accent: '#6fb3ff', warn: '#ef7d5a',
+  primaryBg: '#e3e6ec', primaryInk: '#111318', primaryInk2: '#4a5160'
+};
+const tint = (a) => `rgba(111,179,255,${a})`;
+const warnTint = (a) => `rgba(239,125,90,${a})`;
+const FONT = "-apple-system, 'SF Pro Text', system-ui, sans-serif";
+const DISPLAY = "'SF Pro Display', -apple-system, system-ui, sans-serif";
+// Type roles
+const TY = {
+  screenTitle: { fontFamily: DISPLAY, fontWeight: 700, fontSize: 20, lineHeight: '28px', letterSpacing: -0.3, color: T.ink, margin: 0 },
+  rowTitle: { fontWeight: 600, fontSize: 14, lineHeight: '18px', color: T.ink },
+  label: { fontWeight: 600, fontSize: 10, lineHeight: '14px', textTransform: 'uppercase', letterSpacing: 0.6, color: T.ink3 },
+  accentLabel: { fontWeight: 600, fontSize: 10, lineHeight: '12px', textTransform: 'uppercase', letterSpacing: 0.6, color: T.accent },
+  subtitle: { fontWeight: 400, fontSize: 12, lineHeight: '16px', color: T.ink3, margin: 0 },
+  note: { fontWeight: 400, fontSize: 11, lineHeight: '16px' },
+  meta: { fontWeight: 400, fontSize: 10, lineHeight: '14px', color: T.ink3 }
+};
+const ellipsis = { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' };
+const card = { background: T.surface, border: `1px solid ${T.line}`, borderRadius: 8 };
+const pressable = 'transition-all active:scale-[0.98]';
+// Present for the tests and screen readers, invisible on screen
+const srOnly = { position: 'absolute', width: 1, height: 1, overflow: 'hidden', clip: 'rect(0 0 0 0)', whiteSpace: 'nowrap' };
+
+// Icons: one stroke style, sized in px
+const Ico = ({ d, size = 16, stroke = 2, style }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, display: 'block', ...style }}>
+    {[].concat(d).map((p, i) => <path key={i} d={p} />)}
+  </svg>
+);
+const ChevronLeft = (p) => <Ico d="M15 19l-7-7 7-7" {...p} />;
+const ChevronRight = (p) => <Ico d="M9 5l7 7-7 7" {...p} />;
+const Check = (p) => <Ico d="M5 13l4 4L19 7" {...p} />;
+const Dumbbell = (p) => <Ico d={['M6.5 6.5v11', 'M17.5 6.5v11', 'M3.5 9.5v5', 'M20.5 9.5v5', 'M6.5 12h11']} {...p} />;
+const Trophy = (p) => <Ico d={['M6 9H4.5a2.5 2.5 0 010-5H6', 'M18 9h1.5a2.5 2.5 0 000-5H18', 'M4 22h16', 'M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22', 'M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22', 'M18 2H6v7a6 6 0 0012 0V2z']} {...p} />;
+const RotateCcw = (p) => <Ico d={['M3 12a9 9 0 109-9 9.75 9.75 0 00-6.74 2.74L3 8', 'M3 3v5h5']} {...p} />;
+const Download = (p) => <Ico d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" {...p} />;
+const Sparkles = (p) => <Ico d="M12 3l-1.9 5.8a2 2 0 01-1.3 1.3L3 12l5.8 1.9a2 2 0 011.3 1.3L12 21l1.9-5.8a2 2 0 011.3-1.3L21 12l-5.8-1.9a2 2 0 01-1.3-1.3L12 3z" {...p} />;
+const Minus = (p) => <Ico d="M6 12h12" {...p} />;
+const Plus = (p) => <Ico d={['M12 6v12', 'M6 12h12']} {...p} />;
+const ArrowUp = (p) => <Ico d={['M12 19V5', 'M6 11l6-6 6 6']} {...p} />;
+const ArrowDown = (p) => <Ico d={['M12 5v14', 'M6 13l6 6 6-6']} {...p} />;
+const TrendingUp = ArrowUp;
+const TrendingDown = ArrowDown;
+const Pencil = (p) => <Ico d={['M12 20h9', 'M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4L16.5 3.5z']} {...p} />;
+const Swap = (p) => <Ico d={['M17 2l4 4-4 4', 'M3 11v-1a4 4 0 014-4h14', 'M7 22l-4-4 4-4', 'M21 13v1a4 4 0 01-4 4H3']} {...p} />;
+const Copy = (p) => <Ico d={['M9 9h10a2 2 0 012 2v8a2 2 0 01-2 2H11a2 2 0 01-2-2V9z', 'M5 15H4a2 2 0 01-2-2V5a2 2 0 012-2h8a2 2 0 012 2v1']} {...p} />;
+const SkipForward = (p) => <Ico d={['M13 17l5-5-5-5', 'M6 17l5-5-5-5']} {...p} />;
+
+// Page frame. The top inset (safe area + 12) comes from the `#root > div` rule in
+// shell.html; screens other than the logging ones start 4 px lower (16 in total).
+// Fixed bars must be direct children of the inner div: tests/measure.js reads them there.
+const Page = ({ pad = 16, bottom = 0, center, children }) => (
+  <div style={{ minHeight: '100vh', boxSizing: 'border-box', background: T.bg, color: T.ink, fontFamily: FONT, paddingLeft: pad, paddingRight: pad, paddingBottom: bottom, ...(center ? { display: 'flex', alignItems: 'center', justifyContent: 'center' } : {}) }}>
+    <div style={{ maxWidth: 448, width: '100%', margin: '0 auto', paddingTop: pad === 12 ? 0 : 4 }}>{children}</div>
+  </div>
+);
+const BackLink = ({ onClick, gap = 16 }) => (
+  <button onClick={onClick} style={{ display: 'flex', alignItems: 'center', gap: 4, fontWeight: 600, fontSize: 14, lineHeight: '20px', color: T.ink3, marginBottom: gap }}><ChevronLeft size={16} /> Back</button>
+);
+// Fixed bar that holds a screen's primary action(s) above the home indicator
+const ActionBar = ({ children }) => (
+  <div style={{ position: 'fixed', left: 0, right: 0, bottom: 0, padding: 12, paddingBottom: 'calc(12px + env(safe-area-inset-bottom, 0px))', background: `linear-gradient(to top, ${T.bg} 70%, rgba(17,19,24,0))` }}>
+    <div style={{ maxWidth: 448, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 8 }}>{children}</div>
+  </div>
+);
+const PrimaryButton = ({ onClick, height = 48, children }) => (
+  <button onClick={onClick} className={pressable} style={{ width: '100%', height, borderRadius: 12, background: T.primaryBg, color: T.primaryInk, fontWeight: 700, fontSize: 15, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>{children}</button>
+);
+const SecondaryButton = ({ onClick, height = 50, children }) => (
+  <button onClick={onClick} className={pressable} style={{ width: '100%', height, borderRadius: 12, background: T.surface, border: `1px solid ${T.lineStrong}`, color: T.ink, fontWeight: 600, fontSize: 14 }}>{children}</button>
+);
+// Checkbox row for the pre-workout ab routine (day overview and summary)
+const AbRow = ({ done, onToggle, sub, gap }) => (
+  <button onClick={onToggle} className={pressable} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 10, padding: '8px 12px', marginBottom: gap, textAlign: 'left', borderRadius: 8, background: done ? tint(0.10) : T.surface, border: `1px solid ${done ? tint(0.55) : T.line}` }}>
+    <div style={{ width: 24, height: 24, borderRadius: 4, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: done ? T.accent : T.line, border: `1px solid ${done ? T.accent : T.lineStrong}`, color: T.primaryInk }}>
+      {done ? <Check size={14} stroke={3.5} /> : null}
+    </div>
+    <div style={{ flex: 1, minWidth: 0 }}>
+      <div style={{ ...TY.rowTitle, lineHeight: '20px' }}>Pre-workout ab routine</div>
+      <div style={TY.meta}>{sub}</div>
+    </div>
+  </button>
+);
 
 // Epley estimate of a one-rep max from one set
 const e1rm = (s) => s.weight * (1 + s.reps / 30);
@@ -250,85 +338,167 @@ const e1rm = (s) => s.weight * (1 + s.reps / 30);
 const sessionMetric = (entry, config) => {
   const sets = getPerformedSets(entry);
   if (sets.length === 0) return null;
-  if (config.assisted || config.progressionType === 'distance-first' || config.progressionType === 'time-first') return { v: sets[0].weight, label: 'LOAD', unit: ' lb' };
-  if (Math.max(...sets.map(s => s.weight)) <= 0) return { v: Math.max(...sets.map(s => s.reps)), label: 'BEST REPS', unit: '' };
+  if (config.assisted || config.progressionType === 'distance-first' || config.progressionType === 'time-first') return { v: sets[0].weight, label: 'Load', unit: ' lb' };
+  if (Math.max(...sets.map(s => s.weight)) <= 0) return { v: Math.max(...sets.map(s => s.reps)), label: 'Best reps', unit: '' };
   const best = Math.max(...sets.map(e1rm));
-  return { v: best < 50 ? Math.round(best * 10) / 10 : Math.round(best), label: 'EST. 1RM', unit: ' lb' };
+  return { v: best < 50 ? Math.round(best * 10) / 10 : Math.round(best), label: 'Est. 1RM', unit: ' lb' };
 };
 
 // Trend across all logged sessions. For assisted exercises the load going DOWN is progress.
-const ProgressSpark = ({ entries, accent, config }) => {
-  const all = entries.filter(e => !e.skipped).map(e => ({ d: new Date(e.date), m: sessionMetric(e, config) })).filter(p => p.m);
-  const kind = all.length ? all[all.length - 1].m.label : null;
-  const pts = all.filter(p => p.m.label === kind);
+const ProgressSpark = ({ entries, config, gap }) => {
+  const all = entries.filter(e => !e.skipped).map(e => sessionMetric(e, config)).filter(Boolean);
+  const kind = all.length ? all[all.length - 1].label : null;
+  const pts = all.filter(m => m.label === kind);
   if (pts.length < 3) return null;
-  const unit = pts[0].m.unit;
-  const ws = pts.map(p => p.m.v);
+  const unit = pts[0].unit;
+  const ws = pts.map(m => m.v);
   const min = Math.min(...ws), max = Math.max(...ws);
   const span = Math.max(max - min, 1);
-  const W = 280, H = 24, P = 4;
-  const x = (i) => P + (i / (pts.length - 1)) * (W - 2 * P);
+  const W = 280, H = 24, P = 5;
+  const x = (i) => (i / (pts.length - 1)) * W;
   const y = (w) => H - P - ((w - min) / span) * (H - 2 * P);
-  const line = pts.map((p, i) => `${x(i).toFixed(1)},${y(p.m.v).toFixed(1)}`).join(' ');
+  const line = pts.map((m, i) => `${x(i).toFixed(1)},${y(m.v).toFixed(1)}`).join(' ');
   const delta = Math.round((ws[ws.length - 1] - ws[0]) * 10) / 10;
   const improved = config.assisted ? delta < 0 : delta > 0;
-  const fmt = (d) => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   return (
-    <div className="mb-2 px-3 py-1.5 rounded-xl bg-zinc-900/50 border border-zinc-800/50">
-      <div className="flex justify-between items-center mb-0.5">
-        <span className="text-[10px] text-zinc-500 font-medium">{kind} · {pts.length} SESSIONS{config.assisted ? ' · LOWER = BETTER' : ''} <span className="text-zinc-600" style={{ fontWeight: 400 }}>· {fmt(pts[0].d)} {ws[0]} → {fmt(pts[pts.length - 1].d)} {ws[ws.length - 1]}{unit}</span></span>
-        <span className={`text-[10px] font-semibold ${improved ? 'text-emerald-400' : delta === 0 ? 'text-zinc-500' : 'text-amber-400'}`}>{delta > 0 ? '+' : ''}{delta}{unit}</span>
+    <div className="progress-spark" style={{ height: 54, boxSizing: 'border-box', padding: '6px 12px', borderRadius: 6, background: T.surface, marginBottom: gap }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, height: 14 }}>
+        <span style={{ ...TY.label, ...ellipsis, flex: 1, minWidth: 0 }}>{kind} · {pts.length} sessions{config.assisted ? ' · lower = better' : ''} · {ws[0]} → {ws[ws.length - 1]}{unit}</span>
+        <span style={{ fontWeight: 700, fontSize: 11, lineHeight: '14px', color: improved ? T.accent : T.ink3, flexShrink: 0 }}>{delta === 0 ? '' : delta > 0 ? '▲ ' : '▼ '}{Math.abs(delta)}{unit}</span>
       </div>
-      <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ height: H }} preserveAspectRatio="none">
-        <polyline points={line} fill="none" stroke={accent} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
-        <circle cx={x(pts.length - 1)} cy={y(ws[ws.length - 1])} r="3" fill={accent} />
-      </svg>
+      {/* The end ring is a div, not an SVG circle: the SVG is stretched to the card width */}
+      <div style={{ position: 'relative', height: H, marginTop: 4, marginRight: 5 }}>
+        <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" style={{ display: 'block', width: '100%', height: H, overflow: 'visible' }}>
+          <line x1="0" y1={H / 2} x2={W} y2={H / 2} stroke={T.line} strokeWidth="1" strokeDasharray="3 4" vectorEffect="non-scaling-stroke" />
+          <polyline points={line} fill="none" stroke={T.accent} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+        </svg>
+        <div style={{ position: 'absolute', right: -5, top: y(ws[ws.length - 1]) - 5, width: 10, height: 10, boxSizing: 'border-box', borderRadius: 5, background: T.bg, border: `2px solid ${T.accent}` }} />
+      </div>
     </div>
   );
 };
 
-// One loggable set: check button, weight stepper, reps stepper. Shared by the workout
-// screen and the history editor.
-const SetRow = ({ set, label, accent, config, onToggle, onChange, onCopy }) => (
-  <div className={`set-row rounded-lg border ${set.completed ? 'border-emerald-500/50 bg-emerald-500/10' : set.warmup ? 'border-amber-500/30 bg-amber-500/5' : 'border-zinc-800/50 bg-zinc-900/30'}`} style={{ padding: '3px 6px' }}>
-    <div className="flex items-center gap-2">
-      <button onClick={onToggle} className={`w-9 h-11 rounded-lg flex items-center justify-center transition-all active:scale-90 flex-shrink-0 text-xs font-bold ${set.completed ? 'bg-emerald-500 text-white' : set.warmup ? 'bg-amber-500/20 text-amber-400' : 'bg-zinc-800 text-zinc-500'}`}>
-        {set.completed ? <Check className="w-4 h-4" /> : label}
-      </button>
-      <div className="flex items-center gap-1 flex-1">
-        <StepBtn accent={accent} onClick={() => onChange('weight', stepWeight(config, set.weight, -1))}>−</StepBtn>
-        <div className="flex-1 text-center text-lg font-bold text-zinc-100">{set.weight}</div>
-        <StepBtn accent={accent} onClick={() => onChange('weight', stepWeight(config, set.weight, 1))}>+</StepBtn>
-      </div>
-      <div className="w-px h-6 bg-zinc-800" />
-      <div className="flex items-center gap-1 flex-1">
-        <StepBtn accent={accent} onClick={() => onChange('reps', Math.max(1, set.reps - 1))}>−</StepBtn>
-        <div className="flex-1 text-center text-lg font-bold text-zinc-100">{set.reps}</div>
-        <StepBtn accent={accent} onClick={() => onChange('reps', set.reps + 1)}>+</StepBtn>
-      </div>
-      {onCopy ? (
-        <button onClick={onCopy} className="w-8 h-11 rounded flex items-center justify-center text-zinc-600 hover:text-zinc-400 active:scale-90" title="Copy previous set">
-          <Copy className="w-3.5 h-3.5" />
-        </button>
-      ) : (
-        <div className="w-8 h-11 flex-shrink-0" />
-      )}
-    </div>
+// Last-session chips: a filled dot for a working set, a hollow one for a warm-up
+const LastChips = ({ sets, tight }) => (sets || []).map((s, i) => (
+  <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: 4, height: 18, boxSizing: 'border-box', padding: tight ? '0 5px' : '0 7px', borderRadius: 9, flexShrink: 0, fontWeight: 600, fontSize: 10, fontVariantNumeric: 'tabular-nums', ...(s.warmup ? { border: `1px solid ${T.lineStrong}`, color: T.ink3 } : { background: T.line, color: T.ink }) }}>
+    <span style={{ width: 5, height: 5, boxSizing: 'border-box', borderRadius: 3, ...(s.warmup ? { border: `1px solid ${T.ink3}` } : { background: s.completed ? T.accent : T.ink4 }) }} />
+    {s.weight}×{s.reps}
+  </span>
+));
+
+// The 44 x 44 cell on either side of a dial
+const StepBtn = ({ onClick, side, dim, children }) => (
+  <button onClick={onClick} className="active:scale-90" style={{ width: 44, height: 44, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, fontWeight: 500, lineHeight: 1, color: dim ? T.ink3 : T.ink, [side === 'left' ? 'borderRight' : 'borderLeft']: `1px solid ${T.line}` }}>{children}</button>
+);
+// Minus, value, plus in one housing
+const Dial = ({ value, tone, onMinus, onPlus, style }) => (
+  <div style={{ display: 'flex', alignItems: 'center', height: 44, boxSizing: 'border-box', borderRadius: 8, overflow: 'hidden', background: T.surface, border: `1px solid ${tone === 'done' ? T.accent : tone === 'warmup' ? T.line : T.lineStrong}`, ...style }}>
+    <StepBtn onClick={onMinus} side="left" dim={tone === 'warmup'}>−</StepBtn>
+    <div className="set-value" style={{ flex: '1 1 auto', minWidth: 36, padding: '0 2px', textAlign: 'center', fontFamily: DISPLAY, fontWeight: 700, fontSize: 18, lineHeight: '44px', fontVariantNumeric: 'tabular-nums', color: tone === 'warmup' ? T.ink3 : T.ink }}>{value}</div>
+    <StepBtn onClick={onPlus} side="right" dim={tone === 'warmup'}>+</StepBtn>
   </div>
 );
+
+// One loggable set: toggle, weight dial, reps dial, copy-previous. Shared by the
+// workout screen and the history editor (copy = undefined there: no slot at all).
+const SetRow = ({ set, label, config, onToggle, onChange, onCopy }) => {
+  const tone = set.completed ? 'done' : set.warmup ? 'warmup' : 'working';
+  return (
+    <div className="set-row" style={{ height: 52, boxSizing: 'border-box', padding: '3px 6px', borderRadius: 6, display: 'flex', alignItems: 'center', gap: 8, background: set.completed ? tint(0.08) : 'transparent' }}>
+      <button onClick={onToggle} className="set-toggle w-9 h-11 active:scale-90" style={{ width: 36, height: 44, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <span style={{ width: 24, height: 24, boxSizing: 'border-box', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', ...(set.completed ? { background: T.accent, color: T.primaryInk } : set.warmup ? { border: `1.5px dashed ${T.ink4}`, color: T.ink3, fontWeight: 600, fontSize: 10 } : { border: `2px solid ${T.ink3}`, color: T.ink, fontWeight: 600, fontSize: 11 }) }}>
+          {set.completed ? <Check size={14} stroke={3.5} /> : label}
+        </span>
+      </button>
+      <Dial value={set.weight} tone={tone} style={{ width: 128, minWidth: 'max-content', flex: '0 1 auto' }} onMinus={() => onChange('weight', stepWeight(config, set.weight, -1))} onPlus={() => onChange('weight', stepWeight(config, set.weight, 1))} />
+      <div style={{ width: 1, flexShrink: 0 }} />
+      <Dial value={set.reps} tone={tone} style={{ flex: '1 1 auto', minWidth: 0 }} onMinus={() => onChange('reps', Math.max(1, set.reps - 1))} onPlus={() => onChange('reps', set.reps + 1)} />
+      {onCopy === undefined ? null : onCopy ? (
+        <button onClick={onCopy} className="active:scale-90" title="Copy previous set" style={{ width: 32, height: 44, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.ink3 }}><Copy size={14} /></button>
+      ) : (
+        <div style={{ width: 32, height: 44, flexShrink: 0 }} />
+      )}
+    </div>
+  );
+};
 // Row label: W for warm-ups, otherwise the working-set number
 const setLabel = (sets, i) => sets[i].warmup ? 'W' : i + 1 - sets.slice(0, i).filter(s => s.warmup).length;
 
 // How the last set felt. Optional: untouched means "about right". Easy = 3 or more
 // reps left, Max = nothing left. One tap to set, same tap to clear.
-const EffortChips = ({ value, onChange, accent }) => (
-  <div className="effort-chips flex items-center gap-1 flex-shrink-0">
-    <span className="text-[9px] text-zinc-600">last set</span>
+const EffortChips = ({ value, onChange }) => (
+  <div className="effort-chips" style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+    <span style={{ fontWeight: 500, fontSize: 10, lineHeight: '14px', color: T.ink3 }}>last set</span>
     {[['easy', 'Easy'], ['max', 'Max']].map(([k, label]) => (
-      <button key={k} onClick={() => onChange(value === k ? null : k)} className="rounded-lg text-[10px] font-medium transition-all active:scale-90" style={{ height: 26, padding: '0 10px', border: `1px solid ${value === k ? accent : '#27272a'}`, background: value === k ? `${accent}25` : 'transparent', color: value === k ? accent : '#71717a' }}>{label}</button>
+      <button key={k} onClick={() => onChange(value === k ? null : k)} className="active:scale-90" style={{ height: 26, minWidth: 40, boxSizing: 'border-box', padding: '0 10px', borderRadius: 13, fontWeight: 600, fontSize: 11, border: `1px solid ${value === k ? T.accent : T.lineStrong}`, background: value === k ? tint(0.10) : 'transparent', color: value === k ? T.accent : T.ink2 }}>{label}</button>
     ))}
   </div>
 );
+
+// Today's recommendation as one bold line. The engine's full reason stays on the
+// element as data-reason (never shown) so the tests can still check the rule that fired.
+const VERDICT_GLYPH = { dash: Minus, plus: Plus, up: ArrowUp, down: ArrowDown };
+const Verdict = ({ verdict, reason, inline, gap }) => {
+  const Glyph = VERDICT_GLYPH[verdict.glyph];
+  const color = verdict.tone === 'warn' ? T.warn : T.accent;
+  const ring = inline ? 16 : 28;
+  return (
+    <div className="verdict" data-reason={reason || ''} style={{ display: 'flex', alignItems: 'center', boxSizing: 'border-box', marginBottom: gap, ...(inline ? { height: 18, gap: 6 } : { minHeight: 44, padding: '4px 12px', gap: 10, borderRadius: 6, background: T.surface }) }}>
+      <span style={{ width: ring, height: ring, boxSizing: 'border-box', borderRadius: ring / 2, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', border: `${inline ? 1.5 : 2}px solid ${color}`, color }}><Glyph size={inline ? 9 : 14} stroke={inline ? 3 : 2.5} /></span>
+      <span style={{ ...ellipsis, fontWeight: 600, fontSize: inline ? 12 : 13, lineHeight: '18px', color: T.ink }}>{verdict.label}</span>
+    </div>
+  );
+};
+
+// Collapsed: last session's note (first line) so it can't be missed. Expanded: textarea.
+const NoteRow = ({ open, height, today, previous, onOpen, onClose, onChange, gap }) => {
+  const prev = (previous || '').trim();
+  const prevFirst = prev.split('\n')[0];
+  const todayFirst = (today || '').trim().split('\n')[0];
+  return !open ? (
+    <button onClick={onOpen} className="notes-row" style={{ width: '100%', height, boxSizing: 'border-box', display: 'flex', alignItems: 'center', gap: 8, padding: '0 12px', marginBottom: gap, textAlign: 'left', borderRadius: 6, border: `1px dashed ${T.lineStrong}` }}>
+      <span style={{ color: T.ink3 }}><Pencil size={14} /></span>
+      <span style={{ ...TY.note, ...ellipsis, flex: 1, minWidth: 0 }}>
+        {todayFirst
+          ? <span style={{ color: T.ink }}>{todayFirst}</span>
+          : prevFirst
+          ? <span style={{ color: T.ink2 }}><span style={{ ...TY.label, marginRight: 6 }}>Last time</span>{prevFirst}</span>
+          : <span style={{ color: T.ink3 }}>Add a note…</span>}
+      </span>
+    </button>
+  ) : (
+    <div className="notes-open" style={{ padding: '8px 12px', marginBottom: gap, borderRadius: 6, border: `1px solid ${T.lineStrong}`, background: T.surface }}>
+      {prev && <div style={{ ...TY.note, color: T.ink2, marginBottom: 4 }}><span style={{ ...TY.label, marginRight: 6 }}>Last time</span>{prev}</div>}
+      <textarea value={today || ''} onChange={(e) => onChange(e.target.value)} placeholder="Add workout notes..." rows={3} autoFocus style={{ width: '100%', background: 'transparent', border: 'none', color: T.ink, fontFamily: FONT, fontSize: 14, lineHeight: '20px' }} />
+      <button onClick={onClose} style={{ fontWeight: 600, fontSize: 11, color: T.ink3, marginTop: 4 }}>Done</button>
+    </div>
+  );
+};
+
+// Prev / Skip / Next. Same three controls in the same order; Next names what comes next.
+const BottomBar = ({ onPrev, prevDisabled, onSkip, onNext, next }) => {
+  const side = { width: 64, height: 87, flexShrink: 0, boxSizing: 'border-box', borderRadius: 12, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 4, fontWeight: 600 };
+  return (
+    <div className="bottom-bar" style={{ position: 'fixed', left: 0, right: 0, bottom: 0, paddingBottom: 'env(safe-area-inset-bottom, 0px)', pointerEvents: 'none' }}>
+      <div style={{ maxWidth: 448, margin: '0 auto', boxSizing: 'border-box', padding: '0 16px', height: 87, display: 'flex', gap: 10, pointerEvents: 'auto' }}>
+        <button onClick={onPrev} disabled={prevDisabled} className="nav-prev active:scale-90" style={{ ...side, fontSize: 10, ...(prevDisabled ? { border: `1px solid ${T.line}`, background: 'transparent', color: T.ink4 } : { border: `1px solid ${T.lineStrong}`, background: T.surface, color: T.ink }) }}>
+          <ChevronLeft size={24} />Prev
+        </button>
+        <button onClick={onSkip} className="nav-skip active:scale-90" style={{ ...side, fontSize: 11, border: `1px solid ${T.lineStrong}`, background: T.surface, color: T.ink }}>
+          <SkipForward size={14} />Skip
+        </button>
+        <button onClick={onNext} className="nav-next active:scale-[0.98]" style={{ flex: 1, minWidth: 0, height: 87, boxSizing: 'border-box', borderRadius: 12, padding: '0 16px 0 18px', display: 'flex', alignItems: 'center', gap: 8, textAlign: 'left', background: T.primaryBg, color: T.primaryInk }}>
+          <span style={{ flex: 1, minWidth: 0 }}>
+            <span style={{ display: 'block', fontWeight: 700, fontSize: 10, lineHeight: '12px', textTransform: 'uppercase', letterSpacing: 0.6, color: T.primaryInk2 }}>{next.label}</span>
+            <span style={{ fontFamily: DISPLAY, fontWeight: 700, fontSize: 16, lineHeight: '19px', margin: '2px 0', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{next.name}</span>
+            {next.detail ? <span style={{ display: 'block', ...ellipsis, fontSize: 11, lineHeight: '14px', color: T.primaryInk2 }}>{next.detail}</span> : null}
+          </span>
+          <ChevronRight size={30} stroke={2.5} />
+        </button>
+      </div>
+    </div>
+  );
+};
 
 // A superset pair (adjacent exercises sharing a superset number) is logged on one
 // screen. Returns the exercise positions that belong on the screen for position i.
@@ -364,18 +534,17 @@ const normalizeEntry = (e) => {
   return { ...e, weight: ref[0]?.weight || 0, skipped: !ref.some(s => s.completed) };
 };
 
-// Shown when a write to localStorage failed (storage full or blocked). Inline styles:
-// the static Tailwind build has no red utilities.
+// Shown when a write to localStorage failed (storage full or blocked)
 const StorageWarning = ({ onBackup }) => (
-  <button onClick={onBackup} className="storage-warning mt-2 w-full text-left px-3 py-2 rounded-lg text-[11px]" style={{ border: '1px solid rgba(239,68,68,0.5)', background: 'rgba(239,68,68,0.12)', color: '#fca5a5' }}>
+  <button onClick={onBackup} className="storage-warning" style={{ width: '100%', marginTop: 8, padding: '8px 12px', textAlign: 'left', borderRadius: 8, fontWeight: 600, fontSize: 11, lineHeight: '16px', border: `1px solid ${warnTint(0.55)}`, background: warnTint(0.14), color: T.warn }}>
     Saving to this phone failed, so your latest workout is not stored. Tap here to download a backup now.
   </button>
 );
 
-// +/- stepper button on the set rows
-const StepBtn = ({ onClick, accent, children }) => (
-  <button onClick={onClick} className="w-11 h-11 rounded-lg flex items-center justify-center text-lg font-bold transition-all active:scale-90 flex-shrink-0" style={{ background: `${accent}20`, color: accent }}>{children}</button>
-);
+// Spacing that the design adds on top of the old layout. Home has 10 pt of spare height and
+// the day overview 19, so these are the first things to shrink if `npm run measure` fails.
+const HOME_GAP = 16;
+const DAY_GAPS = { back: 20, header: 20, ab: 16 };
 
 // Workout data
 const workoutData4Day = {
@@ -535,8 +704,8 @@ const retiredExerciseNames = {
 };
 
 const programConfigs = {
-  '4day': { name: "Strongman Hypertrophy", subtitle: "6-Day Rotation · Power + Size + Strongman", data: workoutData4Day, dayCount: 6, icon: Dumbbell, gradient: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)', bgGradient: 'linear-gradient(180deg, #0a0a0f 0%, #0f0f18 100%)', dayAccents: { day1: '#3b82f6', day2: '#10b981', day3: '#8b5cf6', day4: '#f97316', day5: '#ec4899', day6: '#eab308' } },
-  '3day': { name: "Peach Protocol", subtitle: "3-Day Glute & Core Sculpt", data: workoutData3Day, dayCount: 3, icon: Sparkles, gradient: 'linear-gradient(135deg, #f472b6 0%, #fb923c 100%)', bgGradient: 'linear-gradient(180deg, #0f0a0d 0%, #1a0f14 100%)', dayAccents: { day1: '#f472b6', day2: '#fb7185', day3: '#fb923c' } }
+  '4day': { name: "Strongman Hypertrophy", subtitle: "6-Day Rotation · Power + Size + Strongman", data: workoutData4Day, dayCount: 6, icon: Dumbbell },
+  '3day': { name: "Peach Protocol", subtitle: "3-Day Glute & Core Sculpt", data: workoutData3Day, dayCount: 3, icon: Sparkles }
 };
 
 // In-progress workouts are checkpointed to localStorage so a phone refresh or
@@ -672,7 +841,8 @@ function WorkoutApp() {
     return { done: recent.filter(s => s.absDone).length, total: recent.length };
   };
 
-  const calculateProgression = (exercise) => {
+  const calculateProgression = (exercise) => { const p = computeProgression(exercise); return { ...p, verdict: verdictFor(p) }; };
+  const computeProgression = (exercise) => {
     const config = getExerciseConfig(exercise);
     const [low, high] = config.repRange;
     let lastData = getLastSession(exercise.id);
@@ -690,14 +860,14 @@ function WorkoutApp() {
       const parentBase = parentLast ? (getPerformedSets(parentLast)[0]?.weight ?? parentLast.weight) : (parentEx?.defaultWeight ?? exercise.defaultWeight);
       const derived = Math.max(5, Math.round((parentBase * config.pct) / 5) * 5);
       const parentName = (parentEx?.name || config.derivedFrom).split(' / ')[0];
-      return { weight: derived, reps: lastAvgReps ?? high, suggestion: `${Math.round(config.pct * 100)}% of your ${parentName} (${parentBase} lb) — no need to push this`, action: 'maintain', icon: Minus, config, lastWeight: derived, lastSession: lastData };
+      return { weight: derived, reps: lastAvgReps ?? high, suggestion: `${Math.round(config.pct * 100)}% of your ${parentName} (${parentBase} lb) — no need to push this`, action: 'maintain', kind: 'light', icon: Minus, config, lastWeight: derived, lastSession: lastData };
     }
 
-    if (!lastData) return { weight: exercise.defaultWeight, reps: config.startReps ?? high, suggestion: null, action: 'start', icon: null, config };
+    if (!lastData) return { weight: exercise.defaultWeight, reps: config.startReps ?? high, suggestion: 'First time - start with suggested weight', action: 'start', kind: 'first', icon: null, config };
 
     // If last session was skipped, don't progress - keep same weight/reps
     if (lastData.skipped) {
-      return { weight: lastWeight, reps: lastAvgReps, suggestion: 'Skipped last time', action: 'maintain', icon: Minus, config, lastWeight, lastSession: lastData };
+      return { weight: lastWeight, reps: lastAvgReps, suggestion: 'Skipped last time', action: 'maintain', kind: 'skipped', icon: Minus, config, lastWeight, lastSession: lastData };
     }
 
     const result = runProgression(config, lastData);
@@ -735,7 +905,7 @@ function WorkoutApp() {
     } else if (result.action === 'regress') {
       icon = TrendingDown;
     }
-    return { weight: newWeight, reps: newReps, suggestion: result.reason, action: result.action, icon, config, lastWeight, lastSession: lastData };
+    return { weight: newWeight, reps: newReps, suggestion: result.reason, action: result.action, pushReps: !!result.pushReps, addWeight: !!result.addWeight, icon, config, lastWeight, lastSession: lastData };
   };
 
   const selectProgram = (program) => {
@@ -1140,28 +1310,24 @@ function WorkoutApp() {
   // PROGRAM SELECT
   if (view === 'programSelect') {
     return (
-      <div className="min-h-screen text-white p-4 flex items-center justify-center" style={{ background: 'linear-gradient(180deg, #0a0a0f 0%, #0f0f18 100%)' }}>
-        <div className="max-w-md mx-auto w-full">
-          <div className="text-center mb-10">
-            <h1 className="text-2xl font-bold tracking-tight mb-2">Choose Your Program</h1>
-            <p className="text-zinc-500 text-sm">Select a workout plan to get started</p>
-          </div>
-          <div className="space-y-4">
-            {Object.entries(programConfigs).map(([key, cfg]) => (
-              <button key={key} onClick={() => selectProgram(key)} className="w-full rounded-2xl p-5 text-left transition-all active:scale-[0.98] border border-zinc-800/50" style={{ backgroundColor: '#12121a' }}>
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: cfg.gradient }}><cfg.icon className="w-6 h-6 text-white" /></div>
-                  <div className="flex-1">
-                    <div className="text-base font-semibold text-zinc-100">{cfg.name}</div>
-                    <div className="text-xs text-zinc-500">{cfg.subtitle}</div>
-                  </div>
-                  <ChevronRight className="w-5 h-5 text-zinc-600" />
-                </div>
-              </button>
-            ))}
-          </div>
+      <Page center>
+        <div style={{ textAlign: 'center', marginBottom: 40 }}>
+          <h1 style={{ ...TY.screenTitle, fontSize: 24, lineHeight: '32px', marginBottom: 8 }}>Choose Your Program</h1>
+          <p style={{ ...TY.subtitle, fontSize: 14, lineHeight: '20px' }}>Select a workout plan to get started</p>
         </div>
-      </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          {Object.entries(programConfigs).map(([key, cfg]) => (
+            <button key={key} onClick={() => selectProgram(key)} className={pressable} style={{ ...card, width: '100%', padding: 20, textAlign: 'left', display: 'flex', alignItems: 'center', gap: 16 }}>
+              <div style={{ width: 48, height: 48, borderRadius: 8, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: T.accent, color: T.primaryInk }}><cfg.icon size={24} /></div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontWeight: 600, fontSize: 16, lineHeight: '24px', color: T.ink }}>{cfg.name}</div>
+                <div style={TY.subtitle}>{cfg.subtitle}</div>
+              </div>
+              <span style={{ color: T.ink4 }}><ChevronRight size={20} /></span>
+            </button>
+          ))}
+        </div>
+      </Page>
     );
   }
 
@@ -1177,634 +1343,457 @@ function WorkoutApp() {
     const latestDay = dayKeys.reduce((best, d) => lastDone[d] > (best ? lastDone[best] : 0) ? d : best, null);
     const nextDay = latestDay ? dayKeys[(dayKeys.indexOf(latestDay) + 1) % dayKeys.length] : dayKeys[0];
     const ago = (t) => { if (!t) return ''; const n = Math.floor((Date.now() - t) / 864e5); return n <= 0 ? ' · today' : n === 1 ? ' · yesterday' : ` · ${n}d ago`; };
+
+    // Consistency: workouts per week over the last 8 weeks
+    const dates = [];
+    Object.values(workoutLog[selectedProgram] || {}).forEach(d => (d?.sessions || []).forEach(s => dates.push(new Date(s.date))));
+    const now = new Date();
+    const monday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - ((now.getDay() + 6) % 7));
+    const start = new Date(monday);
+    start.setDate(start.getDate() - 49);
+    const weeks = Array(8).fill(0);
+    dates.forEach(dt => {
+      const idx = Math.floor((dt - start) / (7 * 864e5));
+      if (idx >= 0 && idx < 8) weeks[idx]++;
+    });
+    const maxW = Math.max(...weeks, 1);
+
+    const ageDays = lastBackupAt ? Math.floor((Date.now() - new Date(lastBackupAt).getTime()) / 864e5) : null;
+    const showNudge = dates.length >= 3 && (ageDays === null || ageDays > 21);
+    const util = { flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '8px 0', borderRadius: 8, fontWeight: 600, fontSize: 10, lineHeight: '14px', color: T.ink3, cursor: 'pointer' };
+    const filled = { background: T.surface, border: `1px solid ${T.line}` };
+
     return (
-      <div className="min-h-screen text-white p-4" style={{ background: config.bgGradient }}>
-        <div className="max-w-md mx-auto">
-          <div className="text-center mb-3" style={{ paddingTop: 2 }}>
-            <button onClick={() => setView('programSelect')} className="text-zinc-600 text-xs mb-2 hover:text-white transition-colors flex items-center justify-center gap-1 mx-auto"><ChevronLeft className="w-3 h-3" /> Switch</button>
-            <div className="mx-auto mb-2 rounded-xl flex items-center justify-center" style={{ width: 40, height: 40, background: config.gradient }}><config.icon className="w-5 h-5 text-white" /></div>
-            <h1 className="text-xl font-bold tracking-tight">{config.name}</h1>
-            <p className="text-zinc-500 text-xs mt-0.5">{config.subtitle}</p>
-          </div>
-          <div className="space-y-2">
-            {Object.entries(workoutData).map(([day, data]) => {
-              const accent = config.dayAccents[day];
-              return (
-                <button key={day} onClick={() => startDay(day)} className="w-full rounded-xl px-4 text-left transition-all active:scale-[0.98] border border-zinc-800/50" style={{ backgroundColor: '#12121a', paddingTop: 11, paddingBottom: 11 }}>
-                  <div className="flex justify-between items-center">
-                    <div className="min-w-0">
-                      <div className="text-[9px] font-semibold uppercase tracking-widest" style={{ color: accent }}>Day {day.replace('day','')} <span className="text-zinc-600" style={{ textTransform: 'none', letterSpacing: 0 }}>· {data.exercises.length} exercises{ago(lastDone[day])}</span></div>
-                      <div className="text-sm font-semibold text-zinc-100 truncate">{data.name}</div>
-                    </div>
-                    <div className="flex items-center gap-2 flex-shrink-0">
-                      {day === nextDay && <span className="next-up text-[9px] font-semibold uppercase tracking-widest" style={{ color: accent, border: `1px solid ${accent}60`, borderRadius: 6, padding: '2px 6px' }}>Next</span>}
-                      <ChevronRight className="w-4 h-4" style={{ color: accent }} />
-                    </div>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-          {(() => {
-            // Consistency: workouts per week over the last 8 weeks
-            const dates = [];
-            Object.values(workoutLog[selectedProgram] || {}).forEach(d => (d?.sessions || []).forEach(s => dates.push(new Date(s.date))));
-            if (dates.length === 0) return null;
-            const now = new Date();
-            const monday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - ((now.getDay() + 6) % 7));
-            const start = new Date(monday);
-            start.setDate(start.getDate() - 49);
-            const weeks = Array(8).fill(0);
-            dates.forEach(dt => {
-              const idx = Math.floor((dt - start) / (7 * 864e5));
-              if (idx >= 0 && idx < 8) weeks[idx]++;
-            });
-            const maxW = Math.max(...weeks, 1);
-            return (
-              <div className="mt-3 p-3 rounded-xl border border-zinc-800/50" style={{ backgroundColor: '#12121a' }}>
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-[10px] text-zinc-500 font-medium">LAST 8 WEEKS</span>
-                  <span className="text-[10px] text-zinc-400">{weeks[7]} this week · {dates.length} total</span>
-                </div>
-                <div className="flex items-end gap-1.5 h-8">
-                  {weeks.map((c, i) => (
-                    <div key={i} className="flex-1 rounded-sm" style={{ height: `${c === 0 ? 10 : 30 + (c / maxW) * 70}%`, background: c === 0 ? '#27272a' : config.gradient, opacity: c === 0 ? 1 : 0.45 + 0.55 * (c / maxW) }} />
-                  ))}
-                </div>
-              </div>
-            );
-          })()}
-          {storageError && <StorageWarning onBackup={exportBackup} />}
-          {(() => {
-            const totalSessions = Object.values(workoutLog[selectedProgram] || {}).reduce((a, d) => a + (d?.sessions?.length || 0), 0);
-            const ageDays = lastBackupAt ? Math.floor((Date.now() - new Date(lastBackupAt).getTime()) / 864e5) : null;
-            if (totalSessions < 3 || (ageDays !== null && ageDays <= 21)) return null;
-            return (
-              <button onClick={exportBackup} className="mt-2 w-full text-left px-3 py-2 rounded-lg border border-amber-500/30 bg-amber-500/10 text-[10px] text-amber-300/90 truncate">
-                {ageDays === null ? 'Never backed up' : `Last backup ${ageDays} days ago`} — your log lives only on this phone. Tap to save a backup.
-              </button>
-            );
-          })()}
-          <div className="mt-3 flex gap-2 text-[10px]">
-            <button onClick={exportBackup} className="flex-1 text-zinc-500 flex items-center justify-center gap-1 py-2 border border-zinc-800 rounded-lg"><Download className="w-3 h-3" /> Backup</button>
-            <label className="flex-1 text-zinc-500 flex items-center justify-center gap-1 py-2 border border-zinc-800 rounded-lg cursor-pointer">
-              <input type="file" accept=".json,.csv,.txt,application/json,text/csv,text/plain" className="hidden csv-import" onChange={(e) => { const f = e.target.files[0]; if (f) importAny(f); e.target.value = ''; }} />
-              <RotateCcw className="w-3 h-3" /> Restore / Import
-            </label>
-          </div>
-          <div className="mt-2 flex gap-2 text-[10px]">
-            <button onClick={() => setView('history')} className="flex-1 text-zinc-500 flex items-center justify-center gap-1 py-2 border border-zinc-800 rounded-lg">History</button>
-            <button onClick={exportCSV} className="flex-1 text-zinc-600 flex items-center justify-center gap-1 py-2 border border-zinc-800 rounded-lg">Export CSV</button>
-            <button onClick={resetData} className="flex-1 text-zinc-700 flex items-center justify-center gap-1 py-2">Reset</button>
-          </div>
+      <Page>
+        <div style={{ textAlign: 'center', marginBottom: HOME_GAP }}>
+          <button onClick={() => setView('programSelect')} style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 12, lineHeight: '16px', color: T.ink3, marginBottom: 10 }}><ChevronLeft size={12} /> Switch program</button>
+          <div style={{ width: 40, height: 40, margin: '0 auto 8px', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', background: T.accent, color: T.primaryInk }}><config.icon size={20} stroke={2.5} /></div>
+          <h1 style={TY.screenTitle}>{config.name}</h1>
+          <p style={TY.subtitle}>{config.subtitle}</p>
         </div>
-      </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {Object.entries(workoutData).map(([day, data]) => (
+            <button key={day} onClick={() => startDay(day)} className={pressable} style={{ ...card, width: '100%', padding: '11px 16px', textAlign: 'left', display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ ...TY.meta, ...ellipsis, fontWeight: 500 }}><span style={{ ...TY.accentLabel, lineHeight: '14px' }}>Day {day.replace('day', '')}</span> · {data.exercises.length} exercises{ago(lastDone[day])}</div>
+                <div style={{ ...TY.rowTitle, ...ellipsis }}>{data.name}</div>
+              </div>
+              {day === nextDay && <span className="next-up" style={{ height: 18, boxSizing: 'border-box', padding: '0 7px', borderRadius: 9, border: `1px solid ${T.accent}`, color: T.accent, fontWeight: 600, fontSize: 10, lineHeight: '16px', textTransform: 'uppercase', letterSpacing: 0.6, flexShrink: 0 }}>Next</span>}
+              <span style={{ color: T.ink4 }}><ChevronRight size={16} /></span>
+            </button>
+          ))}
+        </div>
+        {dates.length > 0 && (
+          <div style={{ ...card, marginTop: HOME_GAP, padding: 12 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+              <span style={TY.label}>Last 8 weeks</span>
+              <span style={TY.meta}>{weeks[7]} this week · <span style={{ color: T.ink, fontWeight: 600 }}>{dates.length} total</span></span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'flex-end', gap: 6, height: 32 }}>
+              {weeks.map((c, i) => (
+                <div key={i} style={{ flex: 1, borderRadius: c === 0 ? 2 : 4, height: `${c === 0 ? 10 : 30 + (c / maxW) * 70}%`, background: c === 0 ? T.line : T.accent, opacity: c === 0 || c === maxW ? 1 : 0.55 }} />
+              ))}
+            </div>
+          </div>
+        )}
+        {storageError && <StorageWarning onBackup={exportBackup} />}
+        {showNudge && (
+          <button onClick={exportBackup} style={{ ...ellipsis, display: 'block', width: '100%', marginTop: 8, padding: '8px 12px', textAlign: 'left', borderRadius: 8, fontWeight: 600, fontSize: 10, lineHeight: '14px', color: T.warn, background: warnTint(0.14), border: `1px solid ${warnTint(0.4)}` }}>
+            {ageDays === null ? 'Never backed up' : `Last backup ${ageDays} days ago`} — your log lives only on this phone. Tap to save a backup.
+          </button>
+        )}
+        <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
+          <button onClick={exportBackup} style={{ ...util, ...filled }}><Download size={12} /> Backup</button>
+          <label style={{ ...util, ...filled }}>
+            <input type="file" accept=".json,.csv,.txt,application/json,text/csv,text/plain" className="hidden csv-import" onChange={(e) => { const f = e.target.files[0]; if (f) importAny(f); e.target.value = ''; }} />
+            <RotateCcw size={12} /> Restore / Import
+          </label>
+        </div>
+        <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+          <button onClick={() => setView('history')} style={{ ...util, ...filled }}>History</button>
+          <button onClick={exportCSV} style={{ ...util, border: `1px solid ${T.line}` }}>Export CSV</button>
+          <button onClick={resetData} style={{ ...util, border: '1px solid transparent' }}>Reset</button>
+        </div>
+      </Page>
     );
   }
 
-  // HISTORY: every logged workout, newest first
+  // HISTORY: every logged workout, newest first. The one screen that scrolls.
   if (view === 'history') {
     const sessions = listSessions(workoutLog[selectedProgram]);
     return (
-      <div className="min-h-screen text-white p-4" style={{ background: config.bgGradient }}>
-        <div className="max-w-md mx-auto">
-          <button onClick={() => setView('home')} className="flex items-center text-zinc-500 mb-4 text-sm"><ChevronLeft className="w-4 h-4" /> Back</button>
-          <h1 className="text-lg font-bold text-zinc-100">History</h1>
-          <p className="text-zinc-500 text-xs mb-4">{sessions.length === 0 ? 'No workouts logged yet' : `${sessions.length} workouts · tap one to review or fix it`}</p>
-          <div className="space-y-1.5">
-            {sessions.map(sess => {
-              const accent = config.dayAccents[sess.day] || '#6b7280';
-              const done = sess.entries.filter(x => !x.entry.skipped).length;
-              return (
-                <button key={sess.day + sess.key} onClick={() => { setHistorySel({ day: sess.day, key: sess.key }); setView('historySession'); }} className="history-row w-full text-left rounded-lg px-3 py-2 flex items-center gap-2.5 border border-zinc-800/50 transition-all active:scale-[0.98]" style={{ backgroundColor: '#12121a' }}>
-                  <div className="flex-1 min-w-0">
-                    <div className="text-[9px] font-semibold uppercase tracking-widest" style={{ color: accent }}>{new Date(sess.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}</div>
-                    <div className="text-sm font-medium text-zinc-200 truncate">{workoutData[sess.day]?.name || sess.day}</div>
-                    <div className="text-[10px] text-zinc-600">{done} {done === 1 ? 'exercise' : 'exercises'}{sess.meta?.durationMin ? ` · ${sess.meta.durationMin} min` : ''}{sess.meta?.prs?.length ? ` · ${sess.meta.prs.length} PR` : ''}</div>
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-zinc-700 flex-shrink-0" />
-                </button>
-              );
-            })}
-          </div>
+      <Page bottom={24}>
+        <BackLink onClick={() => setView('home')} />
+        <h1 style={TY.screenTitle}>History</h1>
+        <p style={{ ...TY.subtitle, marginBottom: 16 }}>{sessions.length === 0 ? 'No workouts logged yet' : `${sessions.length} workouts · tap one to review or fix it`}</p>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {sessions.map(sess => {
+            const done = sess.entries.filter(x => !x.entry.skipped).length;
+            const prs = sess.meta?.prs?.length || 0;
+            return (
+              <button key={sess.day + sess.key} onClick={() => { setHistorySel({ day: sess.day, key: sess.key }); setView('historySession'); }} className={`history-row ${pressable}`} style={{ ...card, width: '100%', padding: '10px 16px', textAlign: 'left', display: 'flex', alignItems: 'center', gap: 10 }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ ...TY.accentLabel, lineHeight: '14px' }}>{new Date(sess.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}</div>
+                  <div style={{ ...TY.rowTitle, ...ellipsis }}>{workoutData[sess.day]?.name || sess.day}</div>
+                  <div style={TY.meta}>{done} {done === 1 ? 'exercise' : 'exercises'}{sess.meta?.durationMin ? ` · ${sess.meta.durationMin} min` : ''}{prs ? <span> · <span style={{ color: T.accent, fontWeight: 600 }}>{prs} PR</span></span> : null}</div>
+                </div>
+                <span style={{ color: T.ink4 }}><ChevronRight size={16} /></span>
+              </button>
+            );
+          })}
         </div>
-      </div>
+      </Page>
     );
   }
 
   // HISTORY SESSION: one logged workout, editable in place
   if (view === 'historySession') {
     const sess = historySel && listSessions(workoutLog[selectedProgram]).find(x => x.day === historySel.day && x.key === historySel.key);
-    const accent = config.dayAccents[historySel?.day] || '#6b7280';
     return (
-      <div className="min-h-screen text-white p-4" style={{ background: config.bgGradient }}>
-        <div className="max-w-md mx-auto">
-          <button onClick={() => setView('history')} className="flex items-center text-zinc-500 mb-4 text-sm"><ChevronLeft className="w-4 h-4" /> Back</button>
-          {!sess ? <p className="text-zinc-500 text-sm">This workout is no longer in the log.</p> : (
-            <>
-              <div className="text-[9px] font-semibold uppercase tracking-widest mb-0.5" style={{ color: accent }}>{new Date(sess.date).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</div>
-              <h1 className="text-lg font-bold text-zinc-100">{workoutData[sess.day]?.name || sess.day}</h1>
-              <p className="text-zinc-500 text-xs mb-4">Changes save as you make them and feed the next suggestion.</p>
-              <div className="space-y-2">
-                {sess.entries.map(({ id, entry }) => {
-                  const cfg = configForId(id);
-                  const edit = (fn) => editHistoryEntry(sess.day, id, entry.date, fn);
-                  const editSet = (i, patch) => edit(e => ({ ...e, sets: e.sets.map((x, k) => k === i ? { ...x, ...patch } : x) }));
-                  return (
-                    <div key={id + entry.date} className="rounded-lg px-3 py-2 border border-zinc-800/50" style={{ backgroundColor: '#12121a' }}>
-                      <div className="flex justify-between items-center mb-1">
-                        <div className="text-sm font-medium text-zinc-200 truncate">{entry.exerciseName && entry.exerciseName !== 'x' ? entry.exerciseName : id}{entry.skipped ? <span className="text-[10px] text-amber-500"> · skipped</span> : null}</div>
-                        <EffortChips value={entry.effort || null} onChange={(v) => edit(e => { const { effort, ...rest } = e; return v ? { ...rest, effort: v } : rest; })} accent={accent} />
-                      </div>
-                      {entry.notes ? <div className="text-[11px] text-amber-200/80 italic mb-1">{entry.notes}</div> : null}
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                        {(entry.sets || []).map((set, i) => (
-                          <SetRow
-                            key={i}
-                            set={set}
-                            label={setLabel(entry.sets, i)}
-                            accent={accent}
-                            config={cfg}
-                            onToggle={() => editSet(i, { completed: !set.completed })}
-                            onChange={(field, value) => editSet(i, { [field]: value })}
-                          />
-                        ))}
-                      </div>
+      <Page bottom={24}>
+        <BackLink onClick={() => setView('history')} />
+        {!sess ? <p style={TY.subtitle}>This workout is no longer in the log.</p> : (
+          <>
+            <div style={{ ...TY.accentLabel, marginBottom: 2 }}>{new Date(sess.date).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</div>
+            <h1 style={TY.screenTitle}>{workoutData[sess.day]?.name || sess.day}</h1>
+            <p style={{ ...TY.subtitle, marginBottom: 12 }}>Changes save as you make them and feed the next suggestion.</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {sess.entries.map(({ id, entry }) => {
+                const cfg = configForId(id);
+                const edit = (fn) => editHistoryEntry(sess.day, id, entry.date, fn);
+                const editSet = (i, patch) => edit(e => ({ ...e, sets: e.sets.map((x, k) => k === i ? { ...x, ...patch } : x) }));
+                return (
+                  <div key={id + entry.date} style={{ padding: 10, borderRadius: 8, border: `1px solid ${T.line}` }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, height: 26, marginBottom: 6 }}>
+                      <div style={{ ...TY.rowTitle, ...ellipsis, lineHeight: '20px', flex: 1, minWidth: 0 }}>{entry.exerciseName && entry.exerciseName !== 'x' ? entry.exerciseName : id}{entry.skipped ? <span style={{ fontSize: 10, color: T.warn }}> · skipped</span> : null}</div>
+                      <EffortChips value={entry.effort || null} onChange={(v) => edit(e => { const { effort, ...rest } = e; return v ? { ...rest, effort: v } : rest; })} />
                     </div>
-                  );
-                })}
-              </div>
-              <button onClick={() => { if (confirm('Delete this workout from the log? This cannot be undone.')) { deleteHistorySession(sess.day, sess.key); setView('history'); } }} className="w-full text-zinc-600 font-medium py-2 text-sm mt-4">Delete this workout</button>
-            </>
-          )}
-        </div>
-      </div>
+                    {entry.notes ? <div style={{ ...TY.note, fontStyle: 'italic', color: T.ink2, marginBottom: 6 }}>{entry.notes}</div> : null}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                      {(entry.sets || []).map((set, i) => (
+                        <SetRow
+                          key={i}
+                          set={set}
+                          label={setLabel(entry.sets, i)}
+                          config={cfg}
+                          onToggle={() => editSet(i, { completed: !set.completed })}
+                          onChange={(field, value) => editSet(i, { [field]: value })}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            <button onClick={() => { if (confirm('Delete this workout from the log? This cannot be undone.')) { deleteHistorySession(sess.day, sess.key); setView('history'); } }} style={{ width: '100%', height: 44, marginTop: 16, borderRadius: 12, border: `1px solid ${warnTint(0.55)}`, background: 'transparent', color: T.warn, fontWeight: 600, fontSize: 13 }}>Delete this workout</button>
+          </>
+        )}
+      </Page>
     );
   }
 
   // DAY OVERVIEW
   if (view === 'dayOverview') {
     const dayData = workoutData[selectedDay];
-    const accent = config.dayAccents[selectedDay];
+    const adherence = getAbsAdherence();
+    const inSession = Object.keys(sessionData).length > 0 && sessionDay === selectedDay;
+    const savedForDay = (() => { const s = loadActiveSession(); return s && s.program === selectedProgram && s.day === selectedDay; })();
+    const infoEx = infoExerciseId ? dayData.exercises.find(e => e.id === infoExerciseId) : null;
+    const infoCfg = infoEx ? getExerciseConfig(infoEx) : (progressionConfig[infoExerciseId] || defaultProgressionConfig);
+    const infoMedia = infoExerciseId ? (exerciseMedia[infoExerciseId] || exerciseMedia[progressionConfig[infoExerciseId]?.derivedFrom]) : null;
+    const pill = { padding: '2px 8px', borderRadius: 9, fontWeight: 600, fontSize: 10, lineHeight: '14px', background: tint(0.10), color: T.accent };
     return (
-      <div className="min-h-screen text-white p-4 pb-24" style={{ background: config.bgGradient }}>
-        <div className="max-w-md mx-auto">
-          <button onClick={() => setView('home')} className="flex items-center text-zinc-500 mb-4 text-sm"><ChevronLeft className="w-4 h-4" /> Back</button>
-          <div className="mb-4">
-            <div className="text-[9px] font-semibold uppercase tracking-widest mb-0.5" style={{ color: accent }}>Day {selectedDay.replace('day','')}</div>
-            <h1 className="text-lg font-bold text-zinc-100">{dayData.name}</h1>
-            <p className="text-zinc-500 text-xs">{dayData.focus}</p>
-          </div>
-          {dayData.mobility && (
-            <div className="mb-3 px-3 py-2 rounded-lg border border-zinc-800/50" style={{ backgroundColor: '#12121a' }}>
-              <div className="flex justify-between items-center mb-1">
-                <span className="text-[9px] font-semibold tracking-widest text-zinc-500">MOBILITY WARM-UP</span>
-                <span className="text-[9px] text-zinc-600">5 min · ends in your first ramp set</span>
-              </div>
-              {dayData.mobility.map((m, i) => <div key={i} className="text-[10px] text-zinc-400" style={{ lineHeight: 1.4 }}>{m}</div>)}
+      <Page bottom={96}>
+        <BackLink onClick={() => setView('home')} gap={DAY_GAPS.back} />
+        <div style={{ marginBottom: DAY_GAPS.header }}>
+          <div style={{ ...TY.accentLabel, marginBottom: 2 }}>Day {selectedDay.replace('day', '')}</div>
+          <h1 style={TY.screenTitle}>{dayData.name}</h1>
+          <p style={TY.subtitle}>{dayData.focus}</p>
+        </div>
+        {dayData.mobility && (
+          <div style={{ ...card, padding: '8px 12px', marginBottom: 12 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+              <span style={TY.label}>Mobility warm-up</span>
+              <span style={TY.meta}>5 min · ends in your first ramp set</span>
             </div>
-          )}
-          {(() => { const adherence = getAbsAdherence(); return (
-            <button onClick={() => setAbsDone(!absDone)} className={`w-full rounded-lg px-3 py-2 mb-3 flex items-center gap-2.5 border transition-all active:scale-[0.98] ${absDone ? 'border-emerald-500/50 bg-emerald-500/10' : 'border-zinc-800/50'}`} style={absDone ? {} : { backgroundColor: '#12121a' }}>
-              <div className={`w-6 h-6 rounded flex items-center justify-center flex-shrink-0 ${absDone ? 'bg-emerald-500 text-white' : 'bg-zinc-800 text-zinc-600'}`}>
-                {absDone ? <Check className="w-4 h-4" /> : null}
-              </div>
-              <div className="flex-1 text-left">
-                <div className={`text-sm font-medium ${absDone ? 'text-emerald-300' : 'text-zinc-200'}`}>Pre-workout ab routine</div>
-                <div className="text-[10px] text-zinc-600">
-                  {adherence ? `Done ${adherence.done} of last ${adherence.total} workouts` : 'Tap when done — tracked with each workout'}
-                </div>
-              </div>
-            </button>
-          ); })()}
-          <div className="space-y-1.5 mb-4">
-            {dayData.exercises.map((ex, i) => {
-              const lastData = getLastSession(ex.id);
-              const primaryColor = muscleColors[ex.muscles[0]] || '#6b7280';
-              // Equipment taken? Tap any exercise to jump straight to it
-              const inSession = Object.keys(sessionData).length > 0 && sessionDay === selectedDay;
-              const doneThisSession = inSession && sessionData[i]?.sets?.some(s => s.completed && !s.warmup);
-              return (
-                <div key={`${ex.id}-${i}`} role="button" tabIndex={0} onClick={() => beginWorkout(i)} className="exercise-row w-full text-left rounded-lg px-3 py-2 flex items-center gap-2.5 border border-zinc-800/50 transition-all active:scale-[0.98] cursor-pointer" style={{ backgroundColor: '#12121a', paddingTop: dayData.exercises.length <= 5 ? 12 : 8, paddingBottom: dayData.exercises.length <= 5 ? 12 : 8 }}>
-                  <div className="w-7 h-7 rounded flex items-center justify-center text-xs font-bold flex-shrink-0" style={{ background: `${primaryColor}20`, color: primaryColor }}>{i + 1}</div>
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium text-zinc-200 truncate">{ex.superset ? <span className="text-zinc-500">⇄ </span> : null}{ex.name.split(' / ')[0]}</div>
-                    <div className="text-[10px] text-zinc-600">{ex.sets} × {ex.reps}{lastData ? (lastData.skipped ? ' · Skipped' : ` · ${lastData.weight} lbs`) : ''}</div>
-                  </div>
-                  <button onClick={(e) => { e.stopPropagation(); setInfoExerciseId(ex.id); }} className="info-btn w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold text-zinc-500 border border-zinc-800 flex-shrink-0 active:scale-90" title="How to do it">?</button>
-                  {doneThisSession ? <Check className="w-4 h-4 text-emerald-500 flex-shrink-0" /> : <ChevronRight className="w-4 h-4 text-zinc-700 flex-shrink-0" />}
-                </div>
-              );
-            })}
+            {dayData.mobility.map((m, i) => <div key={i} style={{ ...TY.meta, color: T.ink2 }}>{m}</div>)}
           </div>
-          {infoExerciseId && (() => {
-            const media = exerciseMedia[infoExerciseId] || exerciseMedia[progressionConfig[infoExerciseId]?.derivedFrom];
-            const infoEx = dayData.exercises.find(e => e.id === infoExerciseId);
-            const cfg = infoEx ? getExerciseConfig(infoEx) : (progressionConfig[infoExerciseId] || defaultProgressionConfig);
+        )}
+        <AbRow done={absDone} onToggle={() => setAbsDone(!absDone)} gap={DAY_GAPS.ab} sub={adherence ? `Done ${adherence.done} of last ${adherence.total} workouts` : 'Tap when done — tracked with each workout'} />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          {dayData.exercises.map((ex, i) => {
+            const lastData = getLastSession(ex.id);
+            // Equipment taken? Tap any exercise to jump straight to it
+            const doneThisSession = inSession && sessionData[i]?.sets?.some(s => s.completed && !s.warmup);
+            // A superset pair reads as one block: flattened inner corners and a tick across the gap
+            const pairTop = ex.superset && dayData.exercises[i + 1]?.superset === ex.superset;
+            const pairBottom = ex.superset && dayData.exercises[i - 1]?.superset === ex.superset;
             return (
-              <div className="fixed flex items-end" style={{ top: 0, left: 0, right: 0, bottom: 0, zIndex: 50, background: 'rgba(0,0,0,0.7)' }} onClick={() => setInfoExerciseId(null)}>
-                <div className="info-sheet w-full max-w-md mx-auto p-4 border-t border-zinc-800" style={{ background: '#12121a', borderRadius: '16px 16px 0 0', paddingBottom: 'calc(16px + env(safe-area-inset-bottom, 0px))' }} onClick={(e) => e.stopPropagation()}>
-                  <div className="text-[10px] text-zinc-500 font-medium mb-1">HOW TO DO IT</div>
-                  <p className="text-sm text-zinc-300 leading-relaxed">{media?.description || 'No description yet.'}</p>
-                  <div className="mt-3 flex items-center gap-3 flex-wrap">
-                    {media?.youtube && (
-                      <a href={media.youtube} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs font-medium px-3 py-2 rounded-lg" style={{ background: `${accent}20`, color: accent }}>
-                        <Play className="w-3 h-3" /> Watch form video
-                      </a>
-                    )}
-                    <span className="px-2 py-0.5 rounded-full text-[9px] font-medium" style={{ background: `${accent}15`, color: accent }}>{cfg.repRange[0]}-{cfg.repRange[1]} reps</span>
-                    {cfg.weightIncrement > 0 && (
-                      <span className="px-2 py-0.5 rounded-full text-[9px] font-medium" style={{ background: `${accent}15`, color: accent }}>{cfg.assisted ? `−${cfg.weightIncrement} lb assist` : cfg.weightSteps ? 'next dumbbell up' : `+${cfg.weightIncrement} lb`}</span>
-                    )}
-                    {media?.source && <span className="text-[9px] text-zinc-600">Source: {media.source}</span>}
-                  </div>
-                  <button onClick={() => setInfoExerciseId(null)} className="mt-3 w-full py-2 text-xs text-zinc-400">Close</button>
+              <div key={`${ex.id}-${i}`} role="button" tabIndex={0} onClick={() => beginWorkout(i)} className={`exercise-row ${pressable}`} style={{ ...card, position: 'relative', padding: '8px 12px', display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', borderRadius: pairTop ? '8px 8px 3px 3px' : pairBottom ? '3px 3px 8px 8px' : 8 }}>
+                {pairTop && <div style={{ position: 'absolute', left: 25, bottom: -8, width: 2, height: 8, background: T.accent, zIndex: 1 }} />}
+                <div style={{ width: 28, height: 28, boxSizing: 'border-box', borderRadius: 14, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 600, fontSize: 12, ...(doneThisSession ? { background: T.accent, color: T.primaryInk } : { border: `2px solid ${T.ink3}`, color: T.ink }) }}>
+                  {doneThisSession ? <Check size={16} stroke={3.5} /> : i + 1}
                 </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ ...TY.rowTitle, ...ellipsis, lineHeight: '20px' }}>{ex.superset ? <span style={{ color: T.ink3 }}>⇄ </span> : null}{ex.name.split(' / ')[0]}</div>
+                  <div style={{ ...TY.meta, ...ellipsis }}>{ex.sets} × {ex.reps}{lastData ? (lastData.skipped ? ' · Skipped' : <span> · <span style={{ color: T.ink, fontWeight: 600 }}>{lastData.weight} lbs</span></span>) : ''}{doneThisSession ? <span> · <span style={{ color: T.accent }}>worked today</span></span> : null}</div>
+                </div>
+                <button onClick={(e) => { e.stopPropagation(); setInfoExerciseId(ex.id); }} className="info-btn active:scale-90" title="How to do it" style={{ width: 36, height: 36, flexShrink: 0, borderRadius: 8, background: T.line, color: T.ink3, fontWeight: 700, fontSize: 12 }}>?</button>
+                <span style={{ color: T.ink4 }}><ChevronRight size={16} /></span>
               </div>
             );
-          })()}
-          <div className="fixed bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-zinc-950 to-transparent" style={{ paddingBottom: 'calc(12px + env(safe-area-inset-bottom, 0px))' }}>
-            <div className="max-w-md mx-auto">
-              <button onClick={() => beginWorkout(0)} className="w-full text-white font-semibold py-3.5 rounded-xl text-sm transition-all active:scale-[0.98] flex items-center justify-center gap-2" style={{ background: accent }}>
-                <Play className="w-4 h-4" /> {Object.keys(sessionData).length > 0 && sessionDay === selectedDay ? 'Continue Workout' : (() => { const s = loadActiveSession(); return s && s.program === selectedProgram && s.day === selectedDay; })() ? 'Resume Workout' : 'Begin Workout'}
-              </button>
+          })}
+        </div>
+        {infoExerciseId && (
+          <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 50, display: 'flex', alignItems: 'flex-end', background: 'rgba(0,0,0,0.7)' }} onClick={() => setInfoExerciseId(null)}>
+            <div className="info-sheet" style={{ width: '100%', maxWidth: 448, margin: '0 auto', padding: 16, paddingBottom: 'calc(16px + env(safe-area-inset-bottom, 0px))', background: T.surface, borderTop: `1px solid ${T.line}`, borderRadius: '16px 16px 0 0' }} onClick={(e) => e.stopPropagation()}>
+              <div style={{ ...TY.label, marginBottom: 4 }}>How to do it</div>
+              <p style={{ margin: 0, fontSize: 14, lineHeight: '22px', color: T.ink2 }}>{infoMedia?.description || 'No description yet.'}</p>
+              <div style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+                {infoMedia?.youtube && (
+                  <a href={infoMedia.youtube} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 12px', borderRadius: 8, fontWeight: 600, fontSize: 12, background: tint(0.10), color: T.accent, textDecoration: 'none' }}>Watch form video</a>
+                )}
+                <span style={pill}>{infoCfg.repRange[0]}-{infoCfg.repRange[1]} reps</span>
+                {infoCfg.weightIncrement > 0 && (
+                  <span style={pill}>{infoCfg.assisted ? `−${infoCfg.weightIncrement} lb assist` : infoCfg.weightSteps ? 'next dumbbell up' : `+${infoCfg.weightIncrement} lb`}</span>
+                )}
+                {infoMedia?.source && <span style={TY.meta}>Source: {infoMedia.source}</span>}
+              </div>
+              <button onClick={() => setInfoExerciseId(null)} style={{ width: '100%', marginTop: 12, padding: '8px 0', fontWeight: 600, fontSize: 12, color: T.ink3 }}>Close</button>
             </div>
           </div>
-        </div>
-      </div>
+        )}
+        <ActionBar>
+          <PrimaryButton onClick={() => beginWorkout(0)}>{inSession ? 'Continue Workout' : savedForDay ? 'Resume Workout' : 'Begin Workout'}</PrimaryButton>
+        </ActionBar>
+      </Page>
     );
   }
 
   // EXERCISE: one exercise, or both halves of a superset on one screen
   if (view === 'exercise') {
     const dayData = workoutData[selectedDay];
-    const accent = config.dayAccents[selectedDay];
-    const unit = unitOf(dayData.exercises, currentExerciseIndex);
+    const exercises = dayData.exercises;
+    const unit = unitOf(exercises, currentExerciseIndex);
     const paired = unit.length > 1;
     const lastOfUnit = unit[unit.length - 1];
+    // Six set rows (Sled Push, Day 6) only fit with tighter gaps. Controls keep their size.
+    const six = !paired && (sessionData[unit[0]]?.sets.length || 0) >= 6;
+    const G = six ? { spacer: 6, title: 8, card: 6, aboveSets: 8, belowHeader: 4, rows: 4 } : { spacer: 12, title: 16, card: 10, aboveSets: 16, belowHeader: 6, rows: 8 };
 
-    // Single exercise: one fixed layout sized so the longest case (5 set rows with
-    // history + chart) fits an iPhone 16 Pro without scrolling. Superset: two compact
-    // panels (no plan note, no chart, one-line suggestion) so both fit together.
+    // What the Next block announces: the following exercise (or pair), or the summary
+    const nextUnit = lastOfUnit < exercises.length - 1 ? unitOf(exercises, lastOfUnit + 1) : null;
+    const nameOf = (i) => { const parts = exercises[i].name.split(' / '); return useAltExercise[i] && parts[1] ? parts[1] : parts[0]; };
+    const nextInfo = (() => {
+      if (!nextUnit) return { label: 'Next', name: 'Summary', detail: null };
+      const first = nextUnit[0], lastIdx = nextUnit[nextUnit.length - 1];
+      const label = `Next · ${nextUnit.length > 1 ? `${first + 1}–${lastIdx + 1}` : first + 1} of ${exercises.length}`;
+      if (nextUnit.length > 1) return { label, name: nextUnit.map(nameOf).join(' + '), detail: 'Superset · alternate sets' };
+      const ex = exercises[first];
+      const last = getLastSession(ex.id);
+      const lastWeight = last && !last.skipped ? (getPerformedSets(last)[0]?.weight ?? last.weight) : null;
+      return { label, name: nameOf(first), detail: `${ex.sets} × ${String(ex.reps).replace('-', '–')}${lastWeight !== null ? ` · last ${lastWeight} lb` : ''}` };
+    })();
+
     const renderPanel = (index) => {
-      const exercise = dayData.exercises[index];
+      const exercise = exercises[index];
       const progression = calculateProgression(exercise);
       const exerciseConfig = progression.config;
       const nameParts = exercise.name.split(' / ');
       const hasAlt = nameParts.length > 1;
       const isUsingAlt = useAltExercise[index];
-      const displayName = isUsingAlt && hasAlt ? nameParts[1] : nameParts[0];
       const currentData = sessionData[index] || { sets: [], notes: '' };
+      const last = progression.lastSession;
+      const lastDate = last?.date ? new Date(last.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }).replace(',', '') : null;
+      const repUnit = exerciseConfig.progressionType === 'distance-first' ? 'feet' : exerciseConfig.progressionType === 'time-first' ? 'sec' : 'reps';
+      const setRows = (gap) => (
+        <div style={{ display: 'flex', flexDirection: 'column', gap }}>
+          {currentData.sets.map((set, i) => (
+            <SetRow
+              key={i}
+              set={set}
+              label={setLabel(currentData.sets, i)}
+              config={exerciseConfig}
+              onToggle={() => toggleSetComplete(index, i)}
+              onChange={(field, value) => updateSet(index, i, field, value)}
+              onCopy={i > 0 && !set.completed ? () => copyPreviousSet(index, i) : null}
+            />
+          ))}
+        </div>
+      );
+      const title = (
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, height: 30, marginBottom: paired ? 6 : G.title }}>
+          <h1 style={{ ...ellipsis, margin: 0, flex: 1, minWidth: 0, fontFamily: DISPLAY, fontWeight: 600, fontSize: paired ? 17 : 19, lineHeight: '28px', letterSpacing: -0.2, color: T.ink }}>{isUsingAlt && hasAlt ? nameParts[1] : nameParts[0]}</h1>
+          {hasAlt && (
+            <button onClick={() => toggleAltExercise(index)} className={`alt-toggle ${pressable}`} title={`Switch to ${isUsingAlt ? nameParts[0] : nameParts[1]}`} style={{ height: 30, maxWidth: 160, boxSizing: 'border-box', padding: '0 10px', borderRadius: 15, flexShrink: 0, display: 'flex', alignItems: 'center', gap: 6, background: T.surface, border: `1px solid ${T.line}`, color: T.ink, fontWeight: 600, fontSize: 10 }}>
+              <span style={{ color: T.accent }}><Swap size={13} /></span>
+              <span style={ellipsis}>{isUsingAlt ? nameParts[0] : nameParts[1]}</span>
+            </button>
+          )}
+        </div>
+      );
+      const note = (height, gap) => (
+        <NoteRow open={notesOpen === index} height={height} gap={gap} today={currentData.notes} previous={last?.notes} onOpen={() => setNotesOpen(index)} onClose={() => setNotesOpen(null)} onChange={(v) => patchExercise(index, { notes: v })} />
+      );
+      const effort = <EffortChips value={currentData.effort || null} onChange={(v) => patchExercise(index, { effort: v })} />;
 
-      const lastWorkoutDate = progression.lastSession?.date
-        ? new Date(progression.lastSession.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
-        : null;
-
-      let suggestionColor = accent, suggestionBg = `${accent}15`;
-      if (progression.action === 'increase' || progression.action === 'progress') { suggestionColor = '#10b981'; suggestionBg = '#10b98115'; }
-      else if (progression.action === 'decrease' || progression.action === 'regress') { suggestionColor = '#f59e0b'; suggestionBg = '#f59e0b15'; }
-      const suggestionText = progression.suggestion || (progression.lastSession ? 'Keep building within your rep range' : 'First time - start with suggested weight');
-
-      // Target line: sets, reps, rest, progression rule
-      const workingSets = currentData.sets.filter(s => !s.warmup).length || (typeof exercise.sets === 'number' ? exercise.sets : 3);
-      const rrHigh = exerciseConfig.repRange[1];
-      const targetBits = [`${workingSets} × ${exercise.reps}`];
-      if (exerciseConfig.restTime) targetBits.push(`rest ${exerciseConfig.restTime >= 60 ? (exerciseConfig.restTime / 60).toFixed(exerciseConfig.restTime % 60 ? 1 : 0) + ' min' : exerciseConfig.restTime + ' s'}`);
-      if (exerciseConfig.derivedFrom) targetBits.push(`${Math.round(exerciseConfig.pct * 100)}% of your heavy day`);
-      else if (exerciseConfig.assisted) targetBits.push(`−${exerciseConfig.weightIncrement} lb assist when every set hits ${rrHigh}`);
-      else if (exerciseConfig.weightSteps) targetBits.push(`next dumbbell up when every set hits ${rrHigh}`);
-      else if (exerciseConfig.weightIncrement > 0) targetBits.push(`${exerciseConfig.incrementPct ? '~2% more' : '+' + exerciseConfig.weightIncrement + ' lb'} when every set hits ${rrHigh}`);
-      if (!paired && typeof exerciseConfig.rirTarget === 'number') targetBits.push(`${exerciseConfig.rirTarget} in reserve`);
-
-      const prevNote = (progression.lastSession?.notes || '').trim();
-      const prevFirst = prevNote.split('\n')[0];
-      const todayFirst = (currentData.notes || '').trim().split('\n')[0];
-
+      if (paired) {
+        return (
+          <div key={index} className="exercise-panel">
+            {title}
+            <Verdict verdict={progression.verdict} reason={progression.suggestion} inline gap={6} />
+            {/* Last session on the left, effort chips on the right */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, height: 26, marginBottom: 6 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 5, flex: 1, minWidth: 0, overflow: 'hidden' }}>
+                {last && <span style={{ ...TY.label, flexShrink: 0, marginRight: 1 }}>Last</span>}
+                <LastChips sets={last?.sets} />
+              </div>
+              {effort}
+            </div>
+            {note(30, 8)}
+            {setRows(4)}
+          </div>
+        );
+      }
       return (
         <div key={index} className="exercise-panel">
-          {/* Exercise name + inline alternate toggle */}
-          <div className="flex items-center justify-between gap-2 mb-1">
-            <h1 className={`${paired ? 'text-sm font-semibold' : 'text-lg font-bold'} text-zinc-100 truncate`}>{displayName}</h1>
-            {hasAlt && (
-              <button
-                onClick={() => toggleAltExercise(index)}
-                className="alt-toggle flex items-center gap-1 text-[10px] px-2 rounded-lg border flex-shrink-0 transition-all active:scale-[0.98]"
-                style={{ height: paired ? 26 : 30, maxWidth: 160, borderColor: `${accent}50`, background: `${accent}10`, color: accent }}
-                title={`Switch to ${isUsingAlt ? nameParts[0] : nameParts[1]}`}
-              >
-                <Swap className="w-3.5 h-3.5 flex-shrink-0" style={{ color: accent }} />
-                <span className="truncate">{isUsingAlt ? nameParts[0] : nameParts[1]}</span>
-              </button>
-            )}
-          </div>
-
-          {/* Plan note (coaching cue from the program) */}
-          {!paired && exercise.notes && (
-            <p className="text-[11px] text-zinc-500 mb-1">{exercise.notes}</p>
-          )}
-          {/* Target: sets, reps, rest, progression rule */}
-          <p className={`text-[11px] ${paired ? 'truncate' : ''}`} style={{ color: accent, marginBottom: paired ? 2 : 6 }}>{targetBits.join(' · ')}</p>
-
-          {paired ? (
-            <>
-              {/* Superset: suggestion and last session, one line each */}
-              <p className="text-[11px] truncate" style={{ color: suggestionColor, marginBottom: 4 }}>{suggestionText}</p>
-              {/* Last session on the left, effort chips on the right: saves the header row */}
-              <div className="flex items-center justify-between gap-2 mb-1">
-                <div className="flex gap-1.5 items-center flex-1 min-w-0" style={{ overflow: 'hidden', whiteSpace: 'nowrap' }}>
-                  {progression.lastSession && <span className="text-[10px] text-zinc-500 flex-shrink-0">Last</span>}
-                  {(progression.lastSession?.sets || []).map((s, i) => (
-                    <span key={i} className={`px-1.5 py-0.5 rounded text-[10px] flex-shrink-0 ${s.warmup ? 'bg-amber-500/10 text-amber-400/80' : 'bg-zinc-800/50 text-zinc-300'}`}>
-                      {s.warmup ? 'W ' : ''}{s.weight}×{s.reps}{s.completed ? ' ✓' : ''}
-                    </span>
-                  ))}
-                </div>
-                <EffortChips value={currentData.effort || null} onChange={(v) => patchExercise(index, { effort: v })} accent={accent} />
-              </div>
-            </>
-          ) : (
-            <>
-              {/* Last workout: compact set chips */}
-              {progression.lastSession && (
-                <div className="mb-2 px-3 py-1.5 rounded-xl bg-zinc-900/50 border border-zinc-800/50">
-                  <div className="flex justify-between items-center">
-                    <span className="text-[10px] text-zinc-500">Last <span className="text-zinc-300 font-medium">{lastWorkoutDate}</span>{progression.lastSession.effort ? ` · felt ${progression.lastSession.effort}` : ''}</span>
-                  </div>
-                  <div className="flex gap-1.5 flex-wrap mt-1">
-                    {progression.lastSession.sets.map((s, i) => (
-                      <span key={i} className={`px-1.5 py-0.5 rounded text-[10px] ${s.warmup ? 'bg-amber-500/10 text-amber-400/80' : 'bg-zinc-800/50 text-zinc-300'}`}>
-                        {s.warmup ? 'W ' : ''}{s.weight}×{s.reps}{s.completed ? ' ✓' : ''}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Trend chart across all logged sessions */}
-              <ProgressSpark entries={getAllSessions(exercise.id)} accent={accent} config={exerciseConfig} />
-
-              {/* Progression suggestion with explanation */}
-              <div className="mb-2 px-3 py-1 rounded-xl border" style={{ background: suggestionBg, borderColor: `${suggestionColor}30` }}>
-                <div className="flex items-start gap-2">
-                  {progression.icon && <progression.icon className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: suggestionColor }} />}
-                  <div>
-                    <div className="text-xs font-medium" style={{ color: suggestionColor }}>{suggestionText}</div>
-                    <div className="text-[10px] text-zinc-500 mt-1">
-                      {progression.action === 'increase' || progression.action === 'progress'
-                        ? (progression.weight !== progression.lastWeight ? 'You hit your rep target last time - the new weight is filled in below.' : 'You hit your rep target last time - make it harder today.')
-                        : progression.action === 'decrease' || progression.action === 'regress'
-                        ? (progression.weight !== progression.lastWeight ? 'The lower weight is filled in below. Quality reps beat ego weight.' : 'Focus on form and control. Quality reps beat ego weight.')
-                        : progression.lastSession
-                        ? 'Aim for more reps at the same weight, or same reps with slightly more weight.'
-                        : 'Log your sets below. The app will suggest progression next time.'}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </>
-          )}
-
-          {/* Notes: collapsed row shows last session's note (first line) so it can't be missed */}
-          {notesOpen !== index ? (
-            <button onClick={() => setNotesOpen(index)} className="notes-row w-full text-left rounded-lg px-3 border border-zinc-800/50 bg-zinc-900/30 flex items-center gap-2" style={{ minHeight: paired ? 30 : 36 }}>
-              <StickyNote className="w-3.5 h-3.5 flex-shrink-0 text-amber-400/70" />
-              <span className="text-[11px] truncate flex-1 min-w-0">
-                {todayFirst
-                  ? <span className="text-zinc-200">{todayFirst}</span>
-                  : prevFirst
-                  ? <span className="text-amber-200/80 italic">Last time: {prevFirst}</span>
-                  : <span className="text-zinc-600">Add a note…</span>}
-              </span>
-            </button>
-          ) : (
-            <div className="notes-open rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2">
-              {prevNote && (
-                <div className="text-[11px] text-amber-200/80 italic mb-1 flex items-start gap-1.5">
-                  <StickyNote className="w-3.5 h-3.5 text-amber-400/70 mt-0.5 flex-shrink-0" />
-                  <span>Last time: {prevNote}</span>
-                </div>
-              )}
-              <textarea
-                value={currentData.notes || ''}
-                onChange={(e) => patchExercise(index, { notes: e.target.value })}
-                placeholder="Add workout notes..."
-                className="w-full text-sm text-white"
-                style={{ background: 'transparent', border: 'none' }}
-                rows={3}
-                autoFocus
-              />
-              <button onClick={() => setNotesOpen(null)} className="text-[10px] text-zinc-500 mt-1">Done</button>
+          {title}
+          {last && (
+            <div style={{ height: 50, boxSizing: 'border-box', padding: '7px 12px', borderRadius: 6, background: T.surface, marginBottom: G.card }}>
+              <div style={{ ...TY.label, ...ellipsis }}>Last · {lastDate}{last.effort ? ` · felt ${last.effort}` : ''}</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginTop: 4, overflow: 'hidden' }}><LastChips sets={last.sets} tight={six} /></div>
             </div>
           )}
-
-          {/* Journal - sets to log, plus the optional one-tap rating of the last set */}
-          <div style={{ marginTop: paired ? 4 : 8 }}>
-            {!paired && <div className="flex justify-between items-center mb-1">
-              <span className="text-xs text-zinc-500 font-medium">LOG YOUR SETS <span className="text-[9px] text-zinc-600" style={{ fontWeight: 400 }}>{exerciseConfig.assisted ? 'lbs assist' : 'lbs'} × reps</span></span>
-              <EffortChips value={currentData.effort || null} onChange={(v) => patchExercise(index, { effort: v })} accent={accent} />
-            </div>}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-              {currentData.sets.map((set, i) => (
-                <SetRow
-                  key={i}
-                  set={set}
-                  label={setLabel(currentData.sets, i)}
-                  accent={accent}
-                  config={exerciseConfig}
-                  onToggle={() => toggleSetComplete(index, i)}
-                  onChange={(field, value) => updateSet(index, i, field, value)}
-                  onCopy={i > 0 && !set.completed ? () => copyPreviousSet(index, i) : null}
-                />
-              ))}
-            </div>
+          <ProgressSpark entries={getAllSessions(exercise.id)} config={exerciseConfig} gap={G.card} />
+          <Verdict verdict={progression.verdict} reason={progression.suggestion} gap={G.card} />
+          {note(36, G.aboveSets)}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, height: 26, marginBottom: G.belowHeader }}>
+            <span><span style={TY.label}>Sets</span><span style={{ fontWeight: 500, fontSize: 11, lineHeight: '14px', color: T.ink3, marginLeft: 8 }}>{exerciseConfig.assisted ? 'lbs assist' : 'lbs'} · {repUnit}</span></span>
+            {effort}
           </div>
+          {setRows(G.rows)}
         </div>
       );
     };
 
     return (
-      <div className="min-h-screen text-white p-3 pb-24" style={{ background: config.bgGradient }}>
-        <div className="max-w-md mx-auto">
-          {/* Header */}
-          <div className="flex justify-between items-center" style={{ marginBottom: 2 }}>
-            <button onClick={() => setView('dayOverview')} className="text-zinc-500 p-1"><ChevronLeft className="w-5 h-5" /></button>
-            <div className="text-[10px] text-zinc-600">{paired ? `${unit[0] + 1}-${lastOfUnit + 1}` : currentExerciseIndex + 1}/{dayData.exercises.length}{paired ? ' · superset, alternate sets' : ''}</div>
-            {paired ? <div className="p-1"><div className="w-5 h-5" /></div> : (
-              <button onClick={() => setNotesOpen(notesOpen === null ? unit[0] : null)} className="text-zinc-500 p-1">
-                <StickyNote className="w-5 h-5" />
-              </button>
-            )}
-          </div>
-
-          {/* Progress bar */}
-          <div className="h-0.5 bg-zinc-800 rounded-full overflow-hidden" style={{ marginBottom: 6 }}>
-            <div className="h-full rounded-full" style={{ width: `${((lastOfUnit + 1) / dayData.exercises.length) * 100}%`, background: accent }} />
-          </div>
-
-          {unit.map((index, n) => (
-            <React.Fragment key={index}>
-              {n > 0 && <div className="bg-zinc-800" style={{ height: 1, margin: '8px 0 6px' }} />}
-              {renderPanel(index)}
-            </React.Fragment>
-          ))}
-
-          {/* Navigation - BIGGER buttons */}
-          <div className="fixed bottom-0 left-0 right-0 pointer-events-none" style={{ paddingBottom: 'calc(16px + env(safe-area-inset-bottom, 0px))' }}>
-            <div className="max-w-md mx-auto px-4 flex justify-between items-center">
-              <button
-                onClick={prevExercise}
-                disabled={currentExerciseIndex === 0}
-                className="pointer-events-auto w-16 h-16 rounded-xl flex items-center justify-center text-4xl text-zinc-600 disabled:opacity-20 active:scale-90 bg-zinc-900/80 border border-zinc-800"
-              >
-                ‹
-              </button>
-              <button
-                onClick={nextExercise}
-                className="pointer-events-auto px-4 py-2 rounded-lg flex items-center gap-1.5 text-xs font-medium active:scale-95 bg-zinc-800 border border-zinc-700 text-zinc-400"
-              >
-                <SkipForward className="w-4 h-4" /> Skip
-              </button>
-              <button
-                onClick={nextExercise}
-                className="pointer-events-auto w-16 h-16 rounded-xl flex items-center justify-center text-4xl active:scale-90 border"
-                style={{ color: accent, background: `${accent}15`, borderColor: accent }}
-              >
-                ›
-              </button>
+      <Page pad={12} bottom={110}>
+        {/* Nav row: back, position in the workout, notes */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 28, marginBottom: 2 }}>
+          <button onClick={() => setView('dayOverview')} className="nav-back" style={{ width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.ink3 }}><ChevronLeft size={18} /></button>
+          {paired ? (
+            <div className="step-position" style={{ ...TY.label, ...ellipsis }}>{unit[0] + 1}–{lastOfUnit + 1} of {exercises.length} · Superset, alternate sets</div>
+          ) : (
+            <div className="step-position" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+              <span style={srOnly}>{currentExerciseIndex + 1}/{exercises.length}</span>
+              {exercises.map((_, i) => <span key={i} style={{ width: 6, height: 6, borderRadius: 3, background: i === currentExerciseIndex ? T.accent : T.line }} />)}
             </div>
-          </div>
+          )}
+          {paired ? <div style={{ width: 28, height: 28 }} /> : (
+            <button onClick={() => setNotesOpen(notesOpen === null ? unit[0] : null)} className="nav-note" style={{ width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.ink3 }}><Pencil size={18} /></button>
+          )}
         </div>
-      </div>
+        <div style={{ height: 2, marginBottom: paired ? 6 : G.spacer }} />
+
+        {unit.map((index, n) => (
+          <React.Fragment key={index}>
+            {n > 0 && <div style={{ height: 1, margin: '8px 0', background: T.line }} />}
+            {renderPanel(index)}
+          </React.Fragment>
+        ))}
+
+        <BottomBar onPrev={prevExercise} prevDisabled={currentExerciseIndex === 0} onSkip={nextExercise} onNext={nextExercise} next={nextInfo} />
+      </Page>
     );
   }
 
   // SUMMARY (before final completion)
   if (view === 'summary') {
     const dayData = workoutData[selectedDay];
-    const accent = config.dayAccents[selectedDay];
     const completedCount = Object.values(sessionData).filter(d => d && d.sets.every(s => s.completed)).length;
-
     return (
-      <div className="min-h-screen text-white p-4 pb-24" style={{ background: config.bgGradient }}>
-        <div className="max-w-md mx-auto">
-          <h1 className="text-lg font-bold text-zinc-100 mb-1">Workout Summary</h1>
-          <p className="text-zinc-500 text-sm mb-4">{dayData.name}</p>
+      <Page bottom={160}>
+        <h1 style={TY.screenTitle}>Workout Summary</h1>
+        <p style={{ ...TY.subtitle, fontSize: 14, lineHeight: '20px', marginBottom: 24 }}>{dayData.name}</p>
 
-          <div className="px-4 py-2 rounded-xl bg-zinc-900/50 border border-zinc-800 mb-3 flex  justify-center gap-2" style={{ alignItems: 'baseline' }}>
-            <span className="text-2xl font-bold" style={{ color: accent }}>{completedCount}/{dayData.exercises.length}</span>
-            <span className="text-zinc-500 text-xs">exercises completed</span>
-          </div>
-
-          <button onClick={() => setAbsDone(!absDone)} className={`w-full rounded-lg px-3 py-2 mb-2 flex items-center gap-2.5 border transition-all active:scale-[0.98] ${absDone ? 'border-emerald-500/50 bg-emerald-500/10' : 'border-zinc-800/50'}`} style={absDone ? {} : { backgroundColor: '#12121a' }}>
-            <div className={`w-6 h-6 rounded flex items-center justify-center flex-shrink-0 ${absDone ? 'bg-emerald-500 text-white' : 'bg-zinc-800 text-zinc-600'}`}>
-              {absDone ? <Check className="w-4 h-4" /> : null}
-            </div>
-            <div className="flex-1 text-left">
-              <div className={`text-sm font-medium ${absDone ? 'text-emerald-300' : 'text-zinc-200'}`}>Pre-workout ab routine</div>
-              <div className="text-[10px] text-zinc-600">Saved with this workout</div>
-            </div>
-          </button>
-
-          <div className="space-y-1.5 mb-4">
-            {dayData.exercises.map((ex, i) => {
-              const data = sessionData[i];
-              if (!data) return null;
-              const completedSets = data.sets.filter(s => s.completed).length;
-              const nameParts = ex.name.split(' / ');
-              const usedAlt = useAltExercise[i] && nameParts.length > 1;
-              const displayName = usedAlt ? nameParts[1] : nameParts[0];
-
-              return (
-                <div key={i} className="rounded-lg px-3 py-2 border border-zinc-800/50" style={{ backgroundColor: '#12121a' }}>
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <div className="text-sm font-medium text-zinc-200">{displayName}</div>
-                      <div className="text-[10px] text-zinc-500">
-                        {completedSets}/{data.sets.length} sets · {(data.sets.find(s => !s.warmup) || data.sets[0])?.weight || 0} lbs
-                      </div>
-                    </div>
-                    {completedSets === data.sets.length ? (
-                      <Check className="w-4 h-4 text-emerald-500" />
-                    ) : (
-                      <span className="text-[10px] text-amber-500">{completedSets}/{data.sets.length}</span>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          <div className="fixed bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-zinc-950 to-transparent" style={{ paddingBottom: 'calc(12px + env(safe-area-inset-bottom, 0px))' }}>
-            <div className="max-w-md mx-auto space-y-2">
-              <button
-                onClick={completeWorkout}
-                className="w-full text-white font-semibold py-3.5 rounded-xl text-sm transition-all active:scale-[0.98]"
-                style={{ background: accent }}
-              >
-                Complete workout, progress weight
-              </button>
-              <button
-                onClick={() => startExercise(0)}
-                className="w-full text-zinc-400 font-medium py-2 text-sm"
-              >
-                Review Exercises
-              </button>
-            </div>
-          </div>
+        <div style={{ ...card, height: 47, boxSizing: 'border-box', marginBottom: 16, display: 'flex', justifyContent: 'center', alignItems: 'baseline', gap: 8 }}>
+          <span style={{ fontFamily: DISPLAY, fontWeight: 800, fontSize: 28, lineHeight: '44px', color: T.accent }}>{completedCount}<span style={{ color: T.ink3, fontWeight: 600 }}>/{dayData.exercises.length}</span></span>
+          <span style={TY.subtitle}>exercises completed</span>
         </div>
-      </div>
+
+        <AbRow done={absDone} onToggle={() => setAbsDone(!absDone)} gap={12} sub="Saved with this workout" />
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {dayData.exercises.map((ex, i) => {
+            const data = sessionData[i];
+            if (!data) return null;
+            const completedSets = data.sets.filter(s => s.completed).length;
+            const nameParts = ex.name.split(' / ');
+            const usedAlt = useAltExercise[i] && nameParts.length > 1;
+            return (
+              <div key={i} style={{ ...card, padding: '8px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ ...TY.rowTitle, ...ellipsis, lineHeight: '20px' }}>{usedAlt ? nameParts[1] : nameParts[0]}</div>
+                  <div style={TY.meta}>{completedSets}/{data.sets.length} sets · {(data.sets.find(s => !s.warmup) || data.sets[0])?.weight || 0} lbs</div>
+                </div>
+                {completedSets === data.sets.length ? (
+                  <span style={{ width: 24, height: 24, borderRadius: 6, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: T.accent, color: T.primaryInk }}><Check size={14} stroke={3.5} /></span>
+                ) : (
+                  <span style={{ fontWeight: 700, fontSize: 12, color: T.warn }}>{completedSets}/{data.sets.length}</span>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        <ActionBar>
+          <PrimaryButton onClick={completeWorkout} height={54}>Complete workout, progress weight</PrimaryButton>
+          <SecondaryButton onClick={() => startExercise(0)}>Review Exercises</SecondaryButton>
+        </ActionBar>
+      </Page>
     );
   }
 
   // COMPLETE
   if (view === 'complete') {
     const dayData = workoutData[selectedDay];
-    const accent = config.dayAccents[selectedDay];
     const todayDate = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
-
     return (
-      <div className="min-h-screen text-white p-4 flex items-center justify-center" style={{ background: config.bgGradient }}>
-        <div className="max-w-md mx-auto text-center">
-          <div className="w-20 h-20 mx-auto rounded-2xl flex items-center justify-center mb-6" style={{ background: accent }}>
-            <Trophy className="w-9 h-9 text-white" />
+      <Page center>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ width: 80, height: 80, margin: '0 auto 24px', borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', background: T.primaryBg, color: T.primaryInk }}>
+            <Trophy size={36} />
           </div>
-          <h1 className="text-xl font-bold text-zinc-100 mb-1">Workout Complete!</h1>
-          <p className="text-zinc-500 text-sm mb-2">{dayData.name}</p>
-          <p className="text-zinc-600 text-xs mb-6">{todayDate}{lastDurationMin ? ` · ${lastDurationMin} min` : ''}</p>
+          <h1 style={{ ...TY.screenTitle, marginBottom: 4 }}>Workout Complete!</h1>
+          <p style={{ ...TY.subtitle, fontSize: 14, lineHeight: '20px', marginBottom: 8 }}>{dayData.name}</p>
+          <p style={{ ...TY.subtitle, marginBottom: 24 }}>{todayDate}{lastDurationMin ? ` · ${lastDurationMin} min` : ''}</p>
 
-          {storageError && <div className="mb-6"><StorageWarning onBackup={exportBackup} /></div>}
-
+          {storageError && <div style={{ marginBottom: 24 }}><StorageWarning onBackup={exportBackup} /></div>}
           {completedPRs.length > 0 && (
-            <div className="mb-6 space-y-2">
-              <div className="text-[10px] font-semibold tracking-widest text-amber-400">PERSONAL RECORDS</div>
+            <div style={{ marginBottom: 24, display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div style={TY.accentLabel}>Personal records</div>
               {completedPRs.map((pr, i) => (
-                <div key={i} className="p-3 rounded-xl border border-amber-500/30 bg-amber-500/10 text-left flex items-center gap-3">
-                  <Trophy className="w-4 h-4 text-amber-400 flex-shrink-0" />
+                <div key={i} style={{ padding: 12, borderRadius: 8, textAlign: 'left', display: 'flex', alignItems: 'center', gap: 12, background: tint(0.10), border: `1px solid ${tint(0.55)}` }}>
+                  <span style={{ color: T.accent }}><Trophy size={16} /></span>
                   <div>
-                    <div className="text-sm font-medium text-zinc-100">{pr.name}</div>
-                    <div className="text-[11px] text-amber-300/90">{pr.detail} <span className="text-zinc-500">(was {pr.prev})</span></div>
+                    <div style={{ ...TY.rowTitle, lineHeight: '20px' }}>{pr.name}</div>
+                    <div style={{ ...TY.note, color: T.accent }}>{pr.detail} <span style={{ color: T.ink3 }}>(was {pr.prev})</span></div>
                   </div>
                 </div>
               ))}
             </div>
           )}
 
-          <button
-            onClick={() => {
-              setView('home');
-              setSelectedDay(null);
-              setSessionData({});
-              setSessionDay(null);
-              setWorkoutStartedAt(null);
-              setCompletedPRs([]);
-            }}
-            className="w-full text-white font-semibold py-3.5 rounded-xl text-sm"
-            style={{ background: accent }}
-          >
-            Done
-          </button>
+          <PrimaryButton onClick={() => {
+            setView('home');
+            setSelectedDay(null);
+            setSessionData({});
+            setSessionDay(null);
+            setWorkoutStartedAt(null);
+            setCompletedPRs([]);
+          }}>Done</PrimaryButton>
         </div>
-      </div>
+      </Page>
     );
   }
 

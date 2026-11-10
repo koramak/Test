@@ -31,9 +31,11 @@ const ok = (name, cond) => { console.log((cond ? 'PASS' : 'FAIL') + ' ' + name);
   const root = dom.window.document.getElementById('root');
   const btn = (t) => [...root.querySelectorAll('button')].find(b => b.textContent.replace(/\s+/g, ' ').trim().includes(t));
   const txt = () => root.textContent;
+  const verdict = () => (root.querySelector('.verdict') || {}).textContent;
+  const reason = () => (root.querySelector('.verdict')?.getAttribute('data-reason')) || '';
   if (txt().includes('Choose Your Program')) { btn('Strongman').click(); await wait(500); }
   ok('home lists 6 days', txt().includes('Day 6'));
-  ok('consistency widget sees seeded sessions', txt().includes('LAST 8 WEEKS') && txt().includes('3 total'));
+  ok('consistency widget sees seeded sessions', txt().includes('Last 8 weeks') && txt().includes('3 total'));
 
   // Lower Size (new day4): squat history from old day4 must show; light deadlift derived from deadlift (225 -> 175)
   btn('Lower Size').click(); await wait(500);
@@ -41,20 +43,20 @@ const ok = (name, cond) => { console.log((cond ? 'PASS' : 'FAIL') + ' ' + name);
   ok('squat row shows old history (155 lbs)', /Barbell Squat[^|]*155 lbs/.test(rowText));
   const rows = [...root.querySelectorAll('.exercise-row')];
   rows[1].click(); await wait(500);
-  ok('light deadlift is derived: 78% of 225 = 175', txt().includes('78% of your Conventional Deadlift (225 lb)') && [...root.querySelectorAll('button')].some(b => b.className.includes('w-9 h-11')) && txt().includes('175'));
+  ok('light deadlift is derived: 78% of 225 = 175', reason().includes('78% of your Conventional Deadlift (225 lb)') && verdict() === 'Light day · 78%' && [...root.querySelectorAll('button')].some(b => b.className.includes('w-9 h-11')) && txt().includes('175'));
   // header back (chevron icon) -> day overview -> home
-  root.querySelector('button.p-1').click(); await wait(300);
+  root.querySelector('.nav-back').click(); await wait(300);
   btn('Back').click(); await wait(300);
   btn('Lower Power').click(); await wait(500);
   const rowText2 = [...root.querySelectorAll('.exercise-row')].map(r => r.textContent).join(' | ');
   ok('leg curl history follows the exercise across days (latest = 95 lbs)', /Leg Curl[^|]*95 lbs/.test(rowText2));
   const rows2 = [...root.querySelectorAll('.exercise-row')];
   rows2[0].click(); await wait(500);
-  ok('deadlift stall reset fires after 4 flat sessions (225 -> 205)', txt().includes('Stalled 3 sessions') && txt().includes('205'));
-  const nextBtn = btn('›'); nextBtn.click(); await wait(400);
-  ok('light squat derived: 78% of 155 = 120', txt().includes('78% of your Barbell Squat (155 lb)') && txt().includes('120'));
+  ok('deadlift stall reset fires after 4 flat sessions (225 -> 205)', reason().includes('Stalled 3 sessions') && verdict() === 'Lower weight' && txt().includes('205'));
+  root.querySelector('.nav-next').click(); await wait(400);
+  ok('light squat derived: 78% of 155 = 120', reason().includes('78% of your Barbell Squat (155 lb)') && txt().includes('120'));
   // "?" info sheet for a derived exercise borrows the parent's description
-  root.querySelector('button.p-1').click(); await wait(300);
+  root.querySelector('.nav-back').click(); await wait(300);
   [...root.querySelectorAll('.exercise-row')][1].querySelector('.info-btn').click(); await wait(300);
   ok('info sheet for light squat shows squat description', !!root.querySelector('.info-sheet') && root.querySelector('.info-sheet').textContent.length > 80);
   btn('Close').click(); await wait(200);
@@ -67,14 +69,14 @@ const ok = (name, cond) => { console.log((cond ? 'PASS' : 'FAIL') + ' ' + name);
   const latRow = upRows.findIndex(r => r.textContent.includes('Lateral Raise + Bent-Over Fly'));
   ok('upper size: combined lateral + fly row is 2 x 7-12', latRow >= 0 && upRows[latRow].textContent.includes('2 × 7-12'));
   ok('upper size: overhead tricep extension is gone', !upRows.some(r => /Overhead Tricep/.test(r.textContent)) && upRows.some(r => r.textContent.includes('Leaning Tricep Extension')));
-  const bigNums = () => [...root.querySelectorAll('div.text-lg.font-bold')].map(d => d.textContent).join(',');
+  const bigNums = () => [...root.querySelectorAll('.set-value')].map(d => d.textContent).join(',');
   upRows[latRow].click(); await wait(500);
   ok('lateral + fly pre-fills 2 sets of 10 lb x 7, not the old 15 x 15', bigNums() === '10,7,10,7');
-  root.querySelector('button.p-1').click(); await wait(300);
+  root.querySelector('.nav-back').click(); await wait(300);
   const triRow = [...root.querySelectorAll('.exercise-row')].findIndex(r => r.textContent.includes('Leaning Tricep Extension'));
   [...root.querySelectorAll('.exercise-row')][triRow].click(); await wait(500);
   ok('leaning tricep extension starts fresh (30 lb), not from overhead history (50 lb)', bigNums().split(',')[0] === '30' && !txt().includes('50×12'));
-  root.querySelector('button.p-1').click(); await wait(300);
+  root.querySelector('.nav-back').click(); await wait(300);
 
   // CSV import: an export from the OLD 4-day program (old names, old day keys) rebuilds history
   dom.window.confirm = () => true; dom.window.alert = () => {};

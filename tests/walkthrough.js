@@ -44,20 +44,22 @@ const ok = (name, cond) => { console.log((cond ? 'PASS' : 'FAIL') + ' ' + name);
   ok('overview: info sheet closes, still on overview', !root.querySelector('.info-sheet') && txt().includes('Pre-workout ab routine'));
   rows[2].click(); await wait(600);
   ok('exercise: jumped to #3', txt().includes('3/'));
-  ok('exercise: set rows', txt().includes('LOG YOUR SETS'));
+  ok('exercise: set rows', root.querySelectorAll('.set-row').length >= 3);
   ok('exercise: notes row collapsed by default', !!root.querySelector('.notes-row') && !root.querySelector('textarea'));
   root.querySelector('.notes-row').click(); await wait(300);
   ok('exercise: notes row expands to textarea', !!root.querySelector('textarea'));
-  ok('exercise: suggestion banner', /rep range|suggested weight|Log your sets|adding weight/.test(txt()));
+  ok('exercise: one-line verdict', ['Hold', 'Raise reps', 'Raise weight', 'Lower weight', 'First session', 'Skipped last time'].includes((root.querySelector('.verdict') || {}).textContent));
   const toggles = [...root.querySelectorAll('button')].filter(b => b.className.includes('w-9 h-11') || (b.className.includes('rounded-full') && b.style.width === '38px'));
-  const t0 = toggles[0]; const h0 = t0.innerHTML; t0.click(); await wait(300);
-  const h1 = t0.innerHTML; t0.click(); await wait(300);
-  ok('exercise: set toggles on AND off (never locks)', h1 !== h0 && t0.innerHTML === h0);
+  const t0 = toggles[0]; const isOn = () => !!t0.querySelector('svg'); const on0 = isOn(); t0.click(); await wait(300);
+  const on1 = isOn(); t0.click(); await wait(300);
+  ok('exercise: set toggles on AND off (never locks)', !on0 && on1 && !isOn());
   const plus = [...root.querySelectorAll('button')].filter(b => b.textContent.trim() === '+');
   const before = txt(); plus[0].click(); await wait(200);
   ok('exercise: weight stepper', txt() !== before);
-  ok('exercise: prev/next/skip present', !!btn('‹') && !!btn('›') && !!btn('Skip'));
-  btn('‹').click(); await wait(400); ok('exercise: prev works', txt().includes('2/'));
+  const nav = (c) => root.querySelector('.nav-' + c);
+  ok('exercise: prev/skip/next present, in that order', [...root.querySelectorAll('.bottom-bar button')].map(b => b.className.split(' ')[0]).join() === 'nav-prev,nav-skip,nav-next');
+  ok('exercise: next names the following exercise', /Next · \d/.test(nav('next').textContent));
+  nav('prev').click(); await wait(400); ok('exercise: prev works', txt().includes('2/'));
   btn('Skip').click(); await wait(400); ok('exercise: skip advances', txt().includes('3/'));
   const alt = root.querySelector('.alt-toggle'); ok('exercise: alt toggle', !!alt); if (alt) { alt.click(); await wait(300); }
   if (!root.querySelector('textarea')) { root.querySelector('.notes-row').click(); await wait(300); }
@@ -67,18 +69,18 @@ const ok = (name, cond) => { console.log((cond ? 'PASS' : 'FAIL') + ' ' + name);
   ok('exercise: notes persist in state', root.querySelector('textarea').value === 'felt great');
   btn('Done').click(); await wait(200);
   ok('exercise: collapsed row previews today\'s note', (root.querySelector('.notes-row') || {}).textContent?.includes('felt great'));
-  for (let i = 0; i < 14; i++) { const n = btn('›'); if (!n) break; n.click(); await wait(120); }
+  for (let i = 0; i < 14; i++) { const n = root.querySelector('.nav-next'); if (!n) break; n.click(); await wait(120); }
   await wait(500);
   ok('summary renders', /Workout Summary|Summary/.test(txt()));
   btn('Complete workout').click(); await wait(800);
   ok('complete renders', /Workout Complete|Total volume/.test(txt()));
   btn('Done').click(); await wait(500);
-  ok('home again + consistency widget', txt().includes('LAST 8 WEEKS'));
+  ok('home again + consistency widget', txt().includes('Last 8 weeks'));
   // Re-enter: last session note must surface for the exercise it was left on
   btn('Upper Power').click(); await wait(500);
   const rows2 = [...root.querySelectorAll('.exercise-row')];
   rows2[2].click(); await wait(600);
-  ok('exercise: previous note previewed as "Last time:"', (root.querySelector('.notes-row') || {}).textContent?.includes('Last time: felt great'));
+  ok('exercise: previous note previewed as "Last time"', (root.querySelector('.notes-row') || {}).textContent?.replace(/\s+/g, ' ').includes('Last timefelt great'));
   console.log(`${pass} passed, ${fail} failed`);
   process.exit(fail ? 1 : 0);
 })();
