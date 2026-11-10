@@ -4,7 +4,12 @@
 **Product:** `workout-tracker.html` — a single-file, offline, iPhone home-screen web app used mid-set in a gym. It is a **generated file**: the app source is `src/workout-tracker.jsx`, the head / compiled CSS / inlined React are in `src/shell.html`, and `cd tests && npm run build` produces the HTML.
 **Ask:** a **visual** refresh. Not a redesign of how it works.
 
-> **Updated 2026-11-10.** The app changed after the first design round: a superset screen, a history editor, effort chips, a rep-aware chart, a "Next" marker on Home, and a source/build split. §2, §3, §4b and §6 below describe the app as it is now. The artboards in `design/canvas/` predate these changes and must be rebased on the new screenshots before any restyle is applied.
+> **Updated 2026-11-10, after the design round.** The visual refresh is specified in `design/handoff/HANDOFF.md` (tokens, components, per-screen measurements, nine reference screens). Where that handoff and this brief disagree on visuals, the handoff wins. Three functional departures from the earlier version of §2 were decided by the lifter on 2026-11-10 and are written into §2 below:
+> - **A.** The coaching cue and the target line are removed from the logging screens (single exercise and both superset panels).
+> - **B.** The suggestion banner is one bold verdict with no second line.
+> - **C.** Prev / Skip / Next are an 87 px bar: Prev and Skip 64 × 87, Next fills the rest and names the next exercise.
+>
+> Also decided: one accent colour (blue) replaces the six per-day colours, emerald and amber; coral is the warning colour. The six-set exercise (Sled Push, Day 6) uses tighter gaps with the same control sizes.
 
 ---
 
@@ -32,15 +37,26 @@ Every one of these must exist, unchanged in behavior, on the same screen it is o
 ### Logging screen (the one that matters most)
 1. **Every set is its own row**, all visible at once (up to 5). Each row: a complete toggle, weight − / value / +, reps − / value / +, and (rows 2+) a copy-previous-set button.
 2. Any set can be **toggled complete and back**, and edited **at any time**, in any order. Nothing ever locks.
-3. **Prev / Skip / Next** fixed at the bottom. Skip moves on without logging; an exercise with no checked working set is saved as skipped. On a superset, all three treat the pair as one step.
-4. Exercise name with an inline **alternate-exercise toggle** ("Trap Bar Deadlift" ⇄), the program's one-line coaching cue under it, and a **target line** in the accent color: sets × reps, rest, the progression rule ("+5 lb when every set hits 12", "78% of your heavy day"), reps in reserve.
+3. **Prev / Skip / Next** as a fixed bar, 87 px high, on the bottom safe area, in that order. Prev and Skip are 64 × 87. Next fills the remaining width and shows `Next · 2 of 6`, the next exercise's name (up to two lines) and `sets × reps · last <weight> lb`; on the last exercise it names the Summary. Behaviour is unchanged: Skip moves on without logging, an exercise with no checked working set is saved as skipped, and on a superset all three treat the pair as one step.
+4. Exercise name with an inline **alternate-exercise toggle** ("Trap Bar Deadlift" ⇄). The coaching cue and the target line are **not shown** on the logging screens (decision A); the cue's content still exists in the program data and the "?" sheet on the day overview still shows the rep range and increment. Position in the workout is shown as step dots.
 5. **Last-workout row**: date + a chip per set (`W 118×5 ✓` for warm-ups, `235×4 ✓`).
 6. **Progress chart** (sparkline across all sessions, with the delta). It plots the best set's estimated 1RM (label `EST. 1RM`), best reps for bodyweight lifts (`BEST REPS`), or the load for carries, sleds and assisted lifts (`LOAD`). The lifter explicitly asked to keep this.
-7. **Suggestion banner**: what the app recommends today and one line of why (increase / hold / decrease / reset / "78% of your squat"). The recommended weight is already filled into the set rows.
+7. **Verdict** (decision B): one bold line with a glyph, never a second line. The recommended weight is already filled into the set rows.
+   | Label | Glyph | Colour | When |
+   |---|---|---|---|
+   | Hold | dash | accent | same weight, build reps (the common case) |
+   | Raise reps | plus | accent | last set was rated Easy inside the range; bodyweight lifts that hit the top |
+   | Raise weight | up arrow | accent | every set hit the top of the range |
+   | Lower weight | down arrow | warn | below the range, or a stall reset |
+   | Less assist | up arrow | accent | assisted lifts: every set hit the top (the logged number goes down) |
+   | More assist | down arrow | warn | assisted lifts: below the range (the logged number goes up) |
+   | Light day · 78% | dash | accent | the light squat / light deadlift, whose weight follows the heavy lift |
+   | Skipped last time | dash | accent | the last session of this exercise had no checked set |
+   | First session | dash | accent | no history yet |
 8. **Notes row**, collapsed by default, showing today's note or *"Last time: <first line of last session's note>"*; tap to expand a textarea. This preview is deliberate — a note the lifter can't see isn't a note.
 9. Warm-up sets are marked (`W`) and visibly distinct from working sets.
 10. **Effort chips**: `last set  [Easy] [Max]` on the right of the "LOG YOUR SETS" header, 26 px tall. Optional: untouched means "about right"; one tap sets, the same tap clears. The selected chip takes the day accent. (The old abs-slot dropdown no longer exists.)
-10a. **Superset screen**: the two exercises of a superset share one screen as two compact panels separated by a hairline. Each panel has: name + alternate toggle, target line (one line, truncated), suggestion (one line, colored), one row with last-session chips on the left and the effort chips on the right, collapsed notes row (30 px), and its set rows. The plan note, chart and "LOG YOUR SETS" header are omitted on this screen only. The header reads `4-5/6 · superset, alternate sets`. Set rows are identical to the single-exercise screen.
+10a. **Superset screen**: the two exercises of a superset share one screen as two compact panels separated by a hairline. Each panel has: name + alternate toggle, an inline verdict (one line), one row with last-session chips on the left and the effort chips on the right, collapsed notes row (30 px), and its set rows. No chart, no "Sets" header, no cue and no target line. The header reads `4–5 of 6 · Superset, alternate sets`. Set rows are identical to the single-exercise screen.
 
 ### Day overview
 11. Back, day name and focus line, the **5-minute mobility block** (5 short lines), the **ab-routine checkbox** with adherence text, one tappable row per exercise (name, sets × reps, last weight, "⇄" marker on superset pairs, checkmark once worked this session), a **"?" button per row** that opens a bottom sheet (description, video link, rep range, increment), and a fixed **Start / Continue workout** button.
@@ -81,12 +97,12 @@ Every one of these must exist, unchanged in behavior, on the same screen it is o
 These come from `tests/measure.js --seed` (`npm run measure`), which renders each screen in Chromium at 393×852 with seeded history and the standalone insets applied. It also checks the touch-target sizes below and exits non-zero if a screen overflows or a target shrinks. Re-run it on any layout proposal.
 
 - The exercise screen has essentially **zero vertical slack**. Any added padding, larger type, or taller cards there must be paid for elsewhere on the same screen. A design that adds 10 pt per set row is 50 pt over.
-- **One layout for all exercises.** Sizes do not change with the number of sets (see §1). A 3-set exercise shows the same 44 px steppers and 18 px numerals as a 5-set one and leaves the bottom of the screen empty.
+- **One layout for all exercises**, with one narrow exception. Sizes do not change with the number of sets (see §1): a 3-set exercise shows the same 44 px steppers and 18 px numerals as a 5-set one and leaves the bottom of the screen empty. The exception is the six-set exercise (Sled Push on Day 6): controls stay the same size and only the gaps between elements shrink.
 - The compiled stylesheet contains only the Tailwind classes the app already uses. A new utility class is silently ignored at runtime — one such class once collapsed every set row in Safari while passing the DOM tests. Anything new must be an inline style, and `tests/measure.js` is the check.
 - Content must never sit under the Dynamic Island or the home indicator.
 
 ### Touch targets
-- Keep every current hit size: set toggle 36 × 44, stepper buttons 44 × 44, prev/next 64 × 64, Skip ≥ 32 tall (34 today), "?" 36 × 36, rows ≥ 44 tall. These are used with chalked hands between heavy sets. Do not shrink; may enlarge only if the height budget allows.
+- Keep every hit size: set toggle 36 × 44, stepper buttons 44 × 44, Prev and Skip 64 × 87, Next at least 64 × 87, "?" 36 × 36, effort chips at least 40 × 26, rows ≥ 44 tall. These are used with chalked hands between heavy sets. Do not shrink; may enlarge only if the height budget allows.
 - No hover-only affordances. No gestures (swipe-to-delete, long-press) as the only way to do anything.
 
 ### Implementation reality
