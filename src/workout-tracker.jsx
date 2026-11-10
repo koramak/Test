@@ -129,7 +129,8 @@ const progressionConfig = {
   low_high_fly: { progressionType: "rep-first", weightIncrement: 2.5, repRange: [12, 15], rirTarget: 2, restTime: 60, cue: 'Focus on chest squeeze' },
   // startReps/restartFrom: new prescription (2 x 7 at 10 lb, build to 12). Sessions logged before
   // restartFrom stay in the history and chart but no longer seed the weight, reps or suggestion.
-  lateral_raise: { progressionType: "rep-first", weightIncrement: 1.25, repRange: [7, 12], startReps: 7, restartFrom: '2026-11-10T00:00', rirTarget: 2, restTime: 60, cue: 'Build to 12 on both sets, then add weight' },
+  // weightSteps: the dumbbells on the rack. Suggestions and the +/- buttons move along this list.
+  lateral_raise: { progressionType: "rep-first", weightIncrement: 2.5, weightSteps: [5, 7, 10, 12, 15, 17, 20, 22, 25, 27, 30], repRange: [7, 12], startReps: 7, restartFrom: '2026-11-10T00:00', rirTarget: 2, restTime: 60, cue: 'Build to 12 on both sets, then add weight' },
   incline_curl: { progressionType: "rep-first", weightIncrement: 2.5, repRange: [10, 12], rirTarget: 2, restTime: 60, cue: 'Focus on stretch at bottom' },
   hammer_curl: { progressionType: "rep-first", weightIncrement: 2.5, repRange: [10, 15], rirTarget: 2, restTime: 60, cue: 'Building brachialis' },
   bayesian_curl: { progressionType: "rep-first", weightIncrement: 2.5, repRange: [10, 15], rirTarget: 2, restTime: 60, cue: 'Constant tension advantage' },
@@ -170,6 +171,14 @@ const getPerformedSets = (session) => {
   const done = working.filter(s => s.completed);
   return done.length > 0 ? done : working;
 };
+// One step up or down in load: along config.weightSteps when the exercise has a fixed
+// ladder (dumbbells), otherwise by a flat increment.
+const stepWeight = (config, weight, dir, inc = config.weightIncrement || 5) => {
+  const steps = config.weightSteps;
+  if (!steps) return Math.max(0, weight + dir * inc);
+  const next = dir > 0 ? steps.find(w => w > weight) : [...steps].reverse().find(w => w < weight);
+  return next ?? weight;
+};
 const avgRepsOf = (sets) => sets.reduce((a, s) => a + s.reps, 0) / Math.max(1, sets.length);
 
 // Single progression engine: hit the top of the rep range on every working
@@ -187,7 +196,10 @@ const runProgression = (config, lastSession) => {
   const hitTop = working.every(s => s.completed) && minReps >= high;
   // Number-agnostic increments for the big lifts: ~2% of the load rounded to 5, never below 5
   const load = sets[0]?.weight || 0;
-  const inc = config.incrementPct ? Math.max(5, Math.round((load * config.incrementPct) / 5) * 5) : config.weightIncrement;
+  const flatInc = config.incrementPct ? Math.max(5, Math.round((load * config.incrementPct) / 5) * 5) : config.weightIncrement;
+  const up = stepWeight(config, load, 1, flatInc), down = stepWeight(config, load, -1, flatInc);
+  // On a ladder the step size depends on where you are, so derive it from the neighbours
+  const inc = config.weightSteps ? (up - load || load - down) : flatInc;
   if (config.assisted) {
     const assist = sets[0]?.weight ?? 0;
     if (hitTop) {
@@ -201,14 +213,14 @@ const runProgression = (config, lastSession) => {
   if (hitTop) {
     // Every set blew through the range -> double jump so a range can't strand you
     const bigJump = inc > 0 && minReps >= high + 2;
-    const amount = bigJump ? inc * 2 : inc;
+    const amount = config.weightSteps ? stepWeight(config, bigJump ? up : load, 1) - load : bigJump ? inc * 2 : inc;
     return inc > 0
       ? { action: 'increase', amount, reason: bigJump ? `Every set ${high + 2}+ → Add ${amount} lbs (double jump)` : `Hit ${high}+ on every set → Add ${amount} lbs` }
       : { action: 'progress', reason: `Hit ${high}+ → Progress difficulty (ROM, pause, or add weight)` };
   }
   if (avgReps < low) {
     return inc > 0
-      ? { action: 'decrease', amount: inc, reason: `Below ${low} reps → Drop ${inc} lbs` }
+      ? { action: 'decrease', amount: load - down, reason: `Below ${low} reps → Drop ${load - down} lbs` }
       : { action: 'regress', reason: `Below ${low} reps → Use an easier variation` };
   }
   return { action: 'maintain', reason: config.cue || 'Building within rep range' };
@@ -305,7 +317,7 @@ const workoutData4Day = {
     { id: "incline_db", name: "Incline Dumbbell Press (30°) / Machine Incline", sets: 4, warmupSets: 1, reps: "6-10", defaultWeight: 50, muscles: ["upperChest", "shoulders", "triceps"], notes: "1 feeder, then 3 working · deep stretch · 2 min", progression: { repRange: [6, 10], restTime: 120 } },
     { id: "cable_row", name: "Cable Row / Machine Row", sets: 3, reps: "8-12", defaultWeight: 120, muscles: ["lats", "traps", "biceps"], notes: "Between the two presses · squeeze, don't heave · 90 s", progression: { repRange: [8, 12], restTime: 75 } },
     { id: "incline_machine", name: "Incline Machine Press (30°) / Incline Smith", sets: 3, reps: "8-12", defaultWeight: 120, muscles: ["upperChest", "shoulders", "triceps"], notes: "Second chest exposure, after the row · 0-1 reps in reserve · 90 s" },
-    { id: "lean_tri_ext", name: "Leaning Tricep Extension / Tricep Pushdown", sets: 4, reps: "8-15", defaultWeight: 30, muscles: ["triceps"], notes: "⇄ Superset with EZ curl · face away, lean forward, press forward · last set to failure", superset: 1 },
+    { id: "lean_tri_ext", name: "Leaning Tricep Extension / Tricep Pushdown", sets: 3, reps: "8-15", defaultWeight: 30, muscles: ["triceps"], notes: "⇄ Superset with EZ curl · face away, lean forward, press forward · last set to failure", superset: 1 },
     { id: "high_rep_curl", name: "EZ Bar Curl / Cable Curl", sets: 3, reps: "6-10", defaultWeight: 55, muscles: ["biceps"], notes: "⇄ Superset with tricep extension · heavy, strict, full range", superset: 1, progression: { progressionType: "load-first", repRange: [6, 10], restTime: 75 } },
     { id: "lateral_raise", name: "Lateral Raise + Bent-Over Fly / Cable Lateral", sets: 2, reps: "7-12", defaultWeight: 10, muscles: ["sideDelts", "rearDelts"], notes: "Side raise + bent-over fly back to back = 1 set · start 7 reps, build to 12 · 60 s" }
   ]},
@@ -1232,7 +1244,7 @@ function WorkoutApp() {
                     )}
                     <span className="px-2 py-0.5 rounded-full text-[9px] font-medium" style={{ background: `${accent}15`, color: accent }}>{cfg.repRange[0]}-{cfg.repRange[1]} reps</span>
                     {cfg.weightIncrement > 0 && (
-                      <span className="px-2 py-0.5 rounded-full text-[9px] font-medium" style={{ background: `${accent}15`, color: accent }}>{cfg.assisted ? `−${cfg.weightIncrement} lb assist` : `+${cfg.weightIncrement} lb`}</span>
+                      <span className="px-2 py-0.5 rounded-full text-[9px] font-medium" style={{ background: `${accent}15`, color: accent }}>{cfg.assisted ? `−${cfg.weightIncrement} lb assist` : cfg.weightSteps ? 'next dumbbell up' : `+${cfg.weightIncrement} lb`}</span>
                     )}
                     {media?.source && <span className="text-[9px] text-zinc-600">Source: {media.source}</span>}
                   </div>
@@ -1260,7 +1272,6 @@ function WorkoutApp() {
     const progression = calculateProgression(exercise);
     const exerciseConfig = getExerciseConfig(exercise);
     const accent = config.dayAccents[selectedDay];
-    const weightIncrement = exerciseConfig.weightIncrement || 5;
     const nameParts = exercise.name.split(' / ');
     const hasAlt = nameParts.length > 1;
     const isUsingAlt = useAltExercise[currentExerciseIndex];
@@ -1286,6 +1297,7 @@ function WorkoutApp() {
     if (exerciseConfig.restTime) targetBits.push(`rest ${exerciseConfig.restTime >= 60 ? (exerciseConfig.restTime / 60).toFixed(exerciseConfig.restTime % 60 ? 1 : 0) + ' min' : exerciseConfig.restTime + ' s'}`);
     if (exerciseConfig.derivedFrom) targetBits.push(`${Math.round(exerciseConfig.pct * 100)}% of your heavy day`);
     else if (exerciseConfig.assisted) targetBits.push(`−${exerciseConfig.weightIncrement} lb assist when every set hits ${rrHigh}`);
+    else if (exerciseConfig.weightSteps) targetBits.push(`next dumbbell up when every set hits ${rrHigh}`);
     else if (exerciseConfig.weightIncrement > 0) targetBits.push(`+${exerciseConfig.incrementPct ? '~2%' : exerciseConfig.weightIncrement + ' lb'} when every set hits ${rrHigh}`);
     if (typeof exerciseConfig.rirTarget === 'number') targetBits.push(`${exerciseConfig.rirTarget} in reserve`);
 
@@ -1427,9 +1439,9 @@ function WorkoutApp() {
                       {set.completed ? <Check className="w-4 h-4" /> : set.warmup ? 'W' : i + 1 - currentData.sets.slice(0, i).filter(s => s.warmup).length}
                     </button>
                     <div className="flex items-center gap-1 flex-1">
-                      <StepBtn accent={accent} onClick={() => updateSet(i, 'weight', Math.max(0, set.weight - weightIncrement))}>−</StepBtn>
+                      <StepBtn accent={accent} onClick={() => updateSet(i, 'weight', stepWeight(exerciseConfig, set.weight, -1))}>−</StepBtn>
                       <div className="flex-1 text-center text-lg font-bold text-zinc-100">{set.weight}</div>
-                      <StepBtn accent={accent} onClick={() => updateSet(i, 'weight', set.weight + weightIncrement)}>+</StepBtn>
+                      <StepBtn accent={accent} onClick={() => updateSet(i, 'weight', stepWeight(exerciseConfig, set.weight, 1))}>+</StepBtn>
                     </div>
                     <div className="w-px h-6 bg-zinc-800" />
                     <div className="flex items-center gap-1 flex-1">

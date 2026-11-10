@@ -1114,7 +1114,8 @@ const progressionConfig = {
   },
   lateral_raise: {
     progressionType: "rep-first",
-    weightIncrement: 1.25,
+    weightIncrement: 2.5,
+    weightSteps: [5, 7, 10, 12, 15, 17, 20, 22, 25, 27, 30],
     repRange: [7, 12],
     startReps: 7,
     restartFrom: '2026-11-10T00:00',
@@ -1309,6 +1310,12 @@ const getPerformedSets = session => {
   const done = working.filter(s => s.completed);
   return done.length > 0 ? done : working;
 };
+const stepWeight = (config, weight, dir, inc = config.weightIncrement || 5) => {
+  const steps = config.weightSteps;
+  if (!steps) return Math.max(0, weight + dir * inc);
+  const next = dir > 0 ? steps.find(w => w > weight) : [...steps].reverse().find(w => w < weight);
+  return next ?? weight;
+};
 const avgRepsOf = sets => sets.reduce((a, s) => a + s.reps, 0) / Math.max(1, sets.length);
 const runProgression = (config, lastSession) => {
   const working = getWorkingSets(lastSession);
@@ -1322,7 +1329,10 @@ const runProgression = (config, lastSession) => {
   const minReps = Math.min(...sets.map(s => s.reps));
   const hitTop = working.every(s => s.completed) && minReps >= high;
   const load = sets[0]?.weight || 0;
-  const inc = config.incrementPct ? Math.max(5, Math.round(load * config.incrementPct / 5) * 5) : config.weightIncrement;
+  const flatInc = config.incrementPct ? Math.max(5, Math.round(load * config.incrementPct / 5) * 5) : config.weightIncrement;
+  const up = stepWeight(config, load, 1, flatInc),
+    down = stepWeight(config, load, -1, flatInc);
+  const inc = config.weightSteps ? up - load || load - down : flatInc;
   if (config.assisted) {
     const assist = sets[0]?.weight ?? 0;
     if (hitTop) {
@@ -1349,7 +1359,7 @@ const runProgression = (config, lastSession) => {
   }
   if (hitTop) {
     const bigJump = inc > 0 && minReps >= high + 2;
-    const amount = bigJump ? inc * 2 : inc;
+    const amount = config.weightSteps ? stepWeight(config, bigJump ? up : load, 1) - load : bigJump ? inc * 2 : inc;
     return inc > 0 ? {
       action: 'increase',
       amount,
@@ -1362,8 +1372,8 @@ const runProgression = (config, lastSession) => {
   if (avgReps < low) {
     return inc > 0 ? {
       action: 'decrease',
-      amount: inc,
-      reason: `Below ${low} reps → Drop ${inc} lbs`
+      amount: load - down,
+      reason: `Below ${low} reps → Drop ${load - down} lbs`
     } : {
       action: 'regress',
       reason: `Below ${low} reps → Use an easier variation`
@@ -1657,7 +1667,7 @@ const workoutData4Day = {
     }, {
       id: "lean_tri_ext",
       name: "Leaning Tricep Extension / Tricep Pushdown",
-      sets: 4,
+      sets: 3,
       reps: "8-15",
       defaultWeight: 30,
       muscles: ["triceps"],
@@ -3300,7 +3310,7 @@ function WorkoutApp() {
           background: `${accent}15`,
           color: accent
         }
-      }, cfg.assisted ? `−${cfg.weightIncrement} lb assist` : `+${cfg.weightIncrement} lb`), media?.source && React.createElement("span", {
+      }, cfg.assisted ? `−${cfg.weightIncrement} lb assist` : cfg.weightSteps ? 'next dumbbell up' : `+${cfg.weightIncrement} lb`), media?.source && React.createElement("span", {
         className: "text-[9px] text-zinc-600"
       }, "Source: ", media.source)), React.createElement("button", {
         onClick: () => setInfoExerciseId(null),
@@ -3332,7 +3342,6 @@ function WorkoutApp() {
     const progression = calculateProgression(exercise);
     const exerciseConfig = getExerciseConfig(exercise);
     const accent = config.dayAccents[selectedDay];
-    const weightIncrement = exerciseConfig.weightIncrement || 5;
     const nameParts = exercise.name.split(' / ');
     const hasAlt = nameParts.length > 1;
     const isUsingAlt = useAltExercise[currentExerciseIndex];
@@ -3359,7 +3368,7 @@ function WorkoutApp() {
     const [rrLow, rrHigh] = exerciseConfig.repRange;
     const targetBits = [`${workingSets} × ${exercise.reps}`];
     if (exerciseConfig.restTime) targetBits.push(`rest ${exerciseConfig.restTime >= 60 ? (exerciseConfig.restTime / 60).toFixed(exerciseConfig.restTime % 60 ? 1 : 0) + ' min' : exerciseConfig.restTime + ' s'}`);
-    if (exerciseConfig.derivedFrom) targetBits.push(`${Math.round(exerciseConfig.pct * 100)}% of your heavy day`);else if (exerciseConfig.assisted) targetBits.push(`−${exerciseConfig.weightIncrement} lb assist when every set hits ${rrHigh}`);else if (exerciseConfig.weightIncrement > 0) targetBits.push(`+${exerciseConfig.incrementPct ? '~2%' : exerciseConfig.weightIncrement + ' lb'} when every set hits ${rrHigh}`);
+    if (exerciseConfig.derivedFrom) targetBits.push(`${Math.round(exerciseConfig.pct * 100)}% of your heavy day`);else if (exerciseConfig.assisted) targetBits.push(`−${exerciseConfig.weightIncrement} lb assist when every set hits ${rrHigh}`);else if (exerciseConfig.weightSteps) targetBits.push(`next dumbbell up when every set hits ${rrHigh}`);else if (exerciseConfig.weightIncrement > 0) targetBits.push(`+${exerciseConfig.incrementPct ? '~2%' : exerciseConfig.weightIncrement + ' lb'} when every set hits ${rrHigh}`);
     if (typeof exerciseConfig.rirTarget === 'number') targetBits.push(`${exerciseConfig.rirTarget} in reserve`);
     return React.createElement("div", {
       className: "min-h-screen text-white p-3 pb-24",
@@ -3536,12 +3545,12 @@ function WorkoutApp() {
       className: "flex items-center gap-1 flex-1"
     }, React.createElement(StepBtn, {
       accent: accent,
-      onClick: () => updateSet(i, 'weight', Math.max(0, set.weight - weightIncrement))
+      onClick: () => updateSet(i, 'weight', stepWeight(exerciseConfig, set.weight, -1))
     }, "\u2212"), React.createElement("div", {
       className: "flex-1 text-center text-lg font-bold text-zinc-100"
     }, set.weight), React.createElement(StepBtn, {
       accent: accent,
-      onClick: () => updateSet(i, 'weight', set.weight + weightIncrement)
+      onClick: () => updateSet(i, 'weight', stepWeight(exerciseConfig, set.weight, 1))
     }, "+")), React.createElement("div", {
       className: "w-px h-6 bg-zinc-800"
     }), React.createElement("div", {

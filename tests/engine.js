@@ -147,6 +147,18 @@ const log4 = (days) => ({ lastProgram: '4day', workoutLog_4day: days });
     await a.click('›'); await a.click('Complete workout');
     ok('farther at the same load is not reported as a PR', !a.txt().includes('PERSONAL RECORDS'));
   }
+  // 10. Dumbbell ladder: laterals move 10 -> 12 -> 15, never 11.25
+  {
+    const a = await boot(log4({ day3: { exercises: { lateral_raise: [entry([set(10, 12), set(10, 12)], 0)] }, sessions: [{ date: day(0) }] } }));
+    await a.click('Upper Size'); await a.openExercise('Lateral Raise + Bent-Over Fly');
+    ok('laterals: 12 on both sets moves to the next dumbbell (12 lb x 7)', a.txt().includes('Add 2 lbs') && a.nums() === '12,7,12,7');
+    const plus = [...a.root.querySelectorAll('button')].filter(b => b.textContent.trim() === '+');
+    const minus = [...a.root.querySelectorAll('button')].filter(b => b.textContent.trim() === '−');
+    plus[0].click(); await wait(50);
+    const upOne = a.nums().split(',')[0];
+    minus[0].click(); await wait(50); minus[0].click(); await wait(50);
+    ok('laterals: + and - step along the rack (12 -> 15 -> 12 -> 10)', upOne === '15' && a.nums().split(',')[0] === '10');
+  }
   console.log(`${pass} passed, ${fail} failed`);
   process.exit(fail ? 1 : 0);
 })();
