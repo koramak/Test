@@ -643,6 +643,9 @@ const exerciseMedia = {
     source: 'Scott Herman Fitness',
     youtube: 'https://www.youtube.com/watch?v=GZbfZ033f74'
   },
+  pullup: {
+    description: 'Assisted pull-up machine: knees on the pad, hands just outside shoulder width. Start from a dead hang with the shoulders pulled down, drive the elbows to your ribs until the chin clears the bar, lower under control to straight arms. Log the ASSISTANCE weight - lower numbers are harder. Work toward 0 = full bodyweight.'
+  },
   seated_row: {
     description: 'Seated, pull handle to torso. Keep chest up, squeeze shoulder blades together.',
     source: 'Scott Herman Fitness',
@@ -1080,6 +1083,15 @@ const progressionConfig = {
     restTime: 90,
     cue: 'Good progress'
   },
+  pullup: {
+    progressionType: "load-first",
+    weightIncrement: 5,
+    repRange: [4, 6],
+    rirTarget: 1,
+    restTime: 150,
+    assisted: true,
+    cue: 'Less assistance over time → bodyweight, then weighted'
+  },
   seated_row: {
     progressionType: "load-first",
     weightIncrement: 5,
@@ -1328,6 +1340,7 @@ const runProgression = (config, lastSession) => {
   const [low, high] = config.repRange;
   const minReps = Math.min(...sets.map(s => s.reps));
   const hitTop = working.every(s => s.completed) && minReps >= high;
+  const easy = lastSession.effort === 'easy';
   const load = sets[0]?.weight || 0;
   const flatInc = config.incrementPct ? Math.max(5, Math.round(load * config.incrementPct / 5) * 5) : config.weightIncrement;
   const up = stepWeight(config, load, 1, flatInc),
@@ -1358,12 +1371,12 @@ const runProgression = (config, lastSession) => {
     };
   }
   if (hitTop) {
-    const bigJump = inc > 0 && minReps >= high + 2;
+    const bigJump = inc > 0 && (minReps >= high + 2 || easy);
     const amount = config.weightSteps ? stepWeight(config, bigJump ? up : load, 1) - load : bigJump ? inc * 2 : inc;
     return inc > 0 ? {
       action: 'increase',
       amount,
-      reason: bigJump ? `Every set ${high + 2}+ → Add ${amount} lbs (double jump)` : `Hit ${high}+ on every set → Add ${amount} lbs`
+      reason: bigJump ? `${minReps >= high + 2 ? `Every set ${high + 2}+` : `Hit ${high}+ and it felt easy`} → Add ${amount} lbs (double jump)` : `Hit ${high}+ on every set → Add ${amount} lbs`
     } : {
       action: 'progress',
       reason: `Hit ${high}+ → Progress difficulty (ROM, pause, or add weight)`
@@ -1379,6 +1392,10 @@ const runProgression = (config, lastSession) => {
       reason: `Below ${low} reps → Use an easier variation`
     };
   }
+  if (easy && avgReps >= low) return {
+    action: 'maintain',
+    reason: `Felt easy last time → push for ${high} on every set`
+  };
   return {
     action: 'maintain',
     reason: config.cue || 'Building within rep range'
@@ -1405,17 +1422,41 @@ const muscleColors = {
   quads: '#22d3d1',
   calves: '#84cc16'
 };
+const e1rm = s => s.weight * (1 + s.reps / 30);
+const sessionMetric = (entry, config) => {
+  const sets = getPerformedSets(entry);
+  if (sets.length === 0) return null;
+  if (config.assisted || config.progressionType === 'distance-first' || config.progressionType === 'time-first') return {
+    v: sets[0].weight,
+    label: 'LOAD',
+    unit: ' lb'
+  };
+  if (Math.max(...sets.map(s => s.weight)) <= 0) return {
+    v: Math.max(...sets.map(s => s.reps)),
+    label: 'BEST REPS',
+    unit: ''
+  };
+  const best = Math.max(...sets.map(e1rm));
+  return {
+    v: best < 50 ? Math.round(best * 10) / 10 : Math.round(best),
+    label: 'EST. 1RM',
+    unit: ' lb'
+  };
+};
 const ProgressSpark = ({
   entries,
   accent,
-  assisted
+  config
 }) => {
-  const pts = entries.filter(e => !e.skipped && typeof e.weight === 'number').map(e => ({
+  const all = entries.filter(e => !e.skipped).map(e => ({
     d: new Date(e.date),
-    w: e.weight
-  }));
+    m: sessionMetric(e, config)
+  })).filter(p => p.m);
+  const kind = all.length ? all[all.length - 1].m.label : null;
+  const pts = all.filter(p => p.m.label === kind);
   if (pts.length < 3) return null;
-  const ws = pts.map(p => p.w);
+  const unit = pts[0].m.unit;
+  const ws = pts.map(p => p.m.v);
   const min = Math.min(...ws),
     max = Math.max(...ws);
   const span = Math.max(max - min, 1);
@@ -1424,9 +1465,9 @@ const ProgressSpark = ({
     P = 4;
   const x = i => P + i / (pts.length - 1) * (W - 2 * P);
   const y = w => H - P - (w - min) / span * (H - 2 * P);
-  const line = pts.map((p, i) => `${x(i).toFixed(1)},${y(p.w).toFixed(1)}`).join(' ');
-  const delta = ws[ws.length - 1] - ws[0];
-  const improved = assisted ? delta < 0 : delta > 0;
+  const line = pts.map((p, i) => `${x(i).toFixed(1)},${y(p.m.v).toFixed(1)}`).join(' ');
+  const delta = Math.round((ws[ws.length - 1] - ws[0]) * 10) / 10;
+  const improved = config.assisted ? delta < 0 : delta > 0;
   const fmt = d => d.toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric'
@@ -1437,14 +1478,14 @@ const ProgressSpark = ({
     className: "flex justify-between items-center mb-0.5"
   }, React.createElement("span", {
     className: "text-[10px] text-zinc-500 font-medium"
-  }, "PROGRESS \xB7 ", pts.length, " SESSIONS", assisted ? ' · LOWER = BETTER' : '', " ", React.createElement("span", {
+  }, kind, " \xB7 ", pts.length, " SESSIONS", config.assisted ? ' · LOWER = BETTER' : '', " ", React.createElement("span", {
     className: "text-zinc-600",
     style: {
       fontWeight: 400
     }
-  }, "\xB7 ", fmt(pts[0].d), " ", ws[0], " \u2192 ", fmt(pts[pts.length - 1].d), " ", ws[ws.length - 1], " lb")), React.createElement("span", {
+  }, "\xB7 ", fmt(pts[0].d), " ", ws[0], " \u2192 ", fmt(pts[pts.length - 1].d), " ", ws[ws.length - 1], unit)), React.createElement("span", {
     className: `text-[10px] font-semibold ${improved ? 'text-emerald-400' : delta === 0 ? 'text-zinc-500' : 'text-amber-400'}`
-  }, delta > 0 ? '+' : '', delta, " lb")), React.createElement("svg", {
+  }, delta > 0 ? '+' : '', delta, unit)), React.createElement("svg", {
     viewBox: `0 0 ${W} ${H}`,
     className: "w-full",
     style: {
@@ -1464,6 +1505,122 @@ const ProgressSpark = ({
     r: "3",
     fill: accent
   })));
+};
+const SetRow = ({
+  set,
+  label,
+  accent,
+  config,
+  onToggle,
+  onChange,
+  onCopy
+}) => React.createElement("div", {
+  className: `set-row rounded-lg border ${set.completed ? 'border-emerald-500/50 bg-emerald-500/10' : set.warmup ? 'border-amber-500/30 bg-amber-500/5' : 'border-zinc-800/50 bg-zinc-900/30'}`,
+  style: {
+    padding: '3px 6px'
+  }
+}, React.createElement("div", {
+  className: "flex items-center gap-2"
+}, React.createElement("button", {
+  onClick: onToggle,
+  className: `w-9 h-11 rounded-lg flex items-center justify-center transition-all active:scale-90 flex-shrink-0 text-xs font-bold ${set.completed ? 'bg-emerald-500 text-white' : set.warmup ? 'bg-amber-500/20 text-amber-400' : 'bg-zinc-800 text-zinc-500'}`
+}, set.completed ? React.createElement(Check, {
+  className: "w-4 h-4"
+}) : label), React.createElement("div", {
+  className: "flex items-center gap-1 flex-1"
+}, React.createElement(StepBtn, {
+  accent: accent,
+  onClick: () => onChange('weight', stepWeight(config, set.weight, -1))
+}, "\u2212"), React.createElement("div", {
+  className: "flex-1 text-center text-lg font-bold text-zinc-100"
+}, set.weight), React.createElement(StepBtn, {
+  accent: accent,
+  onClick: () => onChange('weight', stepWeight(config, set.weight, 1))
+}, "+")), React.createElement("div", {
+  className: "w-px h-6 bg-zinc-800"
+}), React.createElement("div", {
+  className: "flex items-center gap-1 flex-1"
+}, React.createElement(StepBtn, {
+  accent: accent,
+  onClick: () => onChange('reps', Math.max(1, set.reps - 1))
+}, "\u2212"), React.createElement("div", {
+  className: "flex-1 text-center text-lg font-bold text-zinc-100"
+}, set.reps), React.createElement(StepBtn, {
+  accent: accent,
+  onClick: () => onChange('reps', set.reps + 1)
+}, "+")), onCopy ? React.createElement("button", {
+  onClick: onCopy,
+  className: "w-8 h-11 rounded flex items-center justify-center text-zinc-600 hover:text-zinc-400 active:scale-90",
+  title: "Copy previous set"
+}, React.createElement(Copy, {
+  className: "w-3.5 h-3.5"
+})) : React.createElement("div", {
+  className: "w-8 h-11 flex-shrink-0"
+})));
+const setLabel = (sets, i) => sets[i].warmup ? 'W' : i + 1 - sets.slice(0, i).filter(s => s.warmup).length;
+const EffortChips = ({
+  value,
+  onChange,
+  accent
+}) => React.createElement("div", {
+  className: "effort-chips flex items-center gap-1 flex-shrink-0"
+}, React.createElement("span", {
+  className: "text-[9px] text-zinc-600"
+}, "last set"), [['easy', 'Easy'], ['max', 'Max']].map(([k, label]) => React.createElement("button", {
+  key: k,
+  onClick: () => onChange(value === k ? null : k),
+  className: "rounded-lg text-[10px] font-medium transition-all active:scale-90",
+  style: {
+    height: 26,
+    padding: '0 10px',
+    border: `1px solid ${value === k ? accent : '#27272a'}`,
+    background: value === k ? `${accent}25` : 'transparent',
+    color: value === k ? accent : '#71717a'
+  }
+}, label)));
+const unitOf = (exercises, i) => {
+  const g = exercises[i]?.superset;
+  if (!g) return [i];
+  if (exercises[i + 1]?.superset === g) return [i, i + 1];
+  if (exercises[i - 1]?.superset === g) return [i - 1, i];
+  return [i];
+};
+const listSessions = programLog => {
+  const map = {};
+  const slot = (day, date) => {
+    const key = localDay(date);
+    const id = day + '|' + key;
+    if (!map[id]) map[id] = {
+      day,
+      key,
+      date,
+      meta: null,
+      entries: []
+    };
+    if (new Date(date) > new Date(map[id].date)) map[id].date = date;
+    return map[id];
+  };
+  Object.entries(programLog || {}).forEach(([day, d]) => {
+    (d?.sessions || []).forEach(sess => {
+      if (sess?.date) slot(day, sess.date).meta = sess;
+    });
+    Object.entries(d?.exercises || {}).forEach(([id, list]) => (list || []).forEach(entry => {
+      if (entry?.date) slot(day, entry.date).entries.push({
+        id,
+        entry
+      });
+    }));
+  });
+  return Object.values(map).sort((a, b) => new Date(b.date) - new Date(a.date));
+};
+const normalizeEntry = e => {
+  const work = e.sets.filter(s => !s.warmup);
+  const ref = work.length > 0 ? work : e.sets;
+  return {
+    ...e,
+    weight: ref[0]?.weight || 0,
+    skipped: !ref.some(s => s.completed)
+  };
 };
 const StorageWarning = ({
   onBackup
@@ -1491,7 +1648,7 @@ const StepBtn = ({
 const workoutData4Day = {
   day1: {
     name: "Upper Power",
-    focus: "Log strength · heavy incline · pull",
+    focus: "Log strength · heavy incline · pull-up",
     mobility: ["Foam-roller T-spine extensions · 3×5 breaths", "Band pull-aparts ×15 + band dislocates ×8", "Overhead lat stretch, elbows on bench · 2×20 s", "Half-kneeling band overhead reach · 5/side", "Empty log press ×8 with a 2 s pause → first ramp set"],
     exercises: [{
       id: "log_press",
@@ -1503,17 +1660,13 @@ const workoutData4Day = {
       muscles: ["shoulders", "triceps", "chest"],
       notes: "1 ramp, then 3 heavy · 3 min rest. Every other loop add 1 AMRAP set at ~75-80% (clean once, press for reps)"
     }, {
-      id: "seated_row",
-      name: "Seated Row Machine / Cable Row",
+      id: "pullup",
+      name: "Assisted Pull-up / Assisted Chin-up",
       sets: 3,
-      reps: "6-10",
-      defaultWeight: 135,
-      muscles: ["lats", "traps", "biceps", "rearDelts"],
-      notes: "Between the two presses so chest and triceps recover · 90 s",
-      progression: {
-        repRange: [6, 10],
-        restTime: 90
-      }
+      reps: "4-6",
+      defaultWeight: 60,
+      muscles: ["lats", "biceps", "rearDelts"],
+      notes: "Back strength lift, between the two presses · weight = assistance, less is harder · goal: 0 = bodyweight, then add weight"
     }, {
       id: "incline_bb",
       name: "Incline Barbell Press (30°) / Smith Incline",
@@ -2201,6 +2354,10 @@ const retiredExerciseNames = {
     id: 'lateral_raise',
     alt: false
   },
+  'seated row machine': {
+    id: 'seated_row',
+    alt: false
+  },
   'lat pulldown': {
     id: 'lat_pulldown',
     alt: false
@@ -2293,7 +2450,8 @@ function WorkoutApp() {
     return logs;
   });
   const [sessionData, setSessionData] = useState({});
-  const [showNotes, setShowNotes] = useState(false);
+  const [notesOpen, setNotesOpen] = useState(null);
+  const [historySel, setHistorySel] = useState(null);
   const [infoExerciseId, setInfoExerciseId] = useState(null);
   const [useAltExercise, setUseAltExercise] = useState({});
   const [absDone, setAbsDone] = useState(false);
@@ -2497,106 +2655,128 @@ function WorkoutApp() {
     setSessionDay(selectedDay);
     startExercise(startIndex);
   };
-  const startExercise = index => {
-    setCurrentExerciseIndex(index);
-    setShowNotes(false);
-    const config = programConfigs[selectedProgram];
-    const exercise = config.data[selectedDay].exercises[index];
+  const initialExerciseData = exercise => {
     const progression = calculateProgression(exercise);
-    const exConfig = progression.config;
     const numSets = typeof exercise.sets === 'number' ? exercise.sets : 3;
     const numWarmups = Math.min(exercise.warmupSets || 0, numSets - 1);
     const startWeight = progression.weight;
     const startReps = progression.reps;
-    const inc = exConfig.weightIncrement || 5;
+    const inc = progression.config.weightIncrement || 5;
     const warmupPcts = numWarmups >= 2 ? [0.5, 0.75] : [0.6];
     const warmupWeight = i => Math.max(inc, Math.round(startWeight * warmupPcts[Math.min(i, warmupPcts.length - 1)] / inc) * inc);
-    setSessionData(prev => prev[index] ? prev : {
-      ...prev,
-      [index]: {
-        sets: Array(numSets).fill(null).map((_, i) => i < numWarmups ? {
-          weight: warmupWeight(i),
-          reps: startReps,
-          completed: false,
-          warmup: true
-        } : {
-          weight: startWeight,
-          reps: startReps,
-          completed: false
-        }),
-        notes: ''
-      }
+    return {
+      sets: Array(numSets).fill(null).map((_, i) => i < numWarmups ? {
+        weight: warmupWeight(i),
+        reps: startReps,
+        completed: false,
+        warmup: true
+      } : {
+        weight: startWeight,
+        reps: startReps,
+        completed: false
+      }),
+      notes: ''
+    };
+  };
+  const startExercise = index => {
+    const exercises = programConfigs[selectedProgram].data[selectedDay].exercises;
+    const unit = unitOf(exercises, index);
+    setCurrentExerciseIndex(unit[0]);
+    setNotesOpen(null);
+    setSessionData(prev => {
+      const next = {
+        ...prev
+      };
+      unit.forEach(i => {
+        if (!next[i]) next[i] = initialExerciseData(exercises[i]);
+      });
+      return next;
     });
     setView('exercise');
   };
-  const updateSet = (setIndex, field, value) => {
-    setSessionData(prev => ({
-      ...prev,
-      [currentExerciseIndex]: {
-        ...prev[currentExerciseIndex],
-        sets: prev[currentExerciseIndex].sets.map((s, i) => i === setIndex ? {
-          ...s,
-          [field]: value
-        } : s)
-      }
-    }));
-  };
-  const toggleSetComplete = setIndex => {
-    setSessionData(prev => ({
-      ...prev,
-      [currentExerciseIndex]: {
-        ...prev[currentExerciseIndex],
-        sets: prev[currentExerciseIndex].sets.map((s, i) => i === setIndex ? {
-          ...s,
-          completed: !s.completed
-        } : s)
-      }
-    }));
-  };
-  const copyPreviousSet = setIndex => {
-    if (setIndex === 0) return;
-    const prevSet = sessionData[currentExerciseIndex]?.sets[setIndex - 1];
-    if (!prevSet) return;
-    setSessionData(prev => ({
-      ...prev,
-      [currentExerciseIndex]: {
-        ...prev[currentExerciseIndex],
-        sets: prev[currentExerciseIndex].sets.map((s, i) => i === setIndex ? {
-          ...s,
-          weight: prevSet.weight,
-          reps: prevSet.reps
-        } : s)
-      }
-    }));
-  };
-  const updateNotes = notes => {
-    setSessionData(prev => ({
-      ...prev,
-      [currentExerciseIndex]: {
-        ...prev[currentExerciseIndex],
-        notes
-      }
-    }));
-  };
-  const toggleAltExercise = () => {
-    setUseAltExercise(prev => ({
-      ...prev,
-      [currentExerciseIndex]: !prev[currentExerciseIndex]
-    }));
-  };
-  const nextExercise = () => {
-    const config = programConfigs[selectedProgram];
-    const exercises = config.data[selectedDay].exercises;
-    if (currentExerciseIndex < exercises.length - 1) {
-      startExercise(currentExerciseIndex + 1);
-    } else {
-      setView('summary');
+  const patchExercise = (exIndex, patch) => setSessionData(prev => ({
+    ...prev,
+    [exIndex]: {
+      ...prev[exIndex],
+      ...(typeof patch === 'function' ? patch(prev[exIndex]) : patch)
     }
+  }));
+  const updateSet = (exIndex, setIndex, field, value) => patchExercise(exIndex, d => ({
+    sets: d.sets.map((s, i) => i === setIndex ? {
+      ...s,
+      [field]: value
+    } : s)
+  }));
+  const toggleSetComplete = (exIndex, setIndex) => patchExercise(exIndex, d => ({
+    sets: d.sets.map((s, i) => i === setIndex ? {
+      ...s,
+      completed: !s.completed
+    } : s)
+  }));
+  const copyPreviousSet = (exIndex, setIndex) => patchExercise(exIndex, d => setIndex === 0 ? {} : {
+    sets: d.sets.map((s, i) => i === setIndex ? {
+      ...s,
+      weight: d.sets[setIndex - 1].weight,
+      reps: d.sets[setIndex - 1].reps
+    } : s)
+  });
+  const toggleAltExercise = exIndex => setUseAltExercise(prev => ({
+    ...prev,
+    [exIndex]: !prev[exIndex]
+  }));
+  const nextExercise = () => {
+    const exercises = programConfigs[selectedProgram].data[selectedDay].exercises;
+    const unit = unitOf(exercises, currentExerciseIndex);
+    const last = unit[unit.length - 1];
+    if (last < exercises.length - 1) startExercise(last + 1);else setView('summary');
   };
   const prevExercise = () => {
-    if (currentExerciseIndex > 0) {
-      startExercise(currentExerciseIndex - 1);
-    }
+    if (currentExerciseIndex > 0) startExercise(currentExerciseIndex - 1);
+  };
+  const editHistoryEntry = (day, exId, date, fn) => setWorkoutLog(prev => {
+    const programLog = prev[selectedProgram] || {};
+    const dayLog = programLog[day];
+    if (!dayLog?.exercises?.[exId]) return prev;
+    const list = dayLog.exercises[exId].map(e => e.date === date ? normalizeEntry(fn(e)) : e);
+    return {
+      ...prev,
+      [selectedProgram]: {
+        ...programLog,
+        [day]: {
+          ...dayLog,
+          exercises: {
+            ...dayLog.exercises,
+            [exId]: list
+          }
+        }
+      }
+    };
+  });
+  const deleteHistorySession = (day, key) => setWorkoutLog(prev => {
+    const programLog = prev[selectedProgram] || {};
+    const dayLog = programLog[day];
+    if (!dayLog) return prev;
+    const exercises = {};
+    Object.entries(dayLog.exercises || {}).forEach(([id, list]) => {
+      const kept = list.filter(e => localDay(e.date) !== key);
+      if (kept.length > 0) exercises[id] = kept;
+    });
+    const sessions = (dayLog.sessions || []).filter(x => localDay(x.date) !== key);
+    return {
+      ...prev,
+      [selectedProgram]: {
+        ...programLog,
+        [day]: {
+          ...dayLog,
+          exercises,
+          sessions
+        }
+      }
+    };
+  });
+  const configForId = id => {
+    const ex = Object.values(programConfigs[selectedProgram]?.data || {}).flatMap(d => d.exercises).find(e => e.id === id);
+    return ex ? getExerciseConfig(ex) : progressionConfig[id] || defaultProgressionConfig;
   };
   const completeWorkout = () => {
     const config = programConfigs[selectedProgram];
@@ -2608,7 +2788,6 @@ function WorkoutApp() {
     };
     const durationMin = workoutStartedAt ? Math.max(1, Math.round((Date.now() - new Date(workoutStartedAt).getTime()) / 60000)) : null;
     const prList = [];
-    const e1rm = s => s.weight * (1 + s.reps / 30);
     exercises.forEach((exercise, index) => {
       const data = sessionData[index];
       if (!data) return;
@@ -2627,6 +2806,9 @@ function WorkoutApp() {
         sets: data.sets,
         weight: refSets[0]?.weight || 0,
         notes: data.notes,
+        ...(data.effort ? {
+          effort: data.effort
+        } : {}),
         skipped: !refSets.some(s => s.completed)
       });
       const completedWork = workSets.filter(s => s.completed);
@@ -2802,7 +2984,8 @@ function WorkoutApp() {
           iR = col('reps'),
           iDone = col('completed'),
           iSkip = col('skipped'),
-          iNotes = col('notes');
+          iNotes = col('notes'),
+          iEff = col('effort');
         if (iDate < 0 || iEx < 0 || iW < 0 || iR < 0) {
           alert('This is not a workout CSV export (missing Date/Exercise/Weight/Reps columns).');
           return;
@@ -2879,6 +3062,7 @@ function WorkoutApp() {
           g.entry.sets[idx] = set;
           if (iSkip >= 0 && /yes/i.test(r[iSkip])) g.entry.skipped = true;
           if (iNotes >= 0 && r[iNotes]) g.entry.notes = r[iNotes];
+          if (iEff >= 0 && /^(easy|max)$/i.test((r[iEff] || '').trim())) g.entry.effort = r[iEff].trim().toLowerCase();
         });
         Object.values(groups).forEach(({
           dayKey,
@@ -2943,19 +3127,19 @@ function WorkoutApp() {
   const exportCSV = () => {
     if (!selectedProgram) return;
     const programName = programConfigs[selectedProgram]?.name || selectedProgram;
-    let csv = 'Date,Day,Exercise,Variant,Set,Warmup,Weight,Reps,Completed,Skipped,Notes\n';
+    let csv = 'Date,Day,Exercise,Variant,Set,Warmup,Weight,Reps,Completed,Skipped,Notes,Effort\n';
     const programLog = workoutLog[selectedProgram] || {};
     Object.entries(programLog).forEach(([day, data]) => {
       Object.entries(data.exercises || {}).forEach(([exerciseId, entries]) => {
         entries.forEach(entry => {
           entry.sets.forEach((set, setIndex) => {
-            csv += `${localDay(entry.date)},${day},${csvCell(entry.exerciseName || exerciseId)},${entry.usedAlt ? 'Alt' : 'Main'},${setIndex + 1},${set.warmup ? 'Yes' : 'No'},${set.weight},${set.reps},${set.completed ? 'Yes' : 'No'},${entry.skipped ? 'Yes' : 'No'},"${(entry.notes || '').replace(/"/g, '""')}"\n`;
+            csv += `${localDay(entry.date)},${day},${csvCell(entry.exerciseName || exerciseId)},${entry.usedAlt ? 'Alt' : 'Main'},${setIndex + 1},${set.warmup ? 'Yes' : 'No'},${set.weight},${set.reps},${set.completed ? 'Yes' : 'No'},${entry.skipped ? 'Yes' : 'No'},"${(entry.notes || '').replace(/"/g, '""')}",${entry.effort || ''}\n`;
           });
         });
       });
       (data.sessions || []).forEach(sess => {
         if (sess.absDone !== undefined) {
-          csv += `${localDay(sess.date)},${day},Ab Routine (pre-workout),Main,1,No,0,0,${sess.absDone ? 'Yes' : 'No'},${sess.absDone ? 'No' : 'Yes'},""\n`;
+          csv += `${localDay(sess.date)},${day},Ab Routine (pre-workout),Main,1,No,0,0,${sess.absDone ? 'Yes' : 'No'},${sess.absDone ? 'No' : 'Yes'},"",\n`;
         }
       });
     });
@@ -3012,6 +3196,18 @@ function WorkoutApp() {
   const config = programConfigs[selectedProgram];
   const workoutData = config?.data;
   if (view === 'home') {
+    const dayKeys = Object.keys(workoutData);
+    const lastDone = {};
+    dayKeys.forEach(d => {
+      lastDone[d] = (workoutLog[selectedProgram]?.[d]?.sessions || []).reduce((m, x) => Math.max(m, new Date(x.date).getTime() || 0), 0);
+    });
+    const latestDay = dayKeys.reduce((best, d) => lastDone[d] > (best ? lastDone[best] : 0) ? d : best, null);
+    const nextDay = latestDay ? dayKeys[(dayKeys.indexOf(latestDay) + 1) % dayKeys.length] : dayKeys[0];
+    const ago = t => {
+      if (!t) return '';
+      const n = Math.floor((Date.now() - t) / 864e5);
+      return n <= 0 ? ' · today' : n === 1 ? ' · yesterday' : ` · ${n}d ago`;
+    };
     return React.createElement("div", {
       className: "min-h-screen text-white p-4",
       style: {
@@ -3030,8 +3226,10 @@ function WorkoutApp() {
     }, React.createElement(ChevronLeft, {
       className: "w-3 h-3"
     }), " Switch"), React.createElement("div", {
-      className: "w-10 h-10 mx-auto mb-2 rounded-xl flex items-center justify-center",
+      className: "mx-auto mb-2 rounded-xl flex items-center justify-center",
       style: {
+        width: 40,
+        height: 40,
         background: config.gradient
       }
     }, React.createElement(config.icon, {
@@ -3068,14 +3266,24 @@ function WorkoutApp() {
           textTransform: 'none',
           letterSpacing: 0
         }
-      }, "\xB7 ", data.exercises.length, " exercises")), React.createElement("div", {
+      }, "\xB7 ", data.exercises.length, " exercises", ago(lastDone[day]))), React.createElement("div", {
         className: "text-sm font-semibold text-zinc-100 truncate"
-      }, data.name)), React.createElement(ChevronRight, {
+      }, data.name)), React.createElement("div", {
+        className: "flex items-center gap-2 flex-shrink-0"
+      }, day === nextDay && React.createElement("span", {
+        className: "next-up text-[9px] font-semibold uppercase tracking-widest",
+        style: {
+          color: accent,
+          border: `1px solid ${accent}60`,
+          borderRadius: 6,
+          padding: '2px 6px'
+        }
+      }, "Next"), React.createElement(ChevronRight, {
         className: "w-4 h-4",
         style: {
           color: accent
         }
-      })));
+      }))));
     })), (() => {
       const dates = [];
       Object.values(workoutLog[selectedProgram] || {}).forEach(d => (d?.sessions || []).forEach(s => dates.push(new Date(s.date))));
@@ -3145,12 +3353,174 @@ function WorkoutApp() {
     }), " Restore / Import")), React.createElement("div", {
       className: "mt-2 flex gap-2 text-[10px]"
     }, React.createElement("button", {
+      onClick: () => setView('history'),
+      className: "flex-1 text-zinc-500 flex items-center justify-center gap-1 py-2 border border-zinc-800 rounded-lg"
+    }, "History"), React.createElement("button", {
       onClick: exportCSV,
       className: "flex-1 text-zinc-600 flex items-center justify-center gap-1 py-2 border border-zinc-800 rounded-lg"
     }, "Export CSV"), React.createElement("button", {
       onClick: resetData,
       className: "flex-1 text-zinc-700 flex items-center justify-center gap-1 py-2"
     }, "Reset"))));
+  }
+  if (view === 'history') {
+    const sessions = listSessions(workoutLog[selectedProgram]);
+    return React.createElement("div", {
+      className: "min-h-screen text-white p-4",
+      style: {
+        background: config.bgGradient
+      }
+    }, React.createElement("div", {
+      className: "max-w-md mx-auto"
+    }, React.createElement("button", {
+      onClick: () => setView('home'),
+      className: "flex items-center text-zinc-500 mb-4 text-sm"
+    }, React.createElement(ChevronLeft, {
+      className: "w-4 h-4"
+    }), " Back"), React.createElement("h1", {
+      className: "text-lg font-bold text-zinc-100"
+    }, "History"), React.createElement("p", {
+      className: "text-zinc-500 text-xs mb-4"
+    }, sessions.length === 0 ? 'No workouts logged yet' : `${sessions.length} workouts · tap one to review or fix it`), React.createElement("div", {
+      className: "space-y-1.5"
+    }, sessions.map(sess => {
+      const accent = config.dayAccents[sess.day] || '#6b7280';
+      const done = sess.entries.filter(x => !x.entry.skipped).length;
+      return React.createElement("button", {
+        key: sess.day + sess.key,
+        onClick: () => {
+          setHistorySel({
+            day: sess.day,
+            key: sess.key
+          });
+          setView('historySession');
+        },
+        className: "history-row w-full text-left rounded-lg px-3 py-2 flex items-center gap-2.5 border border-zinc-800/50 transition-all active:scale-[0.98]",
+        style: {
+          backgroundColor: '#12121a'
+        }
+      }, React.createElement("div", {
+        className: "flex-1 min-w-0"
+      }, React.createElement("div", {
+        className: "text-[9px] font-semibold uppercase tracking-widest",
+        style: {
+          color: accent
+        }
+      }, new Date(sess.date).toLocaleDateString('en-US', {
+        weekday: 'short',
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+      })), React.createElement("div", {
+        className: "text-sm font-medium text-zinc-200 truncate"
+      }, workoutData[sess.day]?.name || sess.day), React.createElement("div", {
+        className: "text-[10px] text-zinc-600"
+      }, done, " exercises", sess.meta?.durationMin ? ` · ${sess.meta.durationMin} min` : '', sess.meta?.prs?.length ? ` · ${sess.meta.prs.length} PR` : '')), React.createElement(ChevronRight, {
+        className: "w-4 h-4 text-zinc-700 flex-shrink-0"
+      }));
+    }))));
+  }
+  if (view === 'historySession') {
+    const sess = historySel && listSessions(workoutLog[selectedProgram]).find(x => x.day === historySel.day && x.key === historySel.key);
+    const accent = config.dayAccents[historySel?.day] || '#6b7280';
+    return React.createElement("div", {
+      className: "min-h-screen text-white p-4",
+      style: {
+        background: config.bgGradient
+      }
+    }, React.createElement("div", {
+      className: "max-w-md mx-auto"
+    }, React.createElement("button", {
+      onClick: () => setView('history'),
+      className: "flex items-center text-zinc-500 mb-4 text-sm"
+    }, React.createElement(ChevronLeft, {
+      className: "w-4 h-4"
+    }), " Back"), !sess ? React.createElement("p", {
+      className: "text-zinc-500 text-sm"
+    }, "This workout is no longer in the log.") : React.createElement(React.Fragment, null, React.createElement("div", {
+      className: "text-[9px] font-semibold uppercase tracking-widest mb-0.5",
+      style: {
+        color: accent
+      }
+    }, new Date(sess.date).toLocaleDateString('en-US', {
+      weekday: 'long',
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric'
+    })), React.createElement("h1", {
+      className: "text-lg font-bold text-zinc-100"
+    }, workoutData[sess.day]?.name || sess.day), React.createElement("p", {
+      className: "text-zinc-500 text-xs mb-4"
+    }, "Changes save as you make them and feed the next suggestion."), React.createElement("div", {
+      className: "space-y-2"
+    }, sess.entries.map(({
+      id,
+      entry
+    }) => {
+      const cfg = configForId(id);
+      const edit = fn => editHistoryEntry(sess.day, id, entry.date, fn);
+      const editSet = (i, patch) => edit(e => ({
+        ...e,
+        sets: e.sets.map((x, k) => k === i ? {
+          ...x,
+          ...patch
+        } : x)
+      }));
+      return React.createElement("div", {
+        key: id + entry.date,
+        className: "rounded-lg px-3 py-2 border border-zinc-800/50",
+        style: {
+          backgroundColor: '#12121a'
+        }
+      }, React.createElement("div", {
+        className: "flex justify-between items-center mb-1"
+      }, React.createElement("div", {
+        className: "text-sm font-medium text-zinc-200 truncate"
+      }, entry.exerciseName && entry.exerciseName !== 'x' ? entry.exerciseName : id, entry.skipped ? React.createElement("span", {
+        className: "text-[10px] text-amber-500"
+      }, " \xB7 skipped") : null), React.createElement(EffortChips, {
+        value: entry.effort || null,
+        onChange: v => edit(e => {
+          const {
+            effort,
+            ...rest
+          } = e;
+          return v ? {
+            ...rest,
+            effort: v
+          } : rest;
+        }),
+        accent: accent
+      })), entry.notes ? React.createElement("div", {
+        className: "text-[11px] text-amber-200/80 italic mb-1"
+      }, entry.notes) : null, React.createElement("div", {
+        style: {
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 2
+        }
+      }, (entry.sets || []).map((set, i) => React.createElement(SetRow, {
+        key: i,
+        set: set,
+        label: setLabel(entry.sets, i),
+        accent: accent,
+        config: cfg,
+        onToggle: () => editSet(i, {
+          completed: !set.completed
+        }),
+        onChange: (field, value) => editSet(i, {
+          [field]: value
+        })
+      }))));
+    })), React.createElement("button", {
+      onClick: () => {
+        if (confirm('Delete this workout from the log? This cannot be undone.')) {
+          deleteHistorySession(sess.day, sess.key);
+          setView('history');
+        }
+      },
+      className: "w-full text-zinc-600 font-medium py-2 text-sm mt-4"
+    }, "Delete this workout"))));
   }
   if (view === 'dayOverview') {
     const dayData = workoutData[selectedDay];
@@ -3338,104 +3708,97 @@ function WorkoutApp() {
   }
   if (view === 'exercise') {
     const dayData = workoutData[selectedDay];
-    const exercise = dayData.exercises[currentExerciseIndex];
-    const progression = calculateProgression(exercise);
-    const exerciseConfig = getExerciseConfig(exercise);
     const accent = config.dayAccents[selectedDay];
-    const nameParts = exercise.name.split(' / ');
-    const hasAlt = nameParts.length > 1;
-    const isUsingAlt = useAltExercise[currentExerciseIndex];
-    const displayName = isUsingAlt && hasAlt ? nameParts[1] : nameParts[0];
-    const currentData = sessionData[currentExerciseIndex] || {
-      sets: [],
-      notes: ''
-    };
-    const lastWorkoutDate = progression.lastSession?.date ? new Date(progression.lastSession.date).toLocaleDateString('en-US', {
-      weekday: 'short',
-      month: 'short',
-      day: 'numeric'
-    }) : null;
-    let suggestionColor = accent,
-      suggestionBg = `${accent}15`;
-    if (progression.action === 'increase' || progression.action === 'progress') {
-      suggestionColor = '#10b981';
-      suggestionBg = '#10b98115';
-    } else if (progression.action === 'decrease' || progression.action === 'regress') {
-      suggestionColor = '#f59e0b';
-      suggestionBg = '#f59e0b15';
-    }
-    const workingSets = currentData.sets.filter(s => !s.warmup).length || (typeof exercise.sets === 'number' ? exercise.sets : 3);
-    const [rrLow, rrHigh] = exerciseConfig.repRange;
-    const targetBits = [`${workingSets} × ${exercise.reps}`];
-    if (exerciseConfig.restTime) targetBits.push(`rest ${exerciseConfig.restTime >= 60 ? (exerciseConfig.restTime / 60).toFixed(exerciseConfig.restTime % 60 ? 1 : 0) + ' min' : exerciseConfig.restTime + ' s'}`);
-    if (exerciseConfig.derivedFrom) targetBits.push(`${Math.round(exerciseConfig.pct * 100)}% of your heavy day`);else if (exerciseConfig.assisted) targetBits.push(`−${exerciseConfig.weightIncrement} lb assist when every set hits ${rrHigh}`);else if (exerciseConfig.weightSteps) targetBits.push(`next dumbbell up when every set hits ${rrHigh}`);else if (exerciseConfig.weightIncrement > 0) targetBits.push(`+${exerciseConfig.incrementPct ? '~2%' : exerciseConfig.weightIncrement + ' lb'} when every set hits ${rrHigh}`);
-    if (typeof exerciseConfig.rirTarget === 'number') targetBits.push(`${exerciseConfig.rirTarget} in reserve`);
-    return React.createElement("div", {
-      className: "min-h-screen text-white p-3 pb-24",
-      style: {
-        background: config.bgGradient
+    const unit = unitOf(dayData.exercises, currentExerciseIndex);
+    const paired = unit.length > 1;
+    const lastOfUnit = unit[unit.length - 1];
+    const renderPanel = index => {
+      const exercise = dayData.exercises[index];
+      const progression = calculateProgression(exercise);
+      const exerciseConfig = progression.config;
+      const nameParts = exercise.name.split(' / ');
+      const hasAlt = nameParts.length > 1;
+      const isUsingAlt = useAltExercise[index];
+      const displayName = isUsingAlt && hasAlt ? nameParts[1] : nameParts[0];
+      const currentData = sessionData[index] || {
+        sets: [],
+        notes: ''
+      };
+      const lastWorkoutDate = progression.lastSession?.date ? new Date(progression.lastSession.date).toLocaleDateString('en-US', {
+        weekday: 'short',
+        month: 'short',
+        day: 'numeric'
+      }) : null;
+      let suggestionColor = accent,
+        suggestionBg = `${accent}15`;
+      if (progression.action === 'increase' || progression.action === 'progress') {
+        suggestionColor = '#10b981';
+        suggestionBg = '#10b98115';
+      } else if (progression.action === 'decrease' || progression.action === 'regress') {
+        suggestionColor = '#f59e0b';
+        suggestionBg = '#f59e0b15';
       }
-    }, React.createElement("div", {
-      className: "max-w-md mx-auto"
-    }, React.createElement("div", {
-      className: "flex justify-between items-center",
-      style: {
-        marginBottom: 2
-      }
-    }, React.createElement("button", {
-      onClick: () => setView('dayOverview'),
-      className: "text-zinc-500 p-1"
-    }, React.createElement(ChevronLeft, {
-      className: "w-5 h-5"
-    })), React.createElement("div", {
-      className: "text-[10px] text-zinc-600"
-    }, currentExerciseIndex + 1, "/", dayData.exercises.length), React.createElement("button", {
-      onClick: () => setShowNotes(!showNotes),
-      className: "text-zinc-500 p-1"
-    }, React.createElement(StickyNote, {
-      className: "w-5 h-5"
-    }))), React.createElement("div", {
-      className: "h-0.5 bg-zinc-800 rounded-full overflow-hidden",
-      style: {
-        marginBottom: 6
-      }
-    }, React.createElement("div", {
-      className: "h-full rounded-full",
-      style: {
-        width: `${(currentExerciseIndex + 1) / dayData.exercises.length * 100}%`,
-        background: accent
-      }
-    })), React.createElement("div", {
-      className: "flex items-center justify-between gap-2 mb-1"
-    }, React.createElement("h1", {
-      className: "text-lg font-bold text-zinc-100 truncate"
-    }, displayName), hasAlt && React.createElement("button", {
-      onClick: toggleAltExercise,
-      className: "alt-toggle flex items-center gap-1 text-[10px] px-2 rounded-lg border flex-shrink-0 transition-all active:scale-[0.98]",
-      style: {
-        height: 30,
-        maxWidth: 160,
-        borderColor: `${accent}50`,
-        background: `${accent}10`,
-        color: accent
-      },
-      title: `Switch to ${isUsingAlt ? nameParts[0] : nameParts[1]}`
-    }, React.createElement(Swap, {
-      className: "w-3.5 h-3.5 flex-shrink-0",
-      style: {
-        color: accent
-      }
-    }), React.createElement("span", {
-      className: "truncate"
-    }, isUsingAlt ? nameParts[0] : nameParts[1]))), exercise.notes && React.createElement("p", {
-      className: "text-[11px] text-zinc-500 mb-1"
-    }, exercise.notes), React.createElement("p", {
-      className: "text-[11px] mb-1.5",
-      style: {
-        color: accent
-      }
-    }, targetBits.join(' · ')), progression.lastSession && (() => {
+      const suggestionText = progression.suggestion || (progression.lastSession ? 'Keep building within your rep range' : 'First time - start with suggested weight');
+      const workingSets = currentData.sets.filter(s => !s.warmup).length || (typeof exercise.sets === 'number' ? exercise.sets : 3);
+      const rrHigh = exerciseConfig.repRange[1];
+      const targetBits = [`${workingSets} × ${exercise.reps}`];
+      if (exerciseConfig.restTime) targetBits.push(`rest ${exerciseConfig.restTime >= 60 ? (exerciseConfig.restTime / 60).toFixed(exerciseConfig.restTime % 60 ? 1 : 0) + ' min' : exerciseConfig.restTime + ' s'}`);
+      if (exerciseConfig.derivedFrom) targetBits.push(`${Math.round(exerciseConfig.pct * 100)}% of your heavy day`);else if (exerciseConfig.assisted) targetBits.push(`−${exerciseConfig.weightIncrement} lb assist when every set hits ${rrHigh}`);else if (exerciseConfig.weightSteps) targetBits.push(`next dumbbell up when every set hits ${rrHigh}`);else if (exerciseConfig.weightIncrement > 0) targetBits.push(`+${exerciseConfig.incrementPct ? '~2%' : exerciseConfig.weightIncrement + ' lb'} when every set hits ${rrHigh}`);
+      if (!paired && typeof exerciseConfig.rirTarget === 'number') targetBits.push(`${exerciseConfig.rirTarget} in reserve`);
+      const prevNote = (progression.lastSession?.notes || '').trim();
+      const prevFirst = prevNote.split('\n')[0];
+      const todayFirst = (currentData.notes || '').trim().split('\n')[0];
       return React.createElement("div", {
+        key: index,
+        className: "exercise-panel"
+      }, React.createElement("div", {
+        className: "flex items-center justify-between gap-2 mb-1"
+      }, React.createElement("h1", {
+        className: `${paired ? 'text-sm font-semibold' : 'text-lg font-bold'} text-zinc-100 truncate`
+      }, displayName), hasAlt && React.createElement("button", {
+        onClick: () => toggleAltExercise(index),
+        className: "alt-toggle flex items-center gap-1 text-[10px] px-2 rounded-lg border flex-shrink-0 transition-all active:scale-[0.98]",
+        style: {
+          height: paired ? 26 : 30,
+          maxWidth: 160,
+          borderColor: `${accent}50`,
+          background: `${accent}10`,
+          color: accent
+        },
+        title: `Switch to ${isUsingAlt ? nameParts[0] : nameParts[1]}`
+      }, React.createElement(Swap, {
+        className: "w-3.5 h-3.5 flex-shrink-0",
+        style: {
+          color: accent
+        }
+      }), React.createElement("span", {
+        className: "truncate"
+      }, isUsingAlt ? nameParts[0] : nameParts[1]))), !paired && exercise.notes && React.createElement("p", {
+        className: "text-[11px] text-zinc-500 mb-1"
+      }, exercise.notes), React.createElement("p", {
+        className: `text-[11px] ${paired ? 'truncate' : ''}`,
+        style: {
+          color: accent,
+          marginBottom: paired ? 2 : 6
+        }
+      }, targetBits.join(' · ')), paired ? React.createElement(React.Fragment, null, React.createElement("p", {
+        className: "text-[11px] truncate",
+        style: {
+          color: suggestionColor,
+          marginBottom: 4
+        }
+      }, suggestionText), progression.lastSession && React.createElement("div", {
+        className: "flex gap-1.5 items-center mb-1",
+        style: {
+          overflow: 'hidden',
+          whiteSpace: 'nowrap'
+        }
+      }, React.createElement("span", {
+        className: "text-[10px] text-zinc-500 flex-shrink-0"
+      }, "Last"), progression.lastSession.sets.map((s, i) => React.createElement("span", {
+        key: i,
+        className: `px-1.5 py-0.5 rounded text-[10px] flex-shrink-0 ${s.warmup ? 'bg-amber-500/10 text-amber-400/80' : 'bg-zinc-800/50 text-zinc-300'}`
+      }, s.warmup ? 'W ' : '', s.weight, "\xD7", s.reps, s.completed ? ' ✓' : '')))) : React.createElement(React.Fragment, null, progression.lastSession && React.createElement("div", {
         className: "mb-2 px-3 py-1.5 rounded-xl bg-zinc-900/50 border border-zinc-800/50"
       }, React.createElement("div", {
         className: "flex justify-between items-center"
@@ -3443,45 +3806,40 @@ function WorkoutApp() {
         className: "text-[10px] text-zinc-500"
       }, "Last ", React.createElement("span", {
         className: "text-zinc-300 font-medium"
-      }, lastWorkoutDate))), React.createElement("div", {
+      }, lastWorkoutDate), progression.lastSession.effort ? ` · felt ${progression.lastSession.effort}` : '')), React.createElement("div", {
         className: "flex gap-1.5 flex-wrap mt-1"
       }, progression.lastSession.sets.map((s, i) => React.createElement("span", {
         key: i,
         className: `px-1.5 py-0.5 rounded text-[10px] ${s.warmup ? 'bg-amber-500/10 text-amber-400/80' : 'bg-zinc-800/50 text-zinc-300'}`
-      }, s.warmup ? 'W ' : '', s.weight, "\xD7", s.reps, s.completed ? ' ✓' : ''))));
-    })(), React.createElement(ProgressSpark, {
-      entries: getAllSessions(exercise.id),
-      accent: accent,
-      assisted: !!exerciseConfig.assisted
-    }), React.createElement("div", {
-      className: "mb-2 px-3 py-1 rounded-xl border",
-      style: {
-        background: suggestionBg,
-        borderColor: `${suggestionColor}30`
-      }
-    }, React.createElement("div", {
-      className: "flex items-start gap-2"
-    }, progression.icon && React.createElement(progression.icon, {
-      className: "w-4 h-4 mt-0.5 flex-shrink-0",
-      style: {
-        color: suggestionColor
-      }
-    }), React.createElement("div", null, React.createElement("div", {
-      className: "text-xs font-medium",
-      style: {
-        color: suggestionColor
-      }
-    }, progression.suggestion || (progression.lastSession ? 'Keep building within your rep range' : 'First time - start with suggested weight')), React.createElement("div", {
-      className: "text-[10px] text-zinc-500 mt-1"
-    }, progression.action === 'increase' || progression.action === 'progress' ? progression.weight !== progression.lastWeight ? 'You hit your rep target last time - the new weight is filled in below.' : 'You hit your rep target last time - make it harder today.' : progression.action === 'decrease' || progression.action === 'regress' ? progression.weight !== progression.lastWeight ? 'The lower weight is filled in below. Quality reps beat ego weight.' : 'Focus on form and control. Quality reps beat ego weight.' : progression.lastSession ? 'Aim for more reps at the same weight, or same reps with slightly more weight.' : 'Log your sets below. The app will suggest progression next time.')))), (() => {
-      const prevNote = (progression.lastSession?.notes || '').trim();
-      const prevFirst = prevNote.split('\n')[0];
-      const todayFirst = (currentData.notes || '').trim().split('\n')[0];
-      return !showNotes ? React.createElement("button", {
-        onClick: () => setShowNotes(true),
+      }, s.warmup ? 'W ' : '', s.weight, "\xD7", s.reps, s.completed ? ' ✓' : '')))), React.createElement(ProgressSpark, {
+        entries: getAllSessions(exercise.id),
+        accent: accent,
+        config: exerciseConfig
+      }), React.createElement("div", {
+        className: "mb-2 px-3 py-1 rounded-xl border",
+        style: {
+          background: suggestionBg,
+          borderColor: `${suggestionColor}30`
+        }
+      }, React.createElement("div", {
+        className: "flex items-start gap-2"
+      }, progression.icon && React.createElement(progression.icon, {
+        className: "w-4 h-4 mt-0.5 flex-shrink-0",
+        style: {
+          color: suggestionColor
+        }
+      }), React.createElement("div", null, React.createElement("div", {
+        className: "text-xs font-medium",
+        style: {
+          color: suggestionColor
+        }
+      }, suggestionText), React.createElement("div", {
+        className: "text-[10px] text-zinc-500 mt-1"
+      }, progression.action === 'increase' || progression.action === 'progress' ? progression.weight !== progression.lastWeight ? 'You hit your rep target last time - the new weight is filled in below.' : 'You hit your rep target last time - make it harder today.' : progression.action === 'decrease' || progression.action === 'regress' ? progression.weight !== progression.lastWeight ? 'The lower weight is filled in below. Quality reps beat ego weight.' : 'Focus on form and control. Quality reps beat ego weight.' : progression.lastSession ? 'Aim for more reps at the same weight, or same reps with slightly more weight.' : 'Log your sets below. The app will suggest progression next time.'))))), notesOpen !== index ? React.createElement("button", {
+        onClick: () => setNotesOpen(index),
         className: "notes-row w-full text-left rounded-lg px-3 border border-zinc-800/50 bg-zinc-900/30 flex items-center gap-2",
         style: {
-          minHeight: 36
+          minHeight: paired ? 30 : 36
         }
       }, React.createElement(StickyNote, {
         className: "w-3.5 h-3.5 flex-shrink-0 text-amber-400/70"
@@ -3501,7 +3859,9 @@ function WorkoutApp() {
         className: "w-3.5 h-3.5 text-amber-400/70 mt-0.5 flex-shrink-0"
       }), React.createElement("span", null, "Last time: ", prevNote)), React.createElement("textarea", {
         value: currentData.notes || '',
-        onChange: e => updateNotes(e.target.value),
+        onChange: e => patchExercise(index, {
+          notes: e.target.value
+        }),
         placeholder: "Add workout notes...",
         className: "w-full text-sm text-white",
         style: {
@@ -3511,67 +3871,92 @@ function WorkoutApp() {
         rows: 3,
         autoFocus: true
       }), React.createElement("button", {
-        onClick: () => setShowNotes(false),
+        onClick: () => setNotesOpen(null),
         className: "text-[10px] text-zinc-500 mt-1"
-      }, "Done"));
-    })(), React.createElement("div", {
-      className: "mt-2"
-    }, React.createElement("div", {
-      className: "flex justify-between items-center mb-1"
-    }, React.createElement("span", {
-      className: "text-xs text-zinc-500 font-medium"
-    }, "LOG YOUR SETS"), React.createElement("span", {
-      className: "text-[9px] text-zinc-600"
-    }, exerciseConfig.assisted ? 'lbs assist' : 'lbs', " \xD7 reps", currentData.sets.some(s => s.warmup) ? ' · W = warm-up, not counted' : '')), React.createElement("div", {
+      }, "Done")), React.createElement("div", {
+        style: {
+          marginTop: paired ? 4 : 8
+        }
+      }, React.createElement("div", {
+        className: "flex justify-between items-center mb-1"
+      }, React.createElement("span", {
+        className: "text-xs text-zinc-500 font-medium"
+      }, "LOG YOUR SETS ", React.createElement("span", {
+        className: "text-[9px] text-zinc-600",
+        style: {
+          fontWeight: 400
+        }
+      }, exerciseConfig.assisted ? 'lbs assist' : 'lbs', " \xD7 reps")), React.createElement(EffortChips, {
+        value: currentData.effort || null,
+        onChange: v => patchExercise(index, {
+          effort: v
+        }),
+        accent: accent
+      })), React.createElement("div", {
+        style: {
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 2
+        }
+      }, currentData.sets.map((set, i) => React.createElement(SetRow, {
+        key: i,
+        set: set,
+        label: setLabel(currentData.sets, i),
+        accent: accent,
+        config: exerciseConfig,
+        onToggle: () => toggleSetComplete(index, i),
+        onChange: (field, value) => updateSet(index, i, field, value),
+        onCopy: i > 0 && !set.completed ? () => copyPreviousSet(index, i) : null
+      })))));
+    };
+    return React.createElement("div", {
+      className: "min-h-screen text-white p-3 pb-24",
       style: {
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 2
-      }
-    }, currentData.sets.map((set, i) => React.createElement("div", {
-      key: i,
-      className: `rounded-lg border ${set.completed ? 'border-emerald-500/50 bg-emerald-500/10' : set.warmup ? 'border-amber-500/30 bg-amber-500/5' : 'border-zinc-800/50 bg-zinc-900/30'}`,
-      style: {
-        padding: '3px 6px'
+        background: config.bgGradient
       }
     }, React.createElement("div", {
-      className: "flex items-center gap-2"
+      className: "max-w-md mx-auto"
+    }, React.createElement("div", {
+      className: "flex justify-between items-center",
+      style: {
+        marginBottom: 2
+      }
     }, React.createElement("button", {
-      onClick: () => toggleSetComplete(i),
-      className: `w-9 h-11 rounded-lg flex items-center justify-center transition-all active:scale-90 flex-shrink-0 text-xs font-bold ${set.completed ? 'bg-emerald-500 text-white' : set.warmup ? 'bg-amber-500/20 text-amber-400' : 'bg-zinc-800 text-zinc-500'}`
-    }, set.completed ? React.createElement(Check, {
-      className: "w-4 h-4"
-    }) : set.warmup ? 'W' : i + 1 - currentData.sets.slice(0, i).filter(s => s.warmup).length), React.createElement("div", {
-      className: "flex items-center gap-1 flex-1"
-    }, React.createElement(StepBtn, {
-      accent: accent,
-      onClick: () => updateSet(i, 'weight', stepWeight(exerciseConfig, set.weight, -1))
-    }, "\u2212"), React.createElement("div", {
-      className: "flex-1 text-center text-lg font-bold text-zinc-100"
-    }, set.weight), React.createElement(StepBtn, {
-      accent: accent,
-      onClick: () => updateSet(i, 'weight', stepWeight(exerciseConfig, set.weight, 1))
-    }, "+")), React.createElement("div", {
-      className: "w-px h-6 bg-zinc-800"
-    }), React.createElement("div", {
-      className: "flex items-center gap-1 flex-1"
-    }, React.createElement(StepBtn, {
-      accent: accent,
-      onClick: () => updateSet(i, 'reps', Math.max(1, set.reps - 1))
-    }, "\u2212"), React.createElement("div", {
-      className: "flex-1 text-center text-lg font-bold text-zinc-100"
-    }, set.reps), React.createElement(StepBtn, {
-      accent: accent,
-      onClick: () => updateSet(i, 'reps', set.reps + 1)
-    }, "+")), i > 0 && !set.completed ? React.createElement("button", {
-      onClick: () => copyPreviousSet(i),
-      className: "w-8 h-11 rounded flex items-center justify-center text-zinc-600 hover:text-zinc-400 active:scale-90",
-      title: "Copy previous set"
-    }, React.createElement(Copy, {
-      className: "w-3.5 h-3.5"
-    })) : React.createElement("div", {
-      className: "w-8 h-11 flex-shrink-0"
-    })))))), React.createElement("div", {
+      onClick: () => setView('dayOverview'),
+      className: "text-zinc-500 p-1"
+    }, React.createElement(ChevronLeft, {
+      className: "w-5 h-5"
+    })), React.createElement("div", {
+      className: "text-[10px] text-zinc-600"
+    }, paired ? `${unit[0] + 1}-${lastOfUnit + 1}` : currentExerciseIndex + 1, "/", dayData.exercises.length, paired ? ' · superset, alternate sets' : ''), paired ? React.createElement("div", {
+      className: "p-1"
+    }, React.createElement("div", {
+      className: "w-5 h-5"
+    })) : React.createElement("button", {
+      onClick: () => setNotesOpen(notesOpen === null ? unit[0] : null),
+      className: "text-zinc-500 p-1"
+    }, React.createElement(StickyNote, {
+      className: "w-5 h-5"
+    }))), React.createElement("div", {
+      className: "h-0.5 bg-zinc-800 rounded-full overflow-hidden",
+      style: {
+        marginBottom: 6
+      }
+    }, React.createElement("div", {
+      className: "h-full rounded-full",
+      style: {
+        width: `${(lastOfUnit + 1) / dayData.exercises.length * 100}%`,
+        background: accent
+      }
+    })), unit.map((index, n) => React.createElement(React.Fragment, {
+      key: index
+    }, n > 0 && React.createElement("div", {
+      className: "bg-zinc-800",
+      style: {
+        height: 1,
+        margin: '8px 0 6px'
+      }
+    }), renderPanel(index))), React.createElement("div", {
       className: "fixed bottom-0 left-0 right-0 pointer-events-none",
       style: {
         paddingBottom: 'calc(16px + env(safe-area-inset-bottom, 0px))'

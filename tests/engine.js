@@ -57,17 +57,17 @@ const log4 = (days) => ({ lastProgram: '4day', workoutLog_4day: days });
   {
     const a = await boot(log4({
       day3: { exercises: { incline_machine: [entry([set(120, 12), set(120, 12), set(120, 12)], 3)] }, sessions: [{ date: day(3) }] },
-      day1: { exercises: { seated_row: [entry([set(135, 12), set(135, 10), set(135, 8)], 2)] }, sessions: [{ date: day(2) }] }
+      day5: { exercises: { cable_row: [entry([set(120, 14), set(120, 12), set(120, 10)], 2)] }, sessions: [{ date: day(2) }] }
     }));
     await a.click('Upper Size'); await a.openExercise('Incline Machine Press');
     ok('hit the top on every set: banner says add 5', a.txt().includes('Hit 12+ on every set → Add 5 lbs'));
     ok('hit the top on every set: rows pre-fill 125 x 8', a.nums() === '125,8,125,8,125,8');
-    a.root.querySelector('button.p-1').click(); await wait(150); await a.click('Back');
-    await a.click('Upper Power'); await a.openExercise('Seated Row Machine');
-    ok('12/10/8 on a 6-10 range averages 10 but does NOT add weight', !a.txt().includes('Add 5 lbs') && a.nums() === '135,10,135,10,135,10');
     a.root.querySelector('button.p-1').click(); await wait(150);
-    a.rows().find(r => r.textContent.includes('Seated Row Machine')).querySelector('.info-btn').click(); await wait(150);
-    ok('info sheet uses the day\'s own rep range (6-10, not the base 5-8)', a.root.querySelector('.info-sheet').textContent.includes('6-10 reps'));
+    await a.openExercise('Cable Row');
+    ok('14/12/10 on an 8-12 range averages 12 but does NOT add weight', !a.txt().includes('Add 5 lbs') && a.nums() === '120,12,120,12,120,12');
+    a.root.querySelector('button.p-1').click(); await wait(150);
+    a.rows().find(r => r.textContent.includes('Cable Row')).querySelector('.info-btn').click(); await wait(150);
+    ok('info sheet uses the day\'s own rep range (8-12, not the base 10-12)', a.root.querySelector('.info-sheet').textContent.includes('8-12 reps'));
   }
   // 4. Light lifts follow the heavy lift every session, not just the first
   {
@@ -158,6 +158,46 @@ const log4 = (days) => ({ lastProgram: '4day', workoutLog_4day: days });
     const upOne = a.nums().split(',')[0];
     minus[0].click(); await wait(50); minus[0].click(); await wait(50);
     ok('laterals: + and - step along the rack (12 -> 15 -> 12 -> 10)', upOne === '15' && a.nums().split(',')[0] === '10');
+  }
+  // 11. Superset pair on one screen, effort rating, and what gets saved
+  {
+    const tri = (reps, n, extra) => entry([set(30, reps), set(30, reps), set(30, reps)], n, extra);
+    const a = await boot(log4({ day3: { exercises: { lean_tri_ext: [tri(13, 9), tri(14, 6), tri(15, 2, { effort: 'easy' })] }, sessions: [{ date: day(9) }, { date: day(6) }, { date: day(2) }] } }));
+    ok('home marks the next day in the rotation (Day 4 after Day 3)', [...a.root.querySelectorAll('button')].find(b => b.textContent.includes('Lower Size')).textContent.includes('Next') && a.root.querySelectorAll('.next-up').length === 1);
+    await a.click('Upper Size'); await a.openExercise('EZ Bar Curl');
+    ok('superset opens as one screen with both exercises', a.txt().includes('Leaning Tricep Extension') && a.txt().includes('EZ Bar Curl') && a.txt().includes('4-5/6') && a.root.querySelectorAll('.set-row').length === 6);
+    ok('easy last set + top of range = double jump (30 -> 40)', a.txt().includes('felt easy → Add 10 lbs') && a.nums().startsWith('40,8'));
+    const chips = [...a.root.querySelectorAll('.effort-chips button')]; // [tri Easy, tri Max, curl Easy, curl Max]
+    chips[1].click(); await wait(50);
+    [...a.root.querySelectorAll('.set-row')].forEach(r => r.querySelector('button').click()); await wait(100);
+    await a.click('›');
+    ok('next from a superset skips past both halves', a.txt().includes('6/6') && a.txt().includes('Lateral Raise'));
+    await a.click('‹');
+    ok('back from the following exercise returns to the pair', a.txt().includes('4-5/6'));
+    await a.click('›'); await a.click('›'); await a.click('Complete workout');
+    const saved = a.stored('workoutLog_4day').day3.exercises;
+    ok('effort is saved only where it was tapped', saved.lean_tri_ext[3].effort === 'max' && saved.high_rep_curl[0].effort === undefined && saved.high_rep_curl[0].sets.every(s => s.completed));
+    // 12. History: review and fix a logged workout
+    await a.click('Done'); await a.click('History');
+    ok('history lists every logged workout, newest first', a.root.querySelectorAll('.history-row').length === 4);
+    a.root.querySelector('.history-row').click(); await wait(150);
+    ok('history session shows the logged exercises', a.txt().includes('Leaning Tricep Extension') && a.txt().includes('EZ Bar Curl'));
+    const curlCard = [...a.root.querySelectorAll('.set-row')].find(r => r.textContent.includes('55'));
+    [...curlCard.querySelectorAll('button')].find(b => b.textContent.trim() === '+').click(); await wait(100);
+    ok('editing a set in history rewrites the log (55 -> 60)', a.stored('workoutLog_4day').day3.exercises.high_rep_curl[0].weight === 60);
+    a.w.confirm = () => true;
+    await a.click('Delete this workout');
+    ok('deleting a workout removes its entries and session', a.root.querySelectorAll('.history-row').length === 3 && a.stored('workoutLog_4day').day3.exercises.high_rep_curl === undefined && a.stored('workoutLog_4day').day3.sessions.length === 3);
+  }
+  // 13. Chart is rep-aware; the pull-up is logged as assistance
+  {
+    const row = (reps, n) => entry([set(120, reps), set(120, reps), set(120, reps)], n);
+    const a = await boot(log4({ day3: { exercises: { incline_machine: [row(8, 9), row(9, 6), row(10, 2)] }, sessions: [{ date: day(2) }] } }));
+    await a.click('Upper Size'); await a.openExercise('Incline Machine Press');
+    ok('same weight, more reps shows as progress (est. 1RM 152 -> 160)', a.txt().includes('EST. 1RM · 3 SESSIONS') && a.txt().includes('+8 lb'));
+    a.root.querySelector('button.p-1').click(); await wait(150); await a.click('Back');
+    await a.click('Upper Power'); await a.openExercise('Assisted Pull-up');
+    ok('assisted pull-up: 3 x 4-6, weight is assistance', a.txt().includes('3 × 4-6') && a.txt().includes('−5 lb assist when every set hits 6') && a.nums() === '60,6,60,6,60,6');
   }
   console.log(`${pass} passed, ${fail} failed`);
   process.exit(fail ? 1 : 0);

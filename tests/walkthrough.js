@@ -37,7 +37,7 @@ const ok = (name, cond) => { console.log((cond ? 'PASS' : 'FAIL') + ' ' + name);
   const rows = [...root.querySelectorAll('.exercise-row')];
   ok('overview: tappable exercise rows', rows.length >= 5);
   // "?" info sheet opens with description + video link, closes, and does NOT navigate
-  rows[1].querySelector('.info-btn').click(); await wait(300);
+  rows[0].querySelector('.info-btn').click(); await wait(300);
   const sheet = root.querySelector('.info-sheet');
   ok('overview: ? opens info sheet with video link', !!sheet && !!sheet.querySelector('a[href*="youtube"]'));
   btn('Close').click(); await wait(300);
