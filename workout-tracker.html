@@ -393,7 +393,7 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
       cable_row: { description: 'Seated, pull handle to torso. Keep chest up, squeeze shoulder blades together.', source: 'Scott Herman Fitness', youtube: 'https://www.youtube.com/watch?v=GZbfZ033f74' },
       seated_row: { description: 'Seated, pull handle to torso. Keep chest up, squeeze shoulder blades together.', source: 'Scott Herman Fitness', youtube: 'https://www.youtube.com/watch?v=GZbfZ033f74' },
       // Shoulders
-      lateral_raise: { description: 'Arms at sides, raise dumbbells to shoulder height. Lead with elbows, slight forward lean.', source: 'Scott Herman Fitness', youtube: 'https://www.youtube.com/watch?v=3VcKaXpzqRo' },
+      lateral_raise: { description: 'Arms at sides, raise dumbbells to shoulder height, leading with the elbows. Then hinge forward and raise them out to the sides for the rear delts. One side raise + one bent-over fly, back to back, counts as one set.', source: 'Scott Herman Fitness', youtube: 'https://www.youtube.com/watch?v=3VcKaXpzqRo' },
       face_pull: { description: 'Cable at face height, pull rope to face with elbows high. External rotate at end.', source: 'Scott Herman Fitness', youtube: 'https://www.youtube.com/watch?v=rep-qVOkqgk' },
       bent_lateral: { description: 'Hinged forward, raise dumbbells out to sides. Targets rear delts.', source: 'BPI Sports', youtube: 'https://www.youtube.com/watch?v=EA7u4Q_8HQ0' },
       // Biceps
@@ -406,6 +406,7 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
       preacher_fri: { description: 'Arms on preacher pad, curl bar up. Eliminates momentum, isolates biceps.', source: 'Kris Gethin (Kaged Muscle)', youtube: 'https://www.youtube.com/watch?v=fIWP-FRFNU0' },
       // Triceps
       overhead_tri: { description: 'Weight overhead, lower behind head by bending elbows. Extend back up. Stretches long head.', source: 'Scott Herman Fitness', youtube: 'https://www.youtube.com/watch?v=YbX7Wd8jQ-Q' },
+      lean_tri_ext: { description: 'Rope on a high cable, facing away from the stack. Step out into a split stance and lean the torso forward so the upper arms point ahead of you, not up. Elbows stay fixed beside the head; extend the forearms forward to lockout, then let the rope pull back to a full stretch. Alternate: pushdown, elbows pinned at the sides.' },
       pushdown: { description: 'Cable attachment at top, push down until arms straight. Keep elbows pinned to sides.', source: 'Scott Herman Fitness', youtube: 'https://www.youtube.com/watch?v=2-LAMcpzODU' },
       // Legs
       hack_squat: { description: 'Machine squat, feet forward on platform. Descend deep, drive through heels.', source: 'Bodybuilding.com', youtube: 'https://www.youtube.com/watch?v=0tn5K9NlCfo' },
@@ -475,7 +476,9 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
       lat_pulldown: { progressionType: "rep-first", weightIncrement: 5, repRange: [10, 12], rirTarget: 2, restTime: 90, cue: 'Good progress' },
       face_pull: { progressionType: "rep-first", weightIncrement: 2.5, repRange: [15, 20], rirTarget: 3, restTime: 60, cue: 'Shoulder health > ego' },
       low_high_fly: { progressionType: "rep-first", weightIncrement: 2.5, repRange: [12, 15], rirTarget: 2, restTime: 60, cue: 'Focus on chest squeeze' },
-      lateral_raise: { progressionType: "rep-first", weightIncrement: 1.25, repRange: [12, 20], rirTarget: 2, restTime: 60, cue: 'Microplates essential - tiny bumps only' },
+      // startReps/restartFrom: new prescription (2 x 7 at 10 lb, build to 12). Sessions logged before
+      // restartFrom stay in the history and chart but no longer seed the weight, reps or suggestion.
+      lateral_raise: { progressionType: "rep-first", weightIncrement: 1.25, repRange: [7, 12], startReps: 7, restartFrom: '2026-11-10T00:00', rirTarget: 2, restTime: 60, cue: 'Build to 12 on both sets, then add weight' },
       incline_curl: { progressionType: "rep-first", weightIncrement: 2.5, repRange: [10, 12], rirTarget: 2, restTime: 60, cue: 'Focus on stretch at bottom' },
       hammer_curl: { progressionType: "rep-first", weightIncrement: 2.5, repRange: [10, 15], rirTarget: 2, restTime: 60, cue: 'Building brachialis' },
       bayesian_curl: { progressionType: "rep-first", weightIncrement: 2.5, repRange: [10, 15], rirTarget: 2, restTime: 60, cue: 'Constant tension advantage' },
@@ -484,6 +487,7 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
       spider_curl: { progressionType: "rep-first", weightIncrement: 2.5, repRange: [12, 15], rirTarget: 2, restTime: 60, cue: 'Focus on contraction' },
       seated_curl: { progressionType: "rep-first", weightIncrement: 2.5, repRange: [8, 12], rirTarget: 2, restTime: 60, cue: 'Controlled curls' },
       overhead_tri: { progressionType: "rep-first", weightIncrement: 2.5, repRange: [10, 15], rirTarget: 2, restTime: 60, cue: 'Focus on stretch' },
+      lean_tri_ext: { progressionType: "rep-first", weightIncrement: 5, repRange: [8, 15], rirTarget: 2, restTime: 75, cue: 'Lean forward, press forward, full stretch' },
       pushdown: { progressionType: "rep-first", weightIncrement: 5, repRange: [12, 20], rirTarget: 2, restTime: 60, cue: 'Building pump' },
       bent_lateral: { progressionType: "rep-first", weightIncrement: 1.25, repRange: [12, 20], rirTarget: 2, restTime: 60, cue: 'Focus on rear delt squeeze' },
       cable_crunch: { progressionType: "load-first", weightIncrement: 5, repRange: [12, 15], rirTarget: 2, restTime: 60, cue: 'Building core strength' },
@@ -624,9 +628,9 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
         { id: "incline_db", name: "Incline Dumbbell Press (30°) / Machine Incline", sets: 4, warmupSets: 1, reps: "6-10", defaultWeight: 50, muscles: ["upperChest", "shoulders", "triceps"], notes: "1 feeder, then 3 working · deep stretch · 2 min", progression: { repRange: [6, 10], restTime: 120 } },
         { id: "cable_row", name: "Cable Row / Machine Row", sets: 3, reps: "8-12", defaultWeight: 120, muscles: ["lats", "traps", "biceps"], notes: "Between the two presses · squeeze, don't heave · 90 s", progression: { repRange: [8, 12], restTime: 75 } },
         { id: "incline_machine", name: "Incline Machine Press (30°) / Incline Smith", sets: 3, reps: "8-12", defaultWeight: 120, muscles: ["upperChest", "shoulders", "triceps"], notes: "Second chest exposure, after the row · 0-1 reps in reserve · 90 s" },
-        { id: "overhead_tri", name: "Overhead Tricep Extension / Skull Crushers", sets: 4, reps: "8-15", defaultWeight: 50, muscles: ["triceps"], notes: "⇄ Superset with EZ curl · long head, full stretch, last set to failure", superset: 1, progression: { repRange: [8, 15], restTime: 75 } },
-        { id: "high_rep_curl", name: "EZ Bar Curl / Cable Curl", sets: 3, reps: "6-10", defaultWeight: 55, muscles: ["biceps"], notes: "⇄ Superset with overhead extension · heavy, strict, full range", superset: 1, progression: { progressionType: "load-first", repRange: [6, 10], restTime: 75 } },
-        { id: "lateral_raise", name: "Lateral Raise / Cable Lateral", sets: 4, reps: "12-20", defaultWeight: 15, muscles: ["sideDelts"], notes: "60 s · microplates essential" }
+        { id: "lean_tri_ext", name: "Leaning Tricep Extension / Tricep Pushdown", sets: 4, reps: "8-15", defaultWeight: 30, muscles: ["triceps"], notes: "⇄ Superset with EZ curl · face away, lean forward, press forward · last set to failure", superset: 1 },
+        { id: "high_rep_curl", name: "EZ Bar Curl / Cable Curl", sets: 3, reps: "6-10", defaultWeight: 55, muscles: ["biceps"], notes: "⇄ Superset with tricep extension · heavy, strict, full range", superset: 1, progression: { progressionType: "load-first", repRange: [6, 10], restTime: 75 } },
+        { id: "lateral_raise", name: "Lateral Raise + Bent-Over Fly / Cable Lateral", sets: 2, reps: "7-12", defaultWeight: 10, muscles: ["sideDelts", "rearDelts"], notes: "Side raise + bent-over fly back to back = 1 set · start 7 reps, build to 12 · 60 s" }
       ]},
       day4: { name: "Lower Size · Squat", focus: "Squat strength · light deadlift · posterior chain · sled", mobility: [
         "Weighted knee-to-wall (KB or plate on knee) · 10/side",
@@ -651,9 +655,9 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
       ], exercises: [
         { id: "dips", name: "Assisted Dips / Machine Dip", sets: 3, reps: "6-10", defaultWeight: 60, muscles: ["triceps", "chest"], notes: "⇄ Superset with pulldown · weight = assistance, less is harder · goal: 0 = bodyweight", superset: 1, progression: { repRange: [6, 10], restTime: 90 } },
         { id: "lat_pulldown", name: "Lat Pulldown / Pull-ups", sets: 3, reps: "6-10", defaultWeight: 100, muscles: ["lats", "biceps"], notes: "⇄ Superset with dips · counts as biceps work too", superset: 1, progression: { progressionType: "load-first", repRange: [6, 10], restTime: 90 } },
-        { id: "overhead_tri", name: "Overhead Tricep Extension / Skull Crushers", sets: 3, reps: "8-15", defaultWeight: 50, muscles: ["triceps"], notes: "⇄ Superset with hammer curls · long head, full stretch", superset: 2, progression: { repRange: [8, 15], restTime: 75 } },
-        { id: "hammer_curl", name: "Hammer Curl / Cross-Body Curl", sets: 3, reps: "10-15", defaultWeight: 25, muscles: ["biceps", "forearms"], notes: "⇄ Superset with overhead extension · brachialis + grip for the log and carries", superset: 2, progression: { restTime: 75 } },
-        { id: "lateral_raise", name: "Lateral Raise / Cable Lateral", sets: 4, reps: "12-20", defaultWeight: 15, muscles: ["sideDelts"], notes: "60 s · microplates essential" }
+        { id: "lean_tri_ext", name: "Leaning Tricep Extension / Tricep Pushdown", sets: 3, reps: "8-15", defaultWeight: 30, muscles: ["triceps"], notes: "⇄ Superset with hammer curls · face away, lean forward, press forward", superset: 2 },
+        { id: "hammer_curl", name: "Hammer Curl / Cross-Body Curl", sets: 3, reps: "10-15", defaultWeight: 25, muscles: ["biceps", "forearms"], notes: "⇄ Superset with tricep extension · brachialis + grip for the log and carries", superset: 2, progression: { restTime: 75 } },
+        { id: "lateral_raise", name: "Lateral Raise + Bent-Over Fly / Cable Lateral", sets: 2, reps: "7-12", defaultWeight: 10, muscles: ["sideDelts", "rearDelts"], notes: "Side raise + bent-over fly back to back = 1 set · start 7 reps, build to 12 · 60 s" }
       ]},
       day6: { name: "Strongman Conditioning", focus: "Sled · carries · back extension · no pressing", mobility: [
         "Ankle rocks / bodyweight knee-to-wall · 10/side",
@@ -731,6 +735,7 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
       'incline barbell press (30°)': { id: 'incline_bb', alt: false }, 'smith incline': { id: 'incline_bb', alt: true },
       'overhead tricep extension': { id: 'overhead_tri', alt: false }, 'skull crushers': { id: 'overhead_tri', alt: true },
       'ez bar curl': { id: 'high_rep_curl', alt: false }, 'cable curl': { id: 'high_rep_curl', alt: true },
+      'lateral raise': { id: 'lateral_raise', alt: false },
       'lat pulldown': { id: 'lat_pulldown', alt: false }, 'pull-ups': { id: 'lat_pulldown', alt: true }, 'assisted pull-ups': { id: 'lat_pulldown', alt: true }
     };
 
@@ -845,8 +850,10 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
       };
 
       const calculateProgression = (exercise) => {
-        const lastData = getLastSession(exercise.id);
         const config = getExerciseConfig(exercise);
+        let lastData = getLastSession(exercise.id);
+        // New prescription: older sessions stay logged but stop seeding weight/reps
+        if (config.restartFrom && lastData && new Date(lastData.date) < new Date(config.restartFrom)) lastData = null;
 
         // Light second exposure: load follows the heavy lift's current working weight
         if (config.derivedFrom) {
@@ -859,7 +866,7 @@ var e,t,r="function"==typeof Symbol?Symbol:{},a=r.iterator||"@@iterator",n=r.toS
           return { weight: derived, reps: config.repRange[1], suggestion: `${Math.round(config.pct * 100)}% of your ${parentName} (${parentBase} lb) — no need to push this`, action: 'maintain', icon: Minus, config, lastWeight: derived, lastSession: lastData };
         }
 
-        if (!lastData) return { weight: exercise.defaultWeight, reps: config.repRange[1], suggestion: null, action: 'start', icon: null, config };
+        if (!lastData) return { weight: exercise.defaultWeight, reps: config.startReps ?? config.repRange[1], suggestion: null, action: 'start', icon: null, config };
 
         const workSets = getWorkingSets(lastData);
         const lastWeight = workSets[0]?.weight ?? lastData.weight;
