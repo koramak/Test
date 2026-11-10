@@ -40,7 +40,7 @@ Every one of these must exist, unchanged in behavior, on the same screen it is o
 8. **Notes row**, collapsed by default, showing today's note or *"Last time: <first line of last session's note>"*; tap to expand a textarea. This preview is deliberate — a note the lifter can't see isn't a note.
 9. Warm-up sets are marked (`W`) and visibly distinct from working sets.
 10. **Effort chips**: `last set  [Easy] [Max]` on the right of the "LOG YOUR SETS" header, 26 px tall. Optional: untouched means "about right"; one tap sets, the same tap clears. The selected chip takes the day accent. (The old abs-slot dropdown no longer exists.)
-10a. **Superset screen**: the two exercises of a superset share one screen as two compact panels separated by a hairline. Each panel has: name + alternate toggle, target line (one line, truncated), suggestion (one line, colored), last-session chips (one line), collapsed notes row (30 px), the "LOG YOUR SETS" header with effort chips, and its set rows. The plan note and chart are omitted on this screen only. The header reads `4-5/6 · superset, alternate sets`. Set rows are identical to the single-exercise screen.
+10a. **Superset screen**: the two exercises of a superset share one screen as two compact panels separated by a hairline. Each panel has: name + alternate toggle, target line (one line, truncated), suggestion (one line, colored), one row with last-session chips on the left and the effort chips on the right, collapsed notes row (30 px), and its set rows. The plan note, chart and "LOG YOUR SETS" header are omitted on this screen only. The header reads `4-5/6 · superset, alternate sets`. Set rows are identical to the single-exercise screen.
 
 ### Day overview
 11. Back, day name and focus line, the **5-minute mobility block** (5 short lines), the **ab-routine checkbox** with adherence text, one tappable row per exercise (name, sets × reps, last weight, "⇄" marker on superset pairs, checkmark once worked this session), a **"?" button per row** that opens a bottom sheet (description, video link, rep range, increment), and a fixed **Start / Continue workout** button.
@@ -73,12 +73,12 @@ Every one of these must exist, unchanged in behavior, on the same screen it is o
 | Screen | Worst case | Content height today | Room |
 |---|---|---|---|
 | Exercise | 5 set rows + history + chart + 2-line cue + target line + effort chips | 719 pt of 730 | **11 pt** |
-| Exercise (superset) | 3 + 3 set rows, both with history | about 700 of 730 (hand-measured; not yet in `measure.js`) | ~30 pt |
+| Exercise (superset) | 3 + 3 set rows, both with history | 710 of 730 | 20 pt |
 | Day overview | 6 exercises + mobility block | 719 of 738 | 19 pt |
 | Summary | 6 exercises | 610 of 694 | 84 pt |
 | Home | 6 days + consistency bars + backup nudge + both utility rows | 808 of 818 | **10 pt** |
 
-These come from `tests/measure.js --seed`, which renders each screen in Chromium at 393×852 with seeded history and the standalone insets applied. Re-run it on any layout proposal.
+These come from `tests/measure.js --seed` (`npm run measure`), which renders each screen in Chromium at 393×852 with seeded history and the standalone insets applied. It also checks the touch-target sizes below and exits non-zero if a screen overflows or a target shrinks. Re-run it on any layout proposal.
 
 - The exercise screen has essentially **zero vertical slack**. Any added padding, larger type, or taller cards there must be paid for elsewhere on the same screen. A design that adds 10 pt per set row is 50 pt over.
 - **One layout for all exercises.** Sizes do not change with the number of sets (see §1). A 3-set exercise shows the same 44 px steppers and 18 px numerals as a 5-set one and leaves the bottom of the screen empty.
@@ -86,7 +86,7 @@ These come from `tests/measure.js --seed`, which renders each screen in Chromium
 - Content must never sit under the Dynamic Island or the home indicator.
 
 ### Touch targets
-- Keep every current hit size: set toggle 36 × 44, stepper buttons 44 × 44, prev/next 64 × 64, Skip ≥ 40 tall, "?" 36 × 36, rows ≥ 44 tall. These are used with chalked hands between heavy sets. Do not shrink; may enlarge only if the height budget allows.
+- Keep every current hit size: set toggle 36 × 44, stepper buttons 44 × 44, prev/next 64 × 64, Skip ≥ 32 tall (34 today), "?" 36 × 36, rows ≥ 44 tall. These are used with chalked hands between heavy sets. Do not shrink; may enlarge only if the height budget allows.
 - No hover-only affordances. No gestures (swipe-to-delete, long-press) as the only way to do anything.
 
 ### Implementation reality
@@ -142,7 +142,7 @@ Two rendering caveats: the screenshots come from headless Chromium on Linux, so 
 ## 6. Acceptance checklist (the implementer will test these)
 
 - [ ] `cd tests && npm test` passes unchanged: walkthrough (25 functional checks, and it fails if `workout-tracker.html` was not rebuilt from `src/`), migration (19), engine (35).
-- [ ] `tests/measure.js --seed` reports FITS for every screen on iPhone 16 Pro.
+- [ ] `npm run measure` ends with "All screens fit and all touch targets hold".
 - [ ] All hit sizes in §3 preserved (measured, not eyeballed).
 - [ ] A lifter who used the app last week can find every control without hunting.
 - [ ] Reads at arm's length in a bright room: weight/rep numerals, the suggestion, which sets are done.

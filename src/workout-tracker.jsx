@@ -1509,16 +1509,18 @@ function WorkoutApp() {
             <>
               {/* Superset: suggestion and last session, one line each */}
               <p className="text-[11px] truncate" style={{ color: suggestionColor, marginBottom: 4 }}>{suggestionText}</p>
-              {progression.lastSession && (
-                <div className="flex gap-1.5 items-center mb-1" style={{ overflow: 'hidden', whiteSpace: 'nowrap' }}>
-                  <span className="text-[10px] text-zinc-500 flex-shrink-0">Last</span>
-                  {progression.lastSession.sets.map((s, i) => (
+              {/* Last session on the left, effort chips on the right: saves the header row */}
+              <div className="flex items-center justify-between gap-2 mb-1">
+                <div className="flex gap-1.5 items-center flex-1 min-w-0" style={{ overflow: 'hidden', whiteSpace: 'nowrap' }}>
+                  {progression.lastSession && <span className="text-[10px] text-zinc-500 flex-shrink-0">Last</span>}
+                  {(progression.lastSession?.sets || []).map((s, i) => (
                     <span key={i} className={`px-1.5 py-0.5 rounded text-[10px] flex-shrink-0 ${s.warmup ? 'bg-amber-500/10 text-amber-400/80' : 'bg-zinc-800/50 text-zinc-300'}`}>
                       {s.warmup ? 'W ' : ''}{s.weight}×{s.reps}{s.completed ? ' ✓' : ''}
                     </span>
                   ))}
                 </div>
-              )}
+                <EffortChips value={currentData.effort || null} onChange={(v) => patchExercise(index, { effort: v })} accent={accent} />
+              </div>
             </>
           ) : (
             <>
@@ -1597,10 +1599,10 @@ function WorkoutApp() {
 
           {/* Journal - sets to log, plus the optional one-tap rating of the last set */}
           <div style={{ marginTop: paired ? 4 : 8 }}>
-            <div className="flex justify-between items-center mb-1">
+            {!paired && <div className="flex justify-between items-center mb-1">
               <span className="text-xs text-zinc-500 font-medium">LOG YOUR SETS <span className="text-[9px] text-zinc-600" style={{ fontWeight: 400 }}>{exerciseConfig.assisted ? 'lbs assist' : 'lbs'} × reps</span></span>
               <EffortChips value={currentData.effort || null} onChange={(v) => patchExercise(index, { effort: v })} accent={accent} />
-            </div>
+            </div>}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
               {currentData.sets.map((set, i) => (
                 <SetRow

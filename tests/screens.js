@@ -38,7 +38,7 @@ const seed = {
   await tap('Upper Power'); await shot('day_overview');
   await page.click('.info-btn'); await shot('day_overview_info_sheet'); await tap('Close');
   await tap('Back'); await tap('Upper Size');
-  await tap('Leaning Tricep Extension'); await page.waitForSelector('text=LOG YOUR SETS');
+  await tap('Leaning Tricep Extension'); await page.waitForSelector('.set-row');
   await page.click('.set-row button'); await page.click('.effort-chips button');
   await shot('exercise_superset_pair');
   await page.click('button.p-1'); await tap('Back');
@@ -46,7 +46,7 @@ const seed = {
   await tap('Begin Workout'); await page.waitForSelector('text=LOG YOUR SETS');
   for (const b of (await page.$$('.set-row')).slice(0, 3)) await (await b.$('button')).click();
   await shot('exercise_deadlift_with_history');
-  for (let i = 0; i < 6 && await page.$('text=LOG YOUR SETS'); i++) await page.click('button:has-text("›")');
+  for (let i = 0; i < 6 && await page.$('.set-row'); i++) await page.click('button:has-text("›")');
   await shot('summary_6_exercises');
   await tap('Complete workout'); await shot('complete');
   await tap('Done'); await tap('History'); await shot('history');
