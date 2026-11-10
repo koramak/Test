@@ -3415,7 +3415,7 @@ function WorkoutApp() {
         className: "text-sm font-medium text-zinc-200 truncate"
       }, workoutData[sess.day]?.name || sess.day), React.createElement("div", {
         className: "text-[10px] text-zinc-600"
-      }, done, " exercises", sess.meta?.durationMin ? ` · ${sess.meta.durationMin} min` : '', sess.meta?.prs?.length ? ` · ${sess.meta.prs.length} PR` : '')), React.createElement(ChevronRight, {
+      }, done, " ", done === 1 ? 'exercise' : 'exercises', sess.meta?.durationMin ? ` · ${sess.meta.durationMin} min` : '', sess.meta?.prs?.length ? ` · ${sess.meta.prs.length} PR` : '')), React.createElement(ChevronRight, {
         className: "w-4 h-4 text-zinc-700 flex-shrink-0"
       }));
     }))));
@@ -3743,7 +3743,7 @@ function WorkoutApp() {
       const rrHigh = exerciseConfig.repRange[1];
       const targetBits = [`${workingSets} × ${exercise.reps}`];
       if (exerciseConfig.restTime) targetBits.push(`rest ${exerciseConfig.restTime >= 60 ? (exerciseConfig.restTime / 60).toFixed(exerciseConfig.restTime % 60 ? 1 : 0) + ' min' : exerciseConfig.restTime + ' s'}`);
-      if (exerciseConfig.derivedFrom) targetBits.push(`${Math.round(exerciseConfig.pct * 100)}% of your heavy day`);else if (exerciseConfig.assisted) targetBits.push(`−${exerciseConfig.weightIncrement} lb assist when every set hits ${rrHigh}`);else if (exerciseConfig.weightSteps) targetBits.push(`next dumbbell up when every set hits ${rrHigh}`);else if (exerciseConfig.weightIncrement > 0) targetBits.push(`+${exerciseConfig.incrementPct ? '~2%' : exerciseConfig.weightIncrement + ' lb'} when every set hits ${rrHigh}`);
+      if (exerciseConfig.derivedFrom) targetBits.push(`${Math.round(exerciseConfig.pct * 100)}% of your heavy day`);else if (exerciseConfig.assisted) targetBits.push(`−${exerciseConfig.weightIncrement} lb assist when every set hits ${rrHigh}`);else if (exerciseConfig.weightSteps) targetBits.push(`next dumbbell up when every set hits ${rrHigh}`);else if (exerciseConfig.weightIncrement > 0) targetBits.push(`${exerciseConfig.incrementPct ? '~2% more' : '+' + exerciseConfig.weightIncrement + ' lb'} when every set hits ${rrHigh}`);
       if (!paired && typeof exerciseConfig.rirTarget === 'number') targetBits.push(`${exerciseConfig.rirTarget} in reserve`);
       const prevNote = (progression.lastSession?.notes || '').trim();
       const prevFirst = prevNote.split('\n')[0];

@@ -1,8 +1,10 @@
 # Design Brief — Workout Tracker visual refresh
 
 **For:** Claude Design (or any designer)
-**Product:** `workout-tracker.html` — a single-file, offline, iPhone home-screen web app used mid-set in a gym
+**Product:** `workout-tracker.html` — a single-file, offline, iPhone home-screen web app used mid-set in a gym. It is a **generated file**: the app source is `src/workout-tracker.jsx`, the head / compiled CSS / inlined React are in `src/shell.html`, and `cd tests && npm run build` produces the HTML.
 **Ask:** a **visual** refresh. Not a redesign of how it works.
+
+> **Updated 2026-11-10.** The app changed after the first design round: a superset screen, a history editor, effort chips, a rep-aware chart, a "Next" marker on Home, and a source/build split. §2, §3, §4b and §6 below describe the app as it is now. The artboards in `design/canvas/` predate these changes and must be rebased on the new screenshots before any restyle is applied.
 
 ---
 
@@ -30,25 +32,30 @@ Every one of these must exist, unchanged in behavior, on the same screen it is o
 ### Logging screen (the one that matters most)
 1. **Every set is its own row**, all visible at once (up to 5). Each row: a complete toggle, weight − / value / +, reps − / value / +, and (rows 2+) a copy-previous-set button.
 2. Any set can be **toggled complete and back**, and edited **at any time**, in any order. Nothing ever locks.
-3. **Prev / Skip / Next** fixed at the bottom. Skip is a real action (it marks the exercise skipped for progression).
+3. **Prev / Skip / Next** fixed at the bottom. Skip moves on without logging; an exercise with no checked working set is saved as skipped. On a superset, all three treat the pair as one step.
 4. Exercise name with an inline **alternate-exercise toggle** ("Trap Bar Deadlift" ⇄), the program's one-line coaching cue under it, and a **target line** in the accent color: sets × reps, rest, the progression rule ("+5 lb when every set hits 12", "78% of your heavy day"), reps in reserve.
 5. **Last-workout row**: date + a chip per set (`W 118×5 ✓` for warm-ups, `235×4 ✓`).
-6. **Progress chart** (sparkline across all sessions, with the delta). The lifter explicitly asked to keep this.
-7. **Suggestion banner**: what the app recommends today and one line of why (increase / hold / decrease / reset / "78% of your squat").
+6. **Progress chart** (sparkline across all sessions, with the delta). It plots the best set's estimated 1RM (label `EST. 1RM`), best reps for bodyweight lifts (`BEST REPS`), or the load for carries, sleds and assisted lifts (`LOAD`). The lifter explicitly asked to keep this.
+7. **Suggestion banner**: what the app recommends today and one line of why (increase / hold / decrease / reset / "78% of your squat"). The recommended weight is already filled into the set rows.
 8. **Notes row**, collapsed by default, showing today's note or *"Last time: <first line of last session's note>"*; tap to expand a textarea. This preview is deliberate — a note the lifter can't see isn't a note.
 9. Warm-up sets are marked (`W`) and visibly distinct from working sets.
-10. Abs-slot days show a dropdown to pick the ab exercise (Peach Protocol only).
+10. **Effort chips**: `last set  [Easy] [Max]` on the right of the "LOG YOUR SETS" header, 26 px tall. Optional: untouched means "about right"; one tap sets, the same tap clears. The selected chip takes the day accent. (The old abs-slot dropdown no longer exists.)
+10a. **Superset screen**: the two exercises of a superset share one screen as two compact panels separated by a hairline. Each panel has: name + alternate toggle, target line (one line, truncated), suggestion (one line, colored), last-session chips (one line), collapsed notes row (30 px), the "LOG YOUR SETS" header with effort chips, and its set rows. The plan note and chart are omitted on this screen only. The header reads `4-5/6 · superset, alternate sets`. Set rows are identical to the single-exercise screen.
 
 ### Day overview
 11. Back, day name and focus line, the **5-minute mobility block** (5 short lines), the **ab-routine checkbox** with adherence text, one tappable row per exercise (name, sets × reps, last weight, "⇄" marker on superset pairs, checkmark once worked this session), a **"?" button per row** that opens a bottom sheet (description, video link, rep range, increment), and a fixed **Start / Continue workout** button.
 12. Tapping any exercise row jumps straight into that exercise (equipment-taken use case).
 
 ### Home
-13. Switch-program link, program name/subtitle, one row per day (6 for Strongman Hypertrophy, 3 for Peach Protocol), the **8-week consistency bars**, the backup nudge (conditional), and two utility rows: **Backup · Restore / Import** (one button that accepts a JSON backup or a CSV export) and **Export CSV · Reset**.
+13. Switch-program link, program name/subtitle with a 40 px icon tile, one row per day (6 for Strongman Hypertrophy, 3 for Peach Protocol) showing `Day N · X exercises · 3d ago` and a small outlined **Next** badge on the next day in the rotation, the **8-week consistency bars**, the backup nudge (conditional), a red save-failed warning (conditional, rare), and two utility rows: **Backup · Restore / Import** and **History · Export CSV · Reset**. The app opens here directly when a program was used before.
 
 ### Summary → Complete
 14. Summary: count of exercises completed, the ab checkbox again, one row per exercise with sets done, **"Complete workout, progress weight"** primary and **"Review exercises"** secondary.
 15. Complete: confirmation, date + duration, **personal records** list when any, Done.
+
+### History (new)
+15a. **History list** (from the Home utility row): Back, title, count line, one tappable row per logged workout, newest first (date in the day accent, day name, `N exercises · 50 min · 1 PR`). This screen scrolls; it is the only one allowed to.
+15b. **History session**: Back, date, day name, one card per logged exercise with its name, effort chips, the note if any, and the same set rows as the logging screen (toggle, weight − / +, reps − / +, no copy button). Edits save immediately. "Delete this workout" at the bottom.
 
 ### Everywhere
 16. Two programs share every screen. Peach Protocol must look right with 5–8 exercises per day.
@@ -65,10 +72,11 @@ Every one of these must exist, unchanged in behavior, on the same screen it is o
 
 | Screen | Worst case | Content height today | Room |
 |---|---|---|---|
-| Exercise | 5 set rows + history + chart + 2-line cue + target line | 720 pt of 730 | **10 pt** |
+| Exercise | 5 set rows + history + chart + 2-line cue + target line + effort chips | 719 pt of 730 | **11 pt** |
+| Exercise (superset) | 3 + 3 set rows, both with history | about 700 of 730 (hand-measured; not yet in `measure.js`) | ~30 pt |
 | Day overview | 6 exercises + mobility block | 719 of 738 | 19 pt |
 | Summary | 6 exercises | 610 of 694 | 84 pt |
-| Home | 6 days + consistency bars + backup nudge + both utility rows | 788 of 818 | 30 pt |
+| Home | 6 days + consistency bars + backup nudge + both utility rows | 808 of 818 | **10 pt** |
 
 These come from `tests/measure.js --seed`, which renders each screen in Chromium at 393×852 with seeded history and the standalone insets applied. Re-run it on any layout proposal.
 
@@ -82,7 +90,7 @@ These come from `tests/measure.js --seed`, which renders each screen in Chromium
 - No hover-only affordances. No gestures (swipe-to-delete, long-press) as the only way to do anything.
 
 ### Implementation reality
-- React 18 + Tailwind (compiled, fixed class set) + inline styles, one HTML file. Deliver **tokens and measurements**, not a component library. New Tailwind classes don't exist at runtime; anything novel is inline style.
+- React 18 + Tailwind (compiled, fixed class set) + inline styles. **Edit `src/workout-tracker.jsx`, never `workout-tracker.html`** (it is overwritten by `npm run build`, and the tests fail if it is stale). The set row, stepper button, effort chips and chart are single shared components (`SetRow`, `StepBtn`, `EffortChips`, `ProgressSpark`), so restyling one restyles every screen that uses it. Deliver **tokens and measurements**, not a component library. New Tailwind classes don't exist at runtime; anything novel is inline style.
 - Dark theme only. The gym is bright; the phone is at arm's length; contrast matters more than subtlety.
 
 ---
@@ -102,17 +110,21 @@ Explicitly **not** wanted: pill buttons for primary actions (rejected last time)
 
 ## 4b. Reference screenshots (attach these to the design session)
 
-`design/current-screens/` holds the app as it is today, rendered at iPhone 16 Pro size (2×) with representative history so the last-workout row, chart, and consistency bars are visible:
+`design/current-screens/` holds the app as it is today, rendered at iPhone 16 Pro size (2×) with representative history. Regenerate them after any change with `cd tests && node screens.js`.
 
 | File | Screen | What to notice |
 |---|---|---|
 | `program_select.png` | Program picker | Two programs share every screen |
-| `home.png` | Home | 6 day rows, consistency bars, backup nudge, both utility rows |
+| `home.png` | Home | 6 day rows with "days ago", the Next badge, consistency bars, backup nudge, both utility rows (History is new) |
 | `day_overview.png` | Day overview, 5 exercises | Mobility block, ab checkbox, "?" per row, superset ⇄ marker |
+| `day_overview_info_sheet.png` | "?" bottom sheet | Description, rep-range and increment chips |
 | `day_overview_lower_power.png` | Day overview, 6 exercises | The tight case — 19 pt spare |
-| `exercise_deadlift_with_history.png` | Logging, worst case | 5 set rows + last-workout chips + chart + suggestion + target line — 10 pt spare |
+| `exercise_deadlift_with_history.png` | Logging, worst case | 5 set rows + last-workout chips + chart + suggestion + target line + effort chips — 11 pt spare |
+| `exercise_superset_pair.png` | Logging, superset | Two compact panels on one screen; first set checked, Easy selected |
 | `summary_6_exercises.png` | Summary | — |
 | `complete.png` | Complete | — |
+| `history.png` | History list | The one scrolling screen |
+| `history_session.png` | History session | Logged sets editable in place |
 
 Design *from* these, not from memory of other fitness apps. Every element visible in them must be visible in your screens.
 
@@ -129,7 +141,7 @@ Two rendering caveats: the screenshots come from headless Chromium on Linux, so 
 
 ## 6. Acceptance checklist (the implementer will test these)
 
-- [ ] `tests/walkthrough.js` passes unchanged (25 functional checks — it clicks every control listed in §2).
+- [ ] `cd tests && npm test` passes unchanged: walkthrough (25 functional checks, and it fails if `workout-tracker.html` was not rebuilt from `src/`), migration (19), engine (35).
 - [ ] `tests/measure.js --seed` reports FITS for every screen on iPhone 16 Pro.
 - [ ] All hit sizes in §3 preserved (measured, not eyeballed).
 - [ ] A lifter who used the app last week can find every control without hunting.

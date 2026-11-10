@@ -1280,7 +1280,7 @@ function WorkoutApp() {
                   <div className="flex-1 min-w-0">
                     <div className="text-[9px] font-semibold uppercase tracking-widest" style={{ color: accent }}>{new Date(sess.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}</div>
                     <div className="text-sm font-medium text-zinc-200 truncate">{workoutData[sess.day]?.name || sess.day}</div>
-                    <div className="text-[10px] text-zinc-600">{done} exercises{sess.meta?.durationMin ? ` · ${sess.meta.durationMin} min` : ''}{sess.meta?.prs?.length ? ` · ${sess.meta.prs.length} PR` : ''}</div>
+                    <div className="text-[10px] text-zinc-600">{done} {done === 1 ? 'exercise' : 'exercises'}{sess.meta?.durationMin ? ` · ${sess.meta.durationMin} min` : ''}{sess.meta?.prs?.length ? ` · ${sess.meta.prs.length} PR` : ''}</div>
                   </div>
                   <ChevronRight className="w-4 h-4 text-zinc-700 flex-shrink-0" />
                 </button>
@@ -1473,7 +1473,7 @@ function WorkoutApp() {
       if (exerciseConfig.derivedFrom) targetBits.push(`${Math.round(exerciseConfig.pct * 100)}% of your heavy day`);
       else if (exerciseConfig.assisted) targetBits.push(`−${exerciseConfig.weightIncrement} lb assist when every set hits ${rrHigh}`);
       else if (exerciseConfig.weightSteps) targetBits.push(`next dumbbell up when every set hits ${rrHigh}`);
-      else if (exerciseConfig.weightIncrement > 0) targetBits.push(`+${exerciseConfig.incrementPct ? '~2%' : exerciseConfig.weightIncrement + ' lb'} when every set hits ${rrHigh}`);
+      else if (exerciseConfig.weightIncrement > 0) targetBits.push(`${exerciseConfig.incrementPct ? '~2% more' : '+' + exerciseConfig.weightIncrement + ' lb'} when every set hits ${rrHigh}`);
       if (!paired && typeof exerciseConfig.rirTarget === 'number') targetBits.push(`${exerciseConfig.rirTarget} in reserve`);
 
       const prevNote = (progression.lastSession?.notes || '').trim();
