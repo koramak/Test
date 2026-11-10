@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Checks that every YouTube exercise-demo link in workout-tracker.html is
+// Checks that every YouTube exercise-demo link in src/workout-tracker.jsx is
 // actually playable, by asking YouTube's oEmbed endpoint the same way a
 // browser would. Deleted, private, or region-blocked videos come back as
 // errors here even though the watch page itself returns HTTP 200.
@@ -14,7 +14,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
 const here = dirname(fileURLToPath(import.meta.url));
-const html = readFileSync(join(here, 'workout-tracker.html'), 'utf8');
+const html = readFileSync(join(here, 'src', 'workout-tracker.jsx'), 'utf8');
 
 // Matches: exerciseId: { description: '...', source: '...', youtube: 'https://...' }
 const re = /(\w+): \{ description: '[^']*', source: '([^']*)', youtube: '([^']*)'/g;

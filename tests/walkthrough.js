@@ -8,12 +8,12 @@ const path = require('path');
 const { JSDOM, VirtualConsole } = require('jsdom');
 const file = process.argv[2] || path.join(__dirname, '..', 'workout-tracker.html');
 const html = fs.readFileSync(file, 'utf8');
-// Parse check first: fail fast on JSX errors
-{
-  const Babel = require('@babel/standalone/babel.min.js');
-  const m = html.match(/<script type="text\/babel">([\s\S]*?)<\/script>\s*<\/body>/);
-  try { Babel.transform(m[1], { presets: ['react'] }); console.log('PASS JSX parses'); }
-  catch (e) { console.log('FAIL JSX parse: ' + e.message.slice(0, 200)); process.exit(1); }
+// The served file is generated from src/: fail fast if it is stale or the JSX no longer compiles
+if (!process.argv[2]) {
+  try {
+    if (require('./build.js').build() !== html) { console.log('FAIL workout-tracker.html is stale - run: npm run build'); process.exit(1); }
+    console.log('PASS workout-tracker.html matches src');
+  } catch (e) { console.log('FAIL build: ' + e.message.slice(0, 200)); process.exit(1); }
 }
 const vc = new VirtualConsole(); vc.on('jsdomError', () => {});
 const dom = new JSDOM(html, { runScripts: 'dangerously', pretendToBeVisual: true, url: 'https://example.com/', virtualConsole: vc });
