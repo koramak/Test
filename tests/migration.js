@@ -27,7 +27,7 @@ const wait = (ms) => new Promise(r => setTimeout(r, ms));
 let pass = 0, fail = 0;
 const ok = (name, cond) => { console.log((cond ? 'PASS' : 'FAIL') + ' ' + name); cond ? pass++ : fail++; };
 (async () => {
-  await wait(5000);
+  await wait(500);
   const root = dom.window.document.getElementById('root');
   const btn = (t) => [...root.querySelectorAll('button')].find(b => b.textContent.replace(/\s+/g, ' ').trim().includes(t));
   const txt = () => root.textContent;

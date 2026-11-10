@@ -333,9 +333,7 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
   <script>
 const {
   useState,
-  useEffect,
-  useRef,
-  useCallback
+  useEffect
 } = React;
 const ChevronLeft = ({
   className
@@ -530,19 +528,6 @@ const Swap = ({
   strokeWidth: 2,
   d: "M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"
 }));
-const ChevronDown = ({
-  className
-}) => React.createElement("svg", {
-  className: className,
-  fill: "none",
-  viewBox: "0 0 24 24",
-  stroke: "currentColor"
-}, React.createElement("path", {
-  strokeLinecap: "round",
-  strokeLinejoin: "round",
-  strokeWidth: 2,
-  d: "M19 9l-7 7-7-7"
-}));
 const Copy = ({
   className
 }) => React.createElement("svg", {
@@ -569,39 +554,6 @@ const SkipForward = ({
   strokeWidth: 2,
   d: "M13 5l7 7-7 7M5 5l7 7-7 7"
 }));
-const abExerciseOptions = [{
-  id: 'cable_crunch',
-  name: 'Cable Crunch',
-  hasWeight: true
-}, {
-  id: 'hanging_leg_raise',
-  name: 'Hanging Leg Raise',
-  hasWeight: false
-}, {
-  id: 'ab_wheel',
-  name: 'Ab Wheel Rollout',
-  hasWeight: false
-}, {
-  id: 'reverse_crunch',
-  name: 'Reverse Crunch',
-  hasWeight: false
-}, {
-  id: 'pallof_press',
-  name: 'Pallof Press',
-  hasWeight: true
-}, {
-  id: 'side_plank_abduction',
-  name: 'Side Plank Hip Abduction',
-  hasWeight: false
-}, {
-  id: 'plank',
-  name: 'Plank',
-  hasWeight: false
-}, {
-  id: 'dead_bug',
-  name: 'Dead Bug',
-  hasWeight: false
-}];
 const exerciseMedia = {
   incline_machine: {
     description: 'Set the machine or Smith to about 30°. Elbows tucked ~45°, press through the upper chest and let the handles sink to a full stretch at the bottom. Third upper-chest exposure in the loop, so it is safe to push to 0-1 reps in reserve.',
@@ -745,6 +697,9 @@ const exerciseMedia = {
     description: 'Arms on preacher pad, curl bar up. Eliminates momentum, isolates biceps.',
     source: 'Kris Gethin (Kaged Muscle)',
     youtube: 'https://www.youtube.com/watch?v=fIWP-FRFNU0'
+  },
+  high_rep_curl: {
+    description: 'Standing, underhand grip on the angled part of the EZ bar. Elbows stay at your sides: curl to the shoulders, then lower under control to full extension. No hip swing.'
   },
   overhead_tri: {
     description: 'Weight overhead, lower behind head by bending elbows. Extend back up. Stretches long head.',
@@ -1223,6 +1178,14 @@ const progressionConfig = {
     restTime: 60,
     cue: 'Controlled curls'
   },
+  high_rep_curl: {
+    progressionType: "load-first",
+    weightIncrement: 5,
+    repRange: [6, 10],
+    rirTarget: 2,
+    restTime: 75,
+    cue: 'Heavy and strict'
+  },
   overhead_tri: {
     progressionType: "rep-first",
     weightIncrement: 2.5,
@@ -1341,21 +1304,28 @@ const getWorkingSets = session => {
   const working = sets.filter(s => !s.warmup);
   return working.length > 0 ? working : sets;
 };
+const getPerformedSets = session => {
+  const working = getWorkingSets(session);
+  const done = working.filter(s => s.completed);
+  return done.length > 0 ? done : working;
+};
+const avgRepsOf = sets => sets.reduce((a, s) => a + s.reps, 0) / Math.max(1, sets.length);
 const runProgression = (config, lastSession) => {
-  const sets = getWorkingSets(lastSession);
+  const working = getWorkingSets(lastSession);
+  const sets = getPerformedSets(lastSession);
   if (sets.length === 0) return {
     action: 'maintain',
     reason: config.cue || 'Building within rep range'
   };
-  const avgReps = sets.reduce((a, s) => a + s.reps, 0) / sets.length;
-  const allCompleted = sets.every(s => s.completed);
+  const avgReps = avgRepsOf(sets);
   const [low, high] = config.repRange;
   const minReps = Math.min(...sets.map(s => s.reps));
+  const hitTop = working.every(s => s.completed) && minReps >= high;
   const load = sets[0]?.weight || 0;
   const inc = config.incrementPct ? Math.max(5, Math.round(load * config.incrementPct / 5) * 5) : config.weightIncrement;
   if (config.assisted) {
     const assist = sets[0]?.weight ?? 0;
-    if (allCompleted && avgReps >= high) {
+    if (hitTop) {
       return assist <= 0 ? {
         action: 'maintain',
         reason: `Bodyweight × ${high}+! Time to switch to weighted`
@@ -1363,7 +1333,7 @@ const runProgression = (config, lastSession) => {
         action: 'decrease',
         amount: inc,
         isProgress: true,
-        reason: `Hit ${high}+ → Reduce assistance ${inc} lbs`
+        reason: `Hit ${high}+ on every set → Reduce assistance ${inc} lbs`
       };
     }
     if (avgReps < low) return {
@@ -1377,13 +1347,13 @@ const runProgression = (config, lastSession) => {
       reason: config.cue || 'Building within rep range'
     };
   }
-  if (allCompleted && avgReps >= high) {
+  if (hitTop) {
     const bigJump = inc > 0 && minReps >= high + 2;
     const amount = bigJump ? inc * 2 : inc;
     return inc > 0 ? {
       action: 'increase',
       amount,
-      reason: bigJump ? `Every set ${high + 2}+ → Add ${amount} lbs (double jump)` : `Hit ${high}+ on working sets → Add ${amount} lbs`
+      reason: bigJump ? `Every set ${high + 2}+ → Add ${amount} lbs (double jump)` : `Hit ${high}+ on every set → Add ${amount} lbs`
     } : {
       action: 'progress',
       reason: `Hit ${high}+ → Progress difficulty (ROM, pause, or add weight)`
@@ -1485,6 +1455,29 @@ const ProgressSpark = ({
     fill: accent
   })));
 };
+const StorageWarning = ({
+  onBackup
+}) => React.createElement("button", {
+  onClick: onBackup,
+  className: "storage-warning mt-2 w-full text-left px-3 py-2 rounded-lg text-[11px]",
+  style: {
+    border: '1px solid rgba(239,68,68,0.5)',
+    background: 'rgba(239,68,68,0.12)',
+    color: '#fca5a5'
+  }
+}, "Saving to this phone failed, so your latest workout is not stored. Tap here to download a backup now.");
+const StepBtn = ({
+  onClick,
+  accent,
+  children
+}) => React.createElement("button", {
+  onClick: onClick,
+  className: "w-11 h-11 rounded-lg flex items-center justify-center text-lg font-bold transition-all active:scale-90 flex-shrink-0",
+  style: {
+    background: `${accent}20`,
+    color: accent
+  }
+}, children);
 const workoutData4Day = {
   day1: {
     name: "Upper Power",
@@ -1987,7 +1980,10 @@ const workoutData3Day = {
       reps: "12-15",
       defaultWeight: 115,
       muscles: ["glutes"],
-      notes: "Focus on squeeze/contraction"
+      notes: "Focus on squeeze/contraction",
+      progression: {
+        repRange: [12, 15]
+      }
     }, {
       id: "leg_press",
       name: "Leg Press / Hack Squat",
@@ -2046,6 +2042,18 @@ const workoutData3Day = {
       notes: "Full ROM, patient progression"
     }]
   }
+};
+const localDay = d => {
+  const x = new Date(d);
+  return `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, '0')}-${String(x.getDate()).padStart(2, '0')}`;
+};
+const parseCSVDate = str => {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(str).trim());
+  return m ? new Date(+m[1], +m[2] - 1, +m[3], 12) : new Date(str);
+};
+const csvCell = v => {
+  const t = String(v ?? '');
+  return /[",\n\r]/.test(t) ? `"${t.replace(/"/g, '""')}"` : t;
 };
 const parseCSV = text => {
   const rows = [];
@@ -2229,10 +2237,39 @@ const programConfigs = {
     }
   }
 };
+const ACTIVE_SESSION_KEY = 'activeWorkoutSession';
+const loadActiveSession = () => {
+  try {
+    const s = JSON.parse(localStorage.getItem(ACTIVE_SESSION_KEY));
+    const exercises = programConfigs[s?.program]?.data[s?.day]?.exercises;
+    if (!exercises || !s.sessionData || Object.keys(s.sessionData).length === 0) return null;
+    if ((Date.now() - new Date(s.savedAt).getTime()) / 36e5 >= 12) return null;
+    if (Array.isArray(s.exerciseIds) && s.exerciseIds.join('|') !== exercises.map(e => e.id).join('|')) return null;
+    return s;
+  } catch {
+    return null;
+  }
+};
+const loadLastProgram = () => {
+  try {
+    const p = localStorage.getItem('lastProgram');
+    return programConfigs[p] ? p : null;
+  } catch {
+    return null;
+  }
+};
 function WorkoutApp() {
-  const [view, setView] = useState('programSelect');
-  const [selectedProgram, setSelectedProgram] = useState(null);
-  const [selectedDay, setSelectedDay] = useState(null);
+  const [boot] = useState(() => {
+    const active = loadActiveSession();
+    return {
+      active,
+      program: active?.program || loadLastProgram()
+    };
+  });
+  const [view, setView] = useState(boot.active ? 'dayOverview' : boot.program ? 'home' : 'programSelect');
+  const [selectedProgram, setSelectedProgram] = useState(boot.program);
+  const [selectedDay, setSelectedDay] = useState(boot.active ? boot.active.day : null);
+  const [storageError, setStorageError] = useState(false);
   const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0);
   const getStorageKey = program => `workoutLog_${program}`;
   const [workoutLog, setWorkoutLog] = useState(() => {
@@ -2265,18 +2302,21 @@ function WorkoutApp() {
     if (selectedProgram && workoutLog[selectedProgram]) {
       try {
         localStorage.setItem(getStorageKey(selectedProgram), JSON.stringify(workoutLog[selectedProgram]));
-      } catch {}
+      } catch {
+        setStorageError(true);
+      }
     }
   }, [workoutLog, selectedProgram]);
   useEffect(() => {
     if ((view === 'exercise' || view === 'summary') && Object.keys(sessionData).length > 0) {
       try {
-        localStorage.setItem('activeWorkoutSession', JSON.stringify({
+        localStorage.setItem(ACTIVE_SESSION_KEY, JSON.stringify({
           program: selectedProgram,
           day: selectedDay,
           sessionData,
           useAltExercise,
           absDone,
+          exerciseIds: programConfigs[selectedProgram].data[selectedDay].exercises.map(e => e.id),
           startedAt: workoutStartedAt,
           savedAt: new Date().toISOString()
         }));
@@ -2320,18 +2360,22 @@ function WorkoutApp() {
   };
   const calculateProgression = exercise => {
     const config = getExerciseConfig(exercise);
+    const [low, high] = config.repRange;
     let lastData = getLastSession(exercise.id);
     if (config.restartFrom && lastData && new Date(lastData.date) < new Date(config.restartFrom)) lastData = null;
+    const performed = lastData ? getPerformedSets(lastData) : [];
+    const lastWeight = lastData ? performed[0]?.weight ?? lastData.weight : null;
+    const lastAvgReps = lastData ? Math.round(avgRepsOf(performed)) : null;
     if (config.derivedFrom) {
       const parentLast = getLastSession(config.derivedFrom);
       const prog = programConfigs[selectedProgram];
       const parentEx = prog ? Object.values(prog.data).flatMap(d => d.exercises).find(e => e.id === config.derivedFrom) : null;
-      const parentBase = parentLast ? getWorkingSets(parentLast)[0]?.weight ?? parentLast.weight : parentEx?.defaultWeight ?? exercise.defaultWeight;
+      const parentBase = parentLast ? getPerformedSets(parentLast)[0]?.weight ?? parentLast.weight : parentEx?.defaultWeight ?? exercise.defaultWeight;
       const derived = Math.max(5, Math.round(parentBase * config.pct / 5) * 5);
       const parentName = (parentEx?.name || config.derivedFrom).split(' / ')[0];
       return {
         weight: derived,
-        reps: config.repRange[1],
+        reps: lastAvgReps ?? high,
         suggestion: `${Math.round(config.pct * 100)}% of your ${parentName} (${parentBase} lb) — no need to push this`,
         action: 'maintain',
         icon: Minus,
@@ -2342,15 +2386,12 @@ function WorkoutApp() {
     }
     if (!lastData) return {
       weight: exercise.defaultWeight,
-      reps: config.startReps ?? config.repRange[1],
+      reps: config.startReps ?? high,
       suggestion: null,
       action: 'start',
       icon: null,
       config
     };
-    const workSets = getWorkingSets(lastData);
-    const lastWeight = workSets[0]?.weight ?? lastData.weight;
-    const lastAvgReps = Math.round(workSets.reduce((a, s) => a + s.reps, 0) / Math.max(1, workSets.length));
     if (lastData.skipped) {
       return {
         weight: lastWeight,
@@ -2367,18 +2408,15 @@ function WorkoutApp() {
     if (config.stallReset && result.action === 'maintain') {
       const hist = getAllSessions(exercise.id).filter(e => !e.skipped).slice(-4);
       if (hist.length >= 4) {
-        const w = hist.map(e => getWorkingSets(e)[0]?.weight ?? e.weight);
-        const r = hist.map(e => {
-          const ws = getWorkingSets(e);
-          return ws.reduce((a, s) => a + s.reps, 0) / Math.max(1, ws.length);
-        });
-        const stalled = [1, 2, 3].every(i => w[i] <= w[i - 1] && r[i] <= r[i - 1]);
+        const w = hist.map(e => getPerformedSets(e)[0]?.weight ?? e.weight);
+        const r = hist.map(e => avgRepsOf(getPerformedSets(e)));
+        const stalled = [1, 2, 3].every(i => w[i] === w[i - 1] && r[i] <= r[i - 1]);
         if (stalled) {
           const reset = Math.max(5, Math.round(lastWeight * 0.9 / 5) * 5);
           return {
             weight: reset,
-            reps: config.repRange[1],
-            suggestion: `Stalled 3 sessions → reset to ${reset} lb and rebuild to ${config.repRange[1]} reps`,
+            reps: high,
+            suggestion: `Stalled 3 sessions → reset to ${reset} lb and rebuild to ${high} reps`,
             action: 'decrease',
             icon: TrendingDown,
             config,
@@ -2391,37 +2429,18 @@ function WorkoutApp() {
     let newWeight = lastWeight,
       newReps = lastAvgReps,
       icon = Minus;
-    const progType = config.progressionType;
     if (result.action === 'increase') {
       newWeight = lastWeight + (result.amount || config.weightIncrement);
-      if (result.isRegress) {
-        newReps = config.repRange[1];
-        icon = TrendingDown;
-      } else if (progType === 'load-first') {
-        newReps = config.repRange[0];
-        icon = TrendingUp;
-      } else {
-        newReps = lastAvgReps;
-        icon = TrendingUp;
-      }
+      newReps = low;
+      icon = result.isRegress ? TrendingDown : TrendingUp;
     } else if (result.action === 'decrease') {
       newWeight = Math.max(0, lastWeight - (result.amount || config.weightIncrement));
-      newReps = result.isProgress ? config.repRange[0] : config.repRange[1];
+      newReps = low;
       icon = result.isProgress ? TrendingUp : TrendingDown;
     } else if (result.action === 'progress') {
-      newReps = Math.min(lastAvgReps + 2, config.repRange[1] + 5);
       icon = TrendingUp;
     } else if (result.action === 'regress') {
-      newReps = Math.max(lastAvgReps - 2, config.repRange[0]);
       icon = TrendingDown;
-    } else {
-      if (progType === 'load-first') {
-        newReps = Math.min(lastAvgReps + 1, config.repRange[1]);
-      } else if (progType === 'rep-first') {
-        newReps = Math.min(lastAvgReps + 1, config.repRange[1]);
-      } else {
-        newReps = lastAvgReps + 1;
-      }
     }
     return {
       weight: newWeight,
@@ -2436,6 +2455,9 @@ function WorkoutApp() {
   };
   const selectProgram = program => {
     setSelectedProgram(program);
+    try {
+      localStorage.setItem('lastProgram', program);
+    } catch {}
     setView('home');
   };
   const startDay = day => {
@@ -2443,26 +2465,20 @@ function WorkoutApp() {
     setAbsDone(false);
     setView('dayOverview');
   };
-  const ACTIVE_SESSION_KEY = 'activeWorkoutSession';
   const beginWorkout = (startIndex = 0) => {
     if (Object.keys(sessionData).length > 0 && sessionDay === selectedDay) {
       startExercise(startIndex);
       return;
     }
     let resumed = false;
-    try {
-      const saved = JSON.parse(localStorage.getItem(ACTIVE_SESSION_KEY));
-      if (saved && saved.program === selectedProgram && saved.day === selectedDay && saved.sessionData && Object.keys(saved.sessionData).length > 0) {
-        const hoursAgo = (Date.now() - new Date(saved.savedAt).getTime()) / 36e5;
-        if (hoursAgo < 12 && confirm('You have an unfinished workout for this day. Resume it? (Cancel starts fresh)')) {
-          setSessionData(saved.sessionData);
-          setUseAltExercise(saved.useAltExercise || {});
-          setAbsDone(!!saved.absDone);
-          setWorkoutStartedAt(saved.startedAt || saved.savedAt);
-          resumed = true;
-        }
-      }
-    } catch {}
+    const saved = loadActiveSession();
+    if (saved && saved.program === selectedProgram && saved.day === selectedDay && confirm('You have an unfinished workout for this day. Resume it? (Cancel starts fresh)')) {
+      setSessionData(saved.sessionData);
+      setUseAltExercise(saved.useAltExercise || {});
+      setAbsDone(!!saved.absDone);
+      setWorkoutStartedAt(saved.startedAt || saved.savedAt);
+      resumed = true;
+    }
     if (!resumed) {
       setSessionData({});
       setUseAltExercise({});
@@ -2480,9 +2496,8 @@ function WorkoutApp() {
     const exConfig = progression.config;
     const numSets = typeof exercise.sets === 'number' ? exercise.sets : 3;
     const numWarmups = Math.min(exercise.warmupSets || 0, numSets - 1);
-    const lastWorking = progression.lastSession ? getWorkingSets(progression.lastSession) : [];
-    const startWeight = lastWorking[0]?.weight ?? progression.lastSession?.weight ?? progression.weight;
-    const startReps = lastWorking.length > 0 ? Math.round(lastWorking.reduce((a, s) => a + s.reps, 0) / lastWorking.length) : progression.reps;
+    const startWeight = progression.weight;
+    const startReps = progression.reps;
     const inc = exConfig.weightIncrement || 5;
     const warmupPcts = numWarmups >= 2 ? [0.5, 0.75] : [0.6];
     const warmupWeight = i => Math.max(inc, Math.round(startWeight * warmupPcts[Math.min(i, warmupPcts.length - 1)] / inc) * inc);
@@ -2499,8 +2514,7 @@ function WorkoutApp() {
           reps: startReps,
           completed: false
         }),
-        notes: '',
-        selectedAbExercise: exercise.isAbsSlot ? 'cable_crunch' : null
+        notes: ''
       }
     });
     setView('exercise');
@@ -2554,15 +2568,6 @@ function WorkoutApp() {
       }
     }));
   };
-  const updateAbExercise = abExerciseId => {
-    setSessionData(prev => ({
-      ...prev,
-      [currentExerciseIndex]: {
-        ...prev[currentExerciseIndex],
-        selectedAbExercise: abExerciseId
-      }
-    }));
-  };
   const toggleAltExercise = () => {
     setUseAltExercise(prev => ({
       ...prev,
@@ -2583,22 +2588,6 @@ function WorkoutApp() {
       startExercise(currentExerciseIndex - 1);
     }
   };
-  const skipExercise = () => {
-    const config = programConfigs[selectedProgram];
-    const exercises = config.data[selectedDay].exercises;
-    setSessionData(prev => ({
-      ...prev,
-      [currentExerciseIndex]: {
-        ...prev[currentExerciseIndex],
-        skipped: true
-      }
-    }));
-    if (currentExerciseIndex < exercises.length - 1) {
-      startExercise(currentExerciseIndex + 1);
-    } else {
-      setView('summary');
-    }
-  };
   const completeWorkout = () => {
     const config = programConfigs[selectedProgram];
     const exercises = config.data[selectedDay].exercises;
@@ -2613,7 +2602,7 @@ function WorkoutApp() {
     exercises.forEach((exercise, index) => {
       const data = sessionData[index];
       if (!data) return;
-      const exerciseId = exercise.isAbsSlot ? data.selectedAbExercise : exercise.id;
+      const exerciseId = exercise.id;
       const nameParts = exercise.name.split(' / ');
       const usedAlt = useAltExercise[index] && nameParts.length > 1;
       const exerciseName = usedAlt ? nameParts[1] : nameParts[0];
@@ -2631,7 +2620,7 @@ function WorkoutApp() {
         skipped: !refSets.some(s => s.completed)
       });
       const completedWork = workSets.filter(s => s.completed);
-      if (completedWork.length === 0 || exercise.isAbsSlot) return;
+      if (completedWork.length === 0) return;
       const cfg = getExerciseConfig(exercise);
       const priorSets = getAllSessions(exerciseId).filter(e => !e.skipped).flatMap(e => (e.sets || []).filter(s => !s.warmup && s.completed));
       if (priorSets.length === 0) return;
@@ -2646,6 +2635,14 @@ function WorkoutApp() {
           name: exerciseName,
           detail: cMin === 0 ? 'Bodyweight!' : `${cMin} lb assist`,
           prev: `${pMin} lb assist`
+        });
+      } else if (cfg.progressionType === 'distance-first' || cfg.progressionType === 'time-first') {
+        const pMax = Math.max(...priorSets.map(s => s.weight));
+        const cMax = Math.max(...completedWork.map(s => s.weight));
+        if (cMax > pMax) prList.push({
+          name: exerciseName,
+          detail: `${cMax} lb`,
+          prev: `${pMax} lb`
         });
       } else {
         const pBest = priorSets.reduce((a, s) => e1rm(s) > e1rm(a) ? s : a);
@@ -2693,7 +2690,7 @@ function WorkoutApp() {
       };
     });
     try {
-      localStorage.removeItem('activeWorkoutSession');
+      localStorage.removeItem(ACTIVE_SESSION_KEY);
     } catch {}
     setLastDurationMin(durationMin);
     setCompletedPRs(prList);
@@ -2710,16 +2707,18 @@ function WorkoutApp() {
         delete newLog[selectedProgram];
         return newLog;
       });
-      localStorage.removeItem(getStorageKey(selectedProgram));
+      try {
+        localStorage.removeItem(getStorageKey(selectedProgram));
+        if (loadActiveSession()?.program === selectedProgram) localStorage.removeItem(ACTIVE_SESSION_KEY);
+      } catch {}
+      setSessionData({});
+      setSessionDay(null);
     }
   };
   const exportBackup = () => {
     const logs = {};
-    ['4day', '3day'].forEach(prog => {
-      try {
-        const data = localStorage.getItem(getStorageKey(prog));
-        if (data) logs[prog] = JSON.parse(data);
-      } catch {}
+    Object.keys(programConfigs).forEach(prog => {
+      if (workoutLog[prog]) logs[prog] = workoutLog[prog];
     });
     const payload = {
       app: 'workout-tracker-backup',
@@ -2757,7 +2756,9 @@ function WorkoutApp() {
         Object.entries(data.logs).forEach(([prog, log]) => {
           try {
             localStorage.setItem(getStorageKey(prog), JSON.stringify(log));
-          } catch {}
+          } catch {
+            setStorageError(true);
+          }
         });
         setWorkoutLog(prev => ({
           ...prev,
@@ -2822,12 +2823,12 @@ function WorkoutApp() {
         let imported = 0;
         rows.slice(1).forEach(r => {
           if (!r[iDate] || !r[iEx]) return;
-          const dateObj = new Date(r[iDate]);
+          const dateObj = parseCSVDate(r[iDate]);
           if (isNaN(dateObj)) return;
           const dateISO = dateObj.toISOString();
           const dayKey = iDay >= 0 && r[iDay] && r[iDay].trim() || 'day1';
           const exName = r[iEx].trim();
-          const sessKey = dayKey + '|' + dateISO.slice(0, 10);
+          const sessKey = dayKey + '|' + localDay(dateObj);
           if (exName.toLowerCase().startsWith('ab routine')) {
             sessionsSeen[sessKey] = {
               date: dateISO,
@@ -2883,7 +2884,7 @@ function WorkoutApp() {
           };
           if (!log[dayKey].exercises) log[dayKey].exercises = {};
           const list = log[dayKey].exercises[id] || [];
-          if (!list.some(e => (e.date || '').slice(0, 10) === entry.date.slice(0, 10))) {
+          if (!list.some(e => localDay(e.date) === localDay(entry.date))) {
             list.push(entry);
             imported++;
           }
@@ -2896,13 +2897,15 @@ function WorkoutApp() {
             sessions: []
           };
           if (!log[dayKey].sessions) log[dayKey].sessions = [];
-          if (!log[dayKey].sessions.some(x => (x.date || '').slice(0, 10) === s.date.slice(0, 10))) log[dayKey].sessions.push(s);
+          if (!log[dayKey].sessions.some(x => localDay(x.date) === localDay(s.date))) log[dayKey].sessions.push(s);
         });
         const msg = `Import ${imported} exercise entries from this CSV into ${programConfigs[selectedProgram].name}?` + (unknown.size ? `\n\nSkipped (unknown exercise names): ${[...unknown].join(', ')}` : '') + '\n\nNothing is deleted; entries already logged on the same date are kept.';
         if (!confirm(msg)) return;
         try {
           localStorage.setItem(getStorageKey(selectedProgram), JSON.stringify(log));
-        } catch {}
+        } catch {
+          setStorageError(true);
+        }
         setWorkoutLog(prev => ({
           ...prev,
           [selectedProgram]: log
@@ -2936,13 +2939,13 @@ function WorkoutApp() {
       Object.entries(data.exercises || {}).forEach(([exerciseId, entries]) => {
         entries.forEach(entry => {
           entry.sets.forEach((set, setIndex) => {
-            csv += `${new Date(entry.date).toLocaleDateString()},${day},${entry.exerciseName || exerciseId},${entry.usedAlt ? 'Alt' : 'Main'},${setIndex + 1},${set.warmup ? 'Yes' : 'No'},${set.weight},${set.reps},${set.completed ? 'Yes' : 'No'},${entry.skipped ? 'Yes' : 'No'},"${entry.notes || ''}"\n`;
+            csv += `${localDay(entry.date)},${day},${csvCell(entry.exerciseName || exerciseId)},${entry.usedAlt ? 'Alt' : 'Main'},${setIndex + 1},${set.warmup ? 'Yes' : 'No'},${set.weight},${set.reps},${set.completed ? 'Yes' : 'No'},${entry.skipped ? 'Yes' : 'No'},"${(entry.notes || '').replace(/"/g, '""')}"\n`;
           });
         });
       });
       (data.sessions || []).forEach(sess => {
         if (sess.absDone !== undefined) {
-          csv += `${new Date(sess.date).toLocaleDateString()},${day},Ab Routine (pre-workout),Main,1,No,0,0,${sess.absDone ? 'Yes' : 'No'},${sess.absDone ? 'No' : 'Yes'},""\n`;
+          csv += `${localDay(sess.date)},${day},Ab Routine (pre-workout),Main,1,No,0,0,${sess.absDone ? 'Yes' : 'No'},${sess.absDone ? 'No' : 'Yes'},""\n`;
         }
       });
     });
@@ -3099,7 +3102,9 @@ function WorkoutApp() {
           opacity: c === 0 ? 1 : 0.45 + 0.55 * (c / maxW)
         }
       }))));
-    })(), (() => {
+    })(), storageError && React.createElement(StorageWarning, {
+      onBackup: exportBackup
+    }), (() => {
       const totalSessions = Object.values(workoutLog[selectedProgram] || {}).reduce((a, d) => a + (d?.sessions?.length || 0), 0);
       const ageDays = lastBackupAt ? Math.floor((Date.now() - new Date(lastBackupAt).getTime()) / 864e5) : null;
       if (totalSessions < 3 || ageDays !== null && ageDays <= 21) return null;
@@ -3234,7 +3239,7 @@ function WorkoutApp() {
       }, ex.sets, " \xD7 ", ex.reps, lastData ? lastData.skipped ? ' · Skipped' : ` · ${lastData.weight} lbs` : '')), React.createElement("button", {
         onClick: e => {
           e.stopPropagation();
-          setInfoExerciseId(ex.isAbsSlot ? 'cable_crunch' : ex.id);
+          setInfoExerciseId(ex.id);
         },
         className: "info-btn w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold text-zinc-500 border border-zinc-800 flex-shrink-0 active:scale-90",
         title: "How to do it"
@@ -3245,7 +3250,8 @@ function WorkoutApp() {
       }));
     })), infoExerciseId && (() => {
       const media = exerciseMedia[infoExerciseId] || exerciseMedia[progressionConfig[infoExerciseId]?.derivedFrom];
-      const cfg = progressionConfig[infoExerciseId] || defaultProgressionConfig;
+      const infoEx = dayData.exercises.find(e => e.id === infoExerciseId);
+      const cfg = infoEx ? getExerciseConfig(infoEx) : progressionConfig[infoExerciseId] || defaultProgressionConfig;
       return React.createElement("div", {
         className: "fixed flex items-end",
         style: {
@@ -3315,7 +3321,10 @@ function WorkoutApp() {
       }
     }, React.createElement(Play, {
       className: "w-4 h-4"
-    }), " ", Object.keys(sessionData).length > 0 && sessionDay === selectedDay ? 'Continue Workout' : 'Begin Workout')))));
+    }), " ", Object.keys(sessionData).length > 0 && sessionDay === selectedDay ? 'Continue Workout' : (() => {
+      const s = loadActiveSession();
+      return s && s.program === selectedProgram && s.day === selectedDay;
+    })() ? 'Resume Workout' : 'Begin Workout')))));
   }
   if (view === 'exercise') {
     const dayData = workoutData[selectedDay];
@@ -3330,8 +3339,7 @@ function WorkoutApp() {
     const displayName = isUsingAlt && hasAlt ? nameParts[1] : nameParts[0];
     const currentData = sessionData[currentExerciseIndex] || {
       sets: [],
-      notes: '',
-      selectedAbExercise: 'cable_crunch'
+      notes: ''
     };
     const lastWorkoutDate = progression.lastSession?.date ? new Date(progression.lastSession.date).toLocaleDateString('en-US', {
       weekday: 'short',
@@ -3347,17 +3355,6 @@ function WorkoutApp() {
       suggestionColor = '#f59e0b';
       suggestionBg = '#f59e0b15';
     }
-    const StepBtn = ({
-      onClick,
-      children
-    }) => React.createElement("button", {
-      onClick: onClick,
-      className: "w-11 h-11 rounded-lg flex items-center justify-center text-lg font-bold transition-all active:scale-90 flex-shrink-0",
-      style: {
-        background: `${accent}20`,
-        color: accent
-      }
-    }, children);
     const workingSets = currentData.sets.filter(s => !s.warmup).length || (typeof exercise.sets === 'number' ? exercise.sets : 3);
     const [rrLow, rrHigh] = exerciseConfig.repRange;
     const targetBits = [`${workingSets} × ${exercise.reps}`];
@@ -3428,20 +3425,7 @@ function WorkoutApp() {
       style: {
         color: accent
       }
-    }, targetBits.join(' · ')), exercise.isAbsSlot && React.createElement("div", {
-      className: "mb-3"
-    }, React.createElement("div", {
-      className: "relative"
-    }, React.createElement("select", {
-      value: currentData.selectedAbExercise || 'cable_crunch',
-      onChange: e => updateAbExercise(e.target.value),
-      className: "w-full bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white appearance-none"
-    }, abExerciseOptions.map(opt => React.createElement("option", {
-      key: opt.id,
-      value: opt.id
-    }, opt.name))), React.createElement(ChevronDown, {
-      className: "w-4 h-4 text-zinc-500 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
-    }))), progression.lastSession && (() => {
+    }, targetBits.join(' · ')), progression.lastSession && (() => {
       return React.createElement("div", {
         className: "mb-2 px-3 py-1.5 rounded-xl bg-zinc-900/50 border border-zinc-800/50"
       }, React.createElement("div", {
@@ -3457,7 +3441,7 @@ function WorkoutApp() {
         className: `px-1.5 py-0.5 rounded text-[10px] ${s.warmup ? 'bg-amber-500/10 text-amber-400/80' : 'bg-zinc-800/50 text-zinc-300'}`
       }, s.warmup ? 'W ' : '', s.weight, "\xD7", s.reps, s.completed ? ' ✓' : ''))));
     })(), React.createElement(ProgressSpark, {
-      entries: getAllSessions(exercise.isAbsSlot ? currentData.selectedAbExercise || 'cable_crunch' : exercise.id),
+      entries: getAllSessions(exercise.id),
       accent: accent,
       assisted: !!exerciseConfig.assisted
     }), React.createElement("div", {
@@ -3480,7 +3464,7 @@ function WorkoutApp() {
       }
     }, progression.suggestion || (progression.lastSession ? 'Keep building within your rep range' : 'First time - start with suggested weight')), React.createElement("div", {
       className: "text-[10px] text-zinc-500 mt-1"
-    }, progression.action === 'increase' || progression.action === 'progress' ? 'You hit your rep target last time - try adding weight or reps today!' : progression.action === 'decrease' || progression.action === 'regress' ? 'Focus on form and control. Quality reps beat ego weight.' : progression.lastSession ? 'Aim for more reps at the same weight, or same reps with slightly more weight.' : 'Log your sets below. The app will suggest progression next time.')))), (() => {
+    }, progression.action === 'increase' || progression.action === 'progress' ? progression.weight !== progression.lastWeight ? 'You hit your rep target last time - the new weight is filled in below.' : 'You hit your rep target last time - make it harder today.' : progression.action === 'decrease' || progression.action === 'regress' ? progression.weight !== progression.lastWeight ? 'The lower weight is filled in below. Quality reps beat ego weight.' : 'Focus on form and control. Quality reps beat ego weight.' : progression.lastSession ? 'Aim for more reps at the same weight, or same reps with slightly more weight.' : 'Log your sets below. The app will suggest progression next time.')))), (() => {
       const prevNote = (progression.lastSession?.notes || '').trim();
       const prevFirst = prevNote.split('\n')[0];
       const todayFirst = (currentData.notes || '').trim().split('\n')[0];
@@ -3551,20 +3535,24 @@ function WorkoutApp() {
     }) : set.warmup ? 'W' : i + 1 - currentData.sets.slice(0, i).filter(s => s.warmup).length), React.createElement("div", {
       className: "flex items-center gap-1 flex-1"
     }, React.createElement(StepBtn, {
+      accent: accent,
       onClick: () => updateSet(i, 'weight', Math.max(0, set.weight - weightIncrement))
     }, "\u2212"), React.createElement("div", {
       className: "flex-1 text-center text-lg font-bold text-zinc-100"
     }, set.weight), React.createElement(StepBtn, {
+      accent: accent,
       onClick: () => updateSet(i, 'weight', set.weight + weightIncrement)
     }, "+")), React.createElement("div", {
       className: "w-px h-6 bg-zinc-800"
     }), React.createElement("div", {
       className: "flex items-center gap-1 flex-1"
     }, React.createElement(StepBtn, {
+      accent: accent,
       onClick: () => updateSet(i, 'reps', Math.max(1, set.reps - 1))
     }, "\u2212"), React.createElement("div", {
       className: "flex-1 text-center text-lg font-bold text-zinc-100"
     }, set.reps), React.createElement(StepBtn, {
+      accent: accent,
       onClick: () => updateSet(i, 'reps', set.reps + 1)
     }, "+")), i > 0 && !set.completed ? React.createElement("button", {
       onClick: () => copyPreviousSet(i),
@@ -3586,7 +3574,7 @@ function WorkoutApp() {
       disabled: currentExerciseIndex === 0,
       className: "pointer-events-auto w-16 h-16 rounded-xl flex items-center justify-center text-4xl text-zinc-600 disabled:opacity-20 active:scale-90 bg-zinc-900/80 border border-zinc-800"
     }, "\u2039"), React.createElement("button", {
-      onClick: skipExercise,
+      onClick: nextExercise,
       className: "pointer-events-auto px-4 py-2 rounded-lg flex items-center gap-1.5 text-xs font-medium active:scale-95 bg-zinc-800 border border-zinc-700 text-zinc-400"
     }, React.createElement(SkipForward, {
       className: "w-4 h-4"
@@ -3664,7 +3652,7 @@ function WorkoutApp() {
         className: "text-sm font-medium text-zinc-200"
       }, displayName), React.createElement("div", {
         className: "text-[10px] text-zinc-500"
-      }, completedSets, "/", data.sets.length, " sets \xB7 ", data.sets[0]?.weight || 0, " lbs")), completedSets === data.sets.length ? React.createElement(Check, {
+      }, completedSets, "/", data.sets.length, " sets \xB7 ", (data.sets.find(s => !s.warmup) || data.sets[0])?.weight || 0, " lbs")), completedSets === data.sets.length ? React.createElement(Check, {
         className: "w-4 h-4 text-emerald-500"
       }) : React.createElement("span", {
         className: "text-[10px] text-amber-500"
@@ -3715,7 +3703,11 @@ function WorkoutApp() {
       className: "text-zinc-500 text-sm mb-2"
     }, dayData.name), React.createElement("p", {
       className: "text-zinc-600 text-xs mb-6"
-    }, todayDate, lastDurationMin ? ` · ${lastDurationMin} min` : ''), completedPRs.length > 0 && React.createElement("div", {
+    }, todayDate, lastDurationMin ? ` · ${lastDurationMin} min` : ''), storageError && React.createElement("div", {
+      className: "mb-6"
+    }, React.createElement(StorageWarning, {
+      onBackup: exportBackup
+    })), completedPRs.length > 0 && React.createElement("div", {
       className: "mb-6 space-y-2"
     }, React.createElement("div", {
       className: "text-[10px] font-semibold tracking-widest text-amber-400"
