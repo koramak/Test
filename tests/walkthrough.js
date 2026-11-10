@@ -8,12 +8,12 @@ const path = require('path');
 const { JSDOM, VirtualConsole } = require('jsdom');
 const file = process.argv[2] || path.join(__dirname, '..', 'workout-tracker.html');
 const html = fs.readFileSync(file, 'utf8');
-// Parse check first: fail fast on JSX errors
-{
-  const Babel = require('@babel/standalone/babel.min.js');
-  const m = html.match(/<script type="text\/babel">([\s\S]*?)<\/script>\s*<\/body>/);
-  try { Babel.transform(m[1], { presets: ['react'] }); console.log('PASS JSX parses'); }
-  catch (e) { console.log('FAIL JSX parse: ' + e.message.slice(0, 200)); process.exit(1); }
+// The served file is generated from src/: fail fast if it is stale or the JSX no longer compiles
+if (!process.argv[2]) {
+  try {
+    if (require('./build.js').build() !== html) { console.log('FAIL workout-tracker.html is stale - run: npm run build'); process.exit(1); }
+    console.log('PASS workout-tracker.html matches src');
+  } catch (e) { console.log('FAIL build: ' + e.message.slice(0, 200)); process.exit(1); }
 }
 const vc = new VirtualConsole(); vc.on('jsdomError', () => {});
 const dom = new JSDOM(html, { runScripts: 'dangerously', pretendToBeVisual: true, url: 'https://example.com/', virtualConsole: vc });
@@ -21,7 +21,7 @@ const wait = (ms) => new Promise(r => setTimeout(r, ms));
 let pass = 0, fail = 0;
 const ok = (name, cond) => { console.log((cond ? 'PASS' : 'FAIL') + ' ' + name); cond ? pass++ : fail++; };
 (async () => {
-  await wait(5000);
+  await wait(500);
   const root = dom.window.document.getElementById('root');
   const btn = (t) => [...root.querySelectorAll('button')].find(b => b.textContent.replace(/\s+/g, ' ').trim().includes(t));
   const txt = () => root.textContent;
@@ -37,7 +37,7 @@ const ok = (name, cond) => { console.log((cond ? 'PASS' : 'FAIL') + ' ' + name);
   const rows = [...root.querySelectorAll('.exercise-row')];
   ok('overview: tappable exercise rows', rows.length >= 5);
   // "?" info sheet opens with description + video link, closes, and does NOT navigate
-  rows[1].querySelector('.info-btn').click(); await wait(300);
+  rows[0].querySelector('.info-btn').click(); await wait(300);
   const sheet = root.querySelector('.info-sheet');
   ok('overview: ? opens info sheet with video link', !!sheet && !!sheet.querySelector('a[href*="youtube"]'));
   btn('Close').click(); await wait(300);

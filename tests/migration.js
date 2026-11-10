@@ -15,7 +15,7 @@ const seed = {
   '4day': {
     // Old day2 held leg_curl history; old day4 held squat + leg_curl history.
     day2: { exercises: { leg_curl: [entry(90, 8, 20, { notes: 'hamstring cramp on set 3' })], deadlift: [entry(225, 5, 30), entry(225, 5, 20), entry(225, 5, 12), entry(225, 5, 4)] }, sessions: [{ date: day(20), absDone: true }, { date: day(4), absDone: true }] },
-    day4: { exercises: { squat: [entry(155, 8, 9)], leg_curl: [entry(95, 10, 9)] }, sessions: [{ date: day(9), absDone: false }] }
+    day4: { exercises: { squat: [entry(155, 8, 9)], leg_curl: [entry(95, 10, 9)], lateral_raise: [{ ...entry(15, 15, 9), date: '2026-10-01T18:00:00.000Z' }], overhead_tri: [entry(50, 12, 9)] }, sessions: [{ date: day(9), absDone: false }] }
   }
 };
 const vc = new VirtualConsole(); vc.on('jsdomError', () => {});
@@ -27,7 +27,7 @@ const wait = (ms) => new Promise(r => setTimeout(r, ms));
 let pass = 0, fail = 0;
 const ok = (name, cond) => { console.log((cond ? 'PASS' : 'FAIL') + ' ' + name); cond ? pass++ : fail++; };
 (async () => {
-  await wait(5000);
+  await wait(500);
   const root = dom.window.document.getElementById('root');
   const btn = (t) => [...root.querySelectorAll('button')].find(b => b.textContent.replace(/\s+/g, ' ').trim().includes(t));
   const txt = () => root.textContent;
@@ -58,6 +58,23 @@ const ok = (name, cond) => { console.log((cond ? 'PASS' : 'FAIL') + ' ' + name);
   [...root.querySelectorAll('.exercise-row')][1].querySelector('.info-btn').click(); await wait(300);
   ok('info sheet for light squat shows squat description', !!root.querySelector('.info-sheet') && root.querySelector('.info-sheet').textContent.length > 80);
   btn('Close').click(); await wait(200);
+
+  // Upper Size: lateral raise + bent-over fly restarts at 2 x 7 @ 10 lb even though older
+  // history sits at 15 x 15; the tricep slot is a new exercise that ignores overhead history
+  btn('Back').click(); await wait(300);
+  btn('Upper Size').click(); await wait(500);
+  const upRows = [...root.querySelectorAll('.exercise-row')];
+  const latRow = upRows.findIndex(r => r.textContent.includes('Lateral Raise + Bent-Over Fly'));
+  ok('upper size: combined lateral + fly row is 2 x 7-12', latRow >= 0 && upRows[latRow].textContent.includes('2 × 7-12'));
+  ok('upper size: overhead tricep extension is gone', !upRows.some(r => /Overhead Tricep/.test(r.textContent)) && upRows.some(r => r.textContent.includes('Leaning Tricep Extension')));
+  const bigNums = () => [...root.querySelectorAll('div.text-lg.font-bold')].map(d => d.textContent).join(',');
+  upRows[latRow].click(); await wait(500);
+  ok('lateral + fly pre-fills 2 sets of 10 lb x 7, not the old 15 x 15', bigNums() === '10,7,10,7');
+  root.querySelector('button.p-1').click(); await wait(300);
+  const triRow = [...root.querySelectorAll('.exercise-row')].findIndex(r => r.textContent.includes('Leaning Tricep Extension'));
+  [...root.querySelectorAll('.exercise-row')][triRow].click(); await wait(500);
+  ok('leaning tricep extension starts fresh (30 lb), not from overhead history (50 lb)', bigNums().split(',')[0] === '30' && !txt().includes('50×12'));
+  root.querySelector('button.p-1').click(); await wait(300);
 
   // CSV import: an export from the OLD 4-day program (old names, old day keys) rebuilds history
   dom.window.confirm = () => true; dom.window.alert = () => {};
