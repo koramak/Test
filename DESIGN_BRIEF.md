@@ -47,7 +47,7 @@ Every one of these must exist, unchanged in behavior, on the same screen it is o
    | Label | Glyph | Colour | When |
    |---|---|---|---|
    | Hold | dash | accent | same weight, build reps (the common case) |
-   | Raise reps | plus | accent | last set was rated Easy inside the range; bodyweight lifts that hit the top |
+   | Raise reps | plus | accent | last set was rated Easy or Mid inside the range; bodyweight lifts that hit the top |
    | Raise weight | up arrow | accent | every set hit the top of the range |
    | Lower weight | down arrow | warn | below the range, or a stall reset |
    | Less assist | up arrow | accent | assisted lifts: every set hit the top (the logged number goes down) |
@@ -57,7 +57,7 @@ Every one of these must exist, unchanged in behavior, on the same screen it is o
    | First session | dash | accent | no history yet |
 8. **Notes row**, collapsed by default, showing today's note or *"Last time: <first line of last session's note>"*; tap to expand a textarea. This preview is deliberate — a note the lifter can't see isn't a note.
 9. Warm-up sets are marked (`W`) and visibly distinct from working sets.
-10. **Effort chips**: `last set  [Easy] [Mid] [Max]` on the right of the "Sets" header, 26 px tall. Optional; one tap sets, the same tap clears. Mid means "about right" and is treated like no rating. On the superset screen and in history the `last set` caption is dropped to make room for three chips.
+10. **Effort chips**: `last set  [Easy] [Mid] [Max]` on the right of the "Sets" header, 26 px tall. Optional; one tap sets, the same tap clears; no rating means nothing. Easy (3+ reps left) doubles the weight jump at the top of the range and aims +2 reps inside it. Mid (1-2 left) aims +1 rep inside the range and holds the weight after a miss below it. Max (nothing left) holds weight and reps inside the range. On the superset screen and in history the `last set` caption is dropped to make room for three chips.
 10a. **Superset screen**: the two exercises of a superset share one screen as two compact panels separated by a hairline. Each panel has: name + alternate toggle, an inline verdict (one line), one row with last-session chips on the left and the effort chips on the right, collapsed notes row (30 px), and its set rows. No chart, no "Sets" header, no cue and no target line. The header reads `4–5 of 6 · Superset, alternate sets`. Set rows are identical to the single-exercise screen.
 
 ### Day overview
@@ -162,7 +162,7 @@ Two rendering caveats: the screenshots come from headless Chromium on Linux, so 
 
 ## 6. Acceptance checklist (the implementer will test these)
 
-- [ ] `cd tests && npm test` passes: walkthrough (27 functional checks, and it fails if `workout-tracker.html` was not rebuilt from `src/`), migration (19), engine (50).
+- [ ] `cd tests && npm test` passes: walkthrough (27 functional checks, and it fails if `workout-tracker.html` was not rebuilt from `src/`), migration (19), engine (58).
 - [ ] `npm run measure` ends with "All screens fit and all touch targets hold".
 - [ ] All hit sizes in §3 preserved (measured, not eyeballed).
 - [ ] A lifter who used the app last week can find every control without hunting.

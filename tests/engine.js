@@ -242,7 +242,7 @@ const log4 = (days) => ({ lastProgram: '4day', workoutLog_4day: days });
     const log = a.stored('workoutLog_4day').day2.exercises.deadlift;
     ok('the session is saved under the alternate with the Mid rating', log.length === 3 && log[2].usedAlt === true && log[2].exerciseName === 'Trap Bar Deadlift' && log[2].effort === 'mid');
     await a.click('Done'); await a.click('Lower Power'); await a.openExercise('Conventional Deadlift');
-    ok('the main exercise is unaffected by the alternate\'s session, and Mid changes nothing', a.nums().split(',').slice(4, 6).join() === '225,5');
+    ok('the main exercise is unaffected by the alternate\'s session, ', a.nums().split(',').slice(4, 6).join() === '225,5');
   }
   // 16. Program: no sled work, leg press without a warm-up, seated calf raise
   {
@@ -255,6 +255,22 @@ const log4 = (days) => ({ lastProgram: '4day', workoutLog_4day: days });
     ok('Day 4: leg press is 3 sets with no warm-up, calves are the seated machine', /Leg Press3 × 8-12/.test(t) && t.includes('Seated Calf Raise') && !t.includes('Sled'));
     await a.openExercise('Leg Press');
     ok('leg press opens with three working rows and no warm-up row', a.root.querySelectorAll('.set-row').length === 3 && !a.txt().includes('W'));
+  }
+  // 17. What each effort rating does (cable row, 8-12 range, last session 3 sets at 120)
+  {
+    const open = async (reps, effort) => {
+      const a = await boot(log4({ day3: { exercises: { cable_row: [entry([set(120, reps), set(120, reps), set(120, reps)], 3, effort ? { effort } : {})] }, sessions: [{ date: day(3) }] } }));
+      await a.click('Upper Size'); await a.openExercise('Cable Row');
+      return a.verdict() + ' ' + a.nums().split(',').slice(0, 2).join('x');
+    };
+    ok('no rating, in range: Hold at the same reps', await open(10) === 'Hold 120x10');
+    ok('Mid, in range: Raise reps, one more rep pre-filled', await open(10, 'mid') === 'Raise reps 120x11');
+    ok('Easy, in range: Raise reps, two more reps pre-filled, capped at the top', await open(10, 'easy') === 'Raise reps 120x12' && await open(11, 'easy') === 'Raise reps 120x12');
+    ok('Max, in range: Hold at the same reps', await open(10, 'max') === 'Hold 120x10');
+    ok('no rating, below range: Lower weight', await open(6) === 'Lower weight 115x8');
+    ok('Mid, below range: Hold the weight instead of lowering it', await open(6, 'mid') === 'Hold 120x6');
+    ok('Max, below range: still Lower weight', await open(6, 'max') === 'Lower weight 115x8');
+    ok('Mid at the top of the range: Raise weight as usual', await open(12, 'mid') === 'Raise weight 125x8');
   }
   console.log(`${pass} passed, ${fail} failed`);
   process.exit(fail ? 1 : 0);

@@ -178,8 +178,19 @@ const runProgression = (config, lastSession) => {
   const minReps = Math.min(...sets.map(s => s.reps));
   // "Every set hits the top": all working sets checked off, none short of it
   const hitTop = working.every(s => s.completed) && minReps >= high;
-  // Optional one-tap rating of the last set: 'easy' = 3+ reps left
-  const easy = lastSession.effort === 'easy';
+  // Optional one-tap rating of the last set. No rating means nothing: the rules below run on
+  // reps alone. Easy (3+ reps left): double jump at the top of the range, +2 reps inside it.
+  // Mid (1-2 left): +1 rep inside the range, and a miss below the range holds the weight
+  // instead of lowering it. Max (nothing left): hold at the same reps inside the range.
+  const easy = lastSession.effort === 'easy', mid = lastSession.effort === 'mid', max = lastSession.effort === 'max';
+  // Inside or below the range, the rating decides what "hold" means
+  const rated = () => {
+    if (easy && avgReps >= low) return { action: 'maintain', pushReps: true, repBump: 2, reason: `Felt easy last time → push for ${high} on every set` };
+    if (mid && avgReps >= low) return { action: 'maintain', pushReps: true, repBump: 1, reason: 'Had a rep or two left → add a rep per set' };
+    if (mid) return { action: 'maintain', reason: `Below ${low} reps but not at your limit → same weight, get back into the range` };
+    if (max && avgReps >= low) return { action: 'maintain', reason: 'Nothing left last time → same weight and reps until it moves better' };
+    return null;
+  };
   // Number-agnostic increments for the big lifts: ~2% of the load rounded to 5, never below 5
   const load = sets[0]?.weight || 0;
   const flatInc = config.incrementPct ? Math.max(5, Math.round((load * config.incrementPct) / 5) * 5) : config.weightIncrement;
@@ -193,8 +204,8 @@ const runProgression = (config, lastSession) => {
         ? { action: 'maintain', addWeight: true, reason: `Bodyweight × ${high}+! Time to switch to weighted` }
         : { action: 'decrease', amount: inc, isProgress: true, reason: `Hit ${high}+ on every set → Reduce assistance ${inc} lbs` };
     }
-    if (avgReps < low) return { action: 'increase', amount: inc, isRegress: true, reason: `Below ${low} reps → Add ${inc} lbs assistance` };
-    return { action: 'maintain', reason: config.cue || 'Building within rep range' };
+    if (avgReps < low && !mid) return { action: 'increase', amount: inc, isRegress: true, reason: `Below ${low} reps → Add ${inc} lbs assistance` };
+    return rated() || { action: 'maintain', reason: config.cue || 'Building within rep range' };
   }
   if (hitTop) {
     // Every set blew through the range -> double jump so a range can't strand you
@@ -204,13 +215,12 @@ const runProgression = (config, lastSession) => {
       ? { action: 'increase', amount, reason: bigJump ? `${minReps >= high + 2 ? `Every set ${high + 2}+` : `Hit ${high}+ and it felt easy`} → Add ${amount} lbs (double jump)` : `Hit ${high}+ on every set → Add ${amount} lbs` }
       : { action: 'progress', reason: `Hit ${high}+ → Progress difficulty (ROM, pause, or add weight)` };
   }
-  if (avgReps < low) {
+  if (avgReps < low && !mid) {
     return inc > 0
       ? { action: 'decrease', amount: load - down, reason: `Below ${low} reps → Drop ${load - down} lbs` }
       : { action: 'regress', reason: `Below ${low} reps → Use an easier variation` };
   }
-  if (easy && avgReps >= low) return { action: 'maintain', pushReps: true, reason: `Felt easy last time → push for ${high} on every set` };
-  return { action: 'maintain', reason: config.cue || 'Building within rep range' };
+  return rated() || { action: 'maintain', reason: config.cue || 'Building within rep range' };
 };
 
 // Per-exercise overrides in workout data (exercise.progression) win over the
@@ -232,12 +242,9 @@ const verdictFor = (p) => {
   return v('Hold', 'dash');
 };
 
-// alt = true when the alternate exercise (the name after " / ") is selected. It may
-// carry its own overrides in exercise.altProgression.
-const getExerciseConfig = (exercise, alt) => ({
+const getExerciseConfig = (exercise) => ({
   ...(progressionConfig[exercise.id] || defaultProgressionConfig),
-  ...(exercise.progression || {}),
-  ...(alt ? exercise.altProgression || {} : {})
+  ...(exercise.progression || {})
 });
 
 // ---------------------------------------------------------------------------
@@ -427,8 +434,8 @@ const SetRow = ({ set, label, config, onToggle, onChange, onCopy }) => {
 // Row label: W for warm-ups, otherwise the working-set number
 const setLabel = (sets, i) => sets[i].warmup ? 'W' : i + 1 - sets.slice(0, i).filter(s => s.warmup).length;
 
-// How the last set felt. Optional. Easy = 3 or more reps left, Mid = about right (the
-// engine treats it like no rating), Max = nothing left. One tap to set, same tap to clear.
+// How the last set felt. Optional, and leaving it blank means nothing. Easy = 3 or more
+// reps left, Mid = one or two left, Max = nothing left (see runProgression for the effects). One tap to set, same tap to clear.
 // compact drops the "last set" caption where three chips leave no room for it.
 const EffortChips = ({ value, onChange, compact }) => (
   <div className="effort-chips" style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
@@ -613,7 +620,7 @@ const workoutData4Day = {
     "Overhead lat stretch · 2×20 s",
     "Light lateral raises ×15 + hammer curls ×15 → first working set"
   ], exercises: [
-    { id: "dips", name: "Assisted Dips / Machine Dip", altProgression: { assisted: false }, sets: 3, reps: "6-10", defaultWeight: 60, muscles: ["triceps", "chest"], notes: "⇄ Superset with pulldown · weight = assistance, less is harder · goal: 0 = bodyweight", superset: 1, progression: { repRange: [6, 10], restTime: 90 } },
+    { id: "dips", name: "Assisted Dips", sets: 3, reps: "6-10", defaultWeight: 60, muscles: ["triceps", "chest"], notes: "⇄ Superset with pulldown · weight = assistance, less is harder · goal: 0 = bodyweight", superset: 1, progression: { repRange: [6, 10], restTime: 90 } },
     { id: "lat_pulldown", name: "Lat Pulldown / Pull-ups", sets: 3, reps: "6-10", defaultWeight: 100, muscles: ["lats", "biceps"], notes: "⇄ Superset with dips · counts as biceps work too", superset: 1, progression: { progressionType: "load-first", repRange: [6, 10], restTime: 90 } },
     { id: "lean_tri_ext", name: "Leaning Tricep Extension / Tricep Pushdown", sets: 3, reps: "8-15", defaultWeight: 30, muscles: ["triceps"], notes: "⇄ Superset with hammer curls · face away, lean forward, press forward", superset: 2 },
     { id: "hammer_curl", name: "Hammer Curl / Cross-Body Curl", sets: 3, reps: "10-15", defaultWeight: 25, muscles: ["biceps", "forearms"], notes: "⇄ Superset with tricep extension · brachialis + grip for the log and carries", superset: 2, progression: { restTime: 75 } },
@@ -706,6 +713,7 @@ const retiredExerciseNames = {
   'sled push': { id: 'sled_push', alt: false }, 'prowler push': { id: 'sled_push', alt: true },
   'backward sled drag': { id: 'sled_drag', alt: false }, 'sled pull': { id: 'sled_drag', alt: true },
   'seated calf': { id: 'calf_raise', alt: false },
+  'machine dip': { id: 'dips', alt: false },
   'lat pulldown': { id: 'lat_pulldown', alt: false }, 'pull-ups': { id: 'lat_pulldown', alt: true }, 'assisted pull-ups': { id: 'lat_pulldown', alt: true }
 };
 
@@ -908,6 +916,9 @@ function WorkoutApp() {
       newWeight = Math.max(0, lastWeight - (result.amount || config.weightIncrement));
       newReps = low;
       icon = result.isProgress ? TrendingUp : TrendingDown;
+    } else if (result.repBump) {
+      // Rated Easy or Mid inside the range: aim higher, never past the top of the range
+      newReps = Math.max(lastAvgReps, Math.min(lastAvgReps + result.repBump, high));
     } else if (result.action === 'progress') {
       icon = TrendingUp;
     } else if (result.action === 'regress') {
