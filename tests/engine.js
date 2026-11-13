@@ -172,8 +172,8 @@ const log4 = (days) => ({ lastProgram: '4day', workoutLog_4day: days });
     await a.click('Upper Size'); await a.openExercise('EZ Bar Curl');
     ok('superset opens as one screen with both exercises', a.txt().includes('Leaning Tricep Extension') && a.txt().includes('EZ Bar Curl') && a.txt().includes('4–5 of 6') && a.root.querySelectorAll('.set-row').length === 6);
     ok('easy last set + top of range = double jump (30 -> 40)', a.reason().includes('felt easy → Add 10 lbs') && a.verdicts() === 'Raise weight|First session' && a.nums().startsWith('40,8'));
-    const chips = [...a.root.querySelectorAll('.effort-chips button')]; // [tri Easy, tri Max, curl Easy, curl Max]
-    chips[1].click(); await wait(50);
+    const chips = [...a.root.querySelectorAll('.effort-chips button')]; // [tri Easy, tri Mid, tri Max, curl Easy, curl Mid, curl Max]
+    chips[2].click(); await wait(50);
     [...a.root.querySelectorAll('.set-row')].forEach(r => r.querySelector('button').click()); await wait(100);
     ok('next block names what follows the pair', a.root.querySelector('.nav-next').textContent.includes('Next · 6 of 6') && a.root.querySelector('.nav-next').textContent.includes('Lateral Raise + Bent-Over Fly'));
     await a.next();
@@ -221,6 +221,40 @@ const log4 = (days) => ({ lastProgram: '4day', workoutLog_4day: days });
     await a.click('Upper Power'); await a.openExercise('Assisted Pull-up');
     ok('assisted lift below the range says "More assist"', a.verdict() === 'More assist' && a.nums().startsWith('65,4'));
     ok('next block shows sets x reps and the last weight', a.root.querySelector('.nav-next').textContent.includes('Next · 3 of 5') && a.root.querySelector('.nav-next').textContent.includes('Incline Barbell Press'));
+  }
+  // 15. An exercise and its alternate are tracked separately; switching swaps the numbers
+  {
+    const dl = (w, reps, n, extra = {}) => entry([set(Math.round(w / 2), 5, true, { warmup: true }), set(Math.round(w * 0.75), 3, true, { warmup: true }), set(w, reps), set(w, reps), set(w, reps)], n, extra);
+    const a = await boot(log4({ day2: { exercises: { deadlift: [dl(225, 5, 12), dl(185, 6, 5, { usedAlt: true, exerciseName: 'Trap Bar Deadlift', notes: 'high handles' })] }, sessions: [{ date: day(12) }, { date: day(5) }] } }));
+    await a.click('Lower Power');
+    ok('day overview shows the main exercise\'s own last weight (225, not the trap bar\'s 185)', a.rows()[0].textContent.includes('Conventional Deadlift') && a.rows()[0].textContent.includes('225 lbs'));
+    await a.openExercise('Conventional Deadlift');
+    ok('main exercise pre-fills from its own history', a.nums().split(',').slice(4, 6).join() === '225,5' && a.verdict() === 'Hold');
+    a.root.querySelector('.alt-toggle').click(); await wait(150);
+    ok('switching to the alternate swaps weight, reps, verdict and note', a.txt().includes('Trap Bar Deadlift') && a.nums().split(',').slice(4, 6).join() === '190,4' && a.verdict() === 'Raise weight' && a.txt().includes('high handles'));
+    a.root.querySelectorAll('.set-toggle')[2].click(); await wait(100);
+    a.root.querySelector('.alt-toggle').click(); await wait(150);
+    ok('switching back after logging a set keeps the logged rows', a.nums().split(',').slice(4, 6).join() === '190,4');
+    a.root.querySelector('.alt-toggle').click(); await wait(150);
+    [...a.root.querySelectorAll('.effort-chips button')].find(b => b.textContent === 'Mid').click(); await wait(100);
+    for (let i = 0; i < 8 && a.root.querySelector('.nav-next'); i++) await a.next();
+    await a.click('Complete workout');
+    const log = a.stored('workoutLog_4day').day2.exercises.deadlift;
+    ok('the session is saved under the alternate with the Mid rating', log.length === 3 && log[2].usedAlt === true && log[2].exerciseName === 'Trap Bar Deadlift' && log[2].effort === 'mid');
+    await a.click('Done'); await a.click('Lower Power'); await a.openExercise('Conventional Deadlift');
+    ok('the main exercise is unaffected by the alternate\'s session, and Mid changes nothing', a.nums().split(',').slice(4, 6).join() === '225,5');
+  }
+  // 16. Program: no sled work, leg press without a warm-up, seated calf raise
+  {
+    const a = await boot({ lastProgram: '4day' });
+    const all = Object.values(a.w.eval('programConfigs')['4day'].data).flatMap(d => d.exercises);
+    ok('no sled exercise is left in the program', !all.some(e => /sled/i.test(e.id + e.name)));
+    ok('no exercise has more than five set rows', all.every(e => e.sets <= 5));
+    await a.click('Lower Size');
+    const t = a.rows().map(r => r.textContent).join(' | ');
+    ok('Day 4: leg press is 3 sets with no warm-up, calves are the seated machine', /Leg Press3 × 8-12/.test(t) && t.includes('Seated Calf Raise') && !t.includes('Sled'));
+    await a.openExercise('Leg Press');
+    ok('leg press opens with three working rows and no warm-up row', a.root.querySelectorAll('.set-row').length === 3 && !a.txt().includes('W'));
   }
   console.log(`${pass} passed, ${fail} failed`);
   process.exit(fail ? 1 : 0);

@@ -80,7 +80,11 @@ const ok = (name, cond) => { console.log((cond ? 'PASS' : 'FAIL') + ' ' + name);
   btn('Upper Power').click(); await wait(500);
   const rows2 = [...root.querySelectorAll('.exercise-row')];
   rows2[2].click(); await wait(600);
-  ok('exercise: previous note previewed as "Last time"', (root.querySelector('.notes-row') || {}).textContent?.replace(/\s+/g, ' ').includes('Last timefelt great'));
+  // The note was written with the alternate exercise selected, so it belongs to the alternate
+  const noteRow = () => ((root.querySelector('.notes-row') || {}).textContent || '').replace(/\s+/g, ' ');
+  ok('exercise: main exercise does not show the alternate\'s note', !noteRow().includes('felt great'));
+  root.querySelector('.alt-toggle').click(); await wait(300);
+  ok('exercise: previous note previewed as "Last time" on the variant it was logged for', noteRow().includes('Last timefelt great'));
   console.log(`${pass} passed, ${fail} failed`);
   process.exit(fail ? 1 : 0);
 })();
