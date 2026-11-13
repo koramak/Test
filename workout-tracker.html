@@ -1123,7 +1123,32 @@ const runProgression = (config, lastSession) => {
   const [low, high] = config.repRange;
   const minReps = Math.min(...sets.map(s => s.reps));
   const hitTop = working.every(s => s.completed) && minReps >= high;
-  const easy = lastSession.effort === 'easy';
+  const easy = lastSession.effort === 'easy',
+    mid = lastSession.effort === 'mid',
+    max = lastSession.effort === 'max';
+  const rated = () => {
+    if (easy && avgReps >= low) return {
+      action: 'maintain',
+      pushReps: true,
+      repBump: 2,
+      reason: `Felt easy last time → push for ${high} on every set`
+    };
+    if (mid && avgReps >= low) return {
+      action: 'maintain',
+      pushReps: true,
+      repBump: 1,
+      reason: 'Had a rep or two left → add a rep per set'
+    };
+    if (mid) return {
+      action: 'maintain',
+      reason: `Below ${low} reps but not at your limit → same weight, get back into the range`
+    };
+    if (max && avgReps >= low) return {
+      action: 'maintain',
+      reason: 'Nothing left last time → same weight and reps until it moves better'
+    };
+    return null;
+  };
   const load = sets[0]?.weight || 0;
   const flatInc = config.incrementPct ? Math.max(5, Math.round(load * config.incrementPct / 5) * 5) : config.weightIncrement;
   const up = stepWeight(config, load, 1, flatInc),
@@ -1143,13 +1168,13 @@ const runProgression = (config, lastSession) => {
         reason: `Hit ${high}+ on every set → Reduce assistance ${inc} lbs`
       };
     }
-    if (avgReps < low) return {
+    if (avgReps < low && !mid) return {
       action: 'increase',
       amount: inc,
       isRegress: true,
       reason: `Below ${low} reps → Add ${inc} lbs assistance`
     };
-    return {
+    return rated() || {
       action: 'maintain',
       reason: config.cue || 'Building within rep range'
     };
@@ -1166,7 +1191,7 @@ const runProgression = (config, lastSession) => {
       reason: `Hit ${high}+ → Progress difficulty (ROM, pause, or add weight)`
     };
   }
-  if (avgReps < low) {
+  if (avgReps < low && !mid) {
     return inc > 0 ? {
       action: 'decrease',
       amount: load - down,
@@ -1176,12 +1201,7 @@ const runProgression = (config, lastSession) => {
       reason: `Below ${low} reps → Use an easier variation`
     };
   }
-  if (easy && avgReps >= low) return {
-    action: 'maintain',
-    pushReps: true,
-    reason: `Felt easy last time → push for ${high} on every set`
-  };
-  return {
+  return rated() || {
     action: 'maintain',
     reason: config.cue || 'Building within rep range'
   };
@@ -1202,10 +1222,9 @@ const verdictFor = p => {
   if (p.action === 'progress' || p.pushReps) return v('Raise reps', 'plus');
   return v('Hold', 'dash');
 };
-const getExerciseConfig = (exercise, alt) => ({
+const getExerciseConfig = exercise => ({
   ...(progressionConfig[exercise.id] || defaultProgressionConfig),
-  ...(exercise.progression || {}),
-  ...(alt ? exercise.altProgression || {} : {})
+  ...(exercise.progression || {})
 });
 const T = {
   bg: '#111318',
@@ -2528,10 +2547,7 @@ const workoutData4Day = {
     mobility: ["Shoulder CARs, slow full circles · 3/side", "Band external rotation ×15 + pull-aparts ×15", "Wrist flexor / extensor stretch on the floor · 20 s each", "Overhead lat stretch · 2×20 s", "Light lateral raises ×15 + hammer curls ×15 → first working set"],
     exercises: [{
       id: "dips",
-      name: "Assisted Dips / Machine Dip",
-      altProgression: {
-        assisted: false
-      },
+      name: "Assisted Dips",
       sets: 3,
       reps: "6-10",
       defaultWeight: 60,
@@ -2982,6 +2998,10 @@ const retiredExerciseNames = {
     id: 'calf_raise',
     alt: false
   },
+  'machine dip': {
+    id: 'dips',
+    alt: false
+  },
   'lat pulldown': {
     id: 'lat_pulldown',
     alt: false
@@ -3223,6 +3243,8 @@ function WorkoutApp() {
       newWeight = Math.max(0, lastWeight - (result.amount || config.weightIncrement));
       newReps = low;
       icon = result.isProgress ? TrendingUp : TrendingDown;
+    } else if (result.repBump) {
+      newReps = Math.max(lastAvgReps, Math.min(lastAvgReps + result.repBump, high));
     } else if (result.action === 'progress') {
       icon = TrendingUp;
     } else if (result.action === 'regress') {
