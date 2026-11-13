@@ -9,7 +9,9 @@
 > - **B.** The suggestion banner is one bold verdict with no second line.
 > - **C.** Prev / Skip / Next are an 87 px bar: Prev and Skip 64 × 87, Next fills the rest and names the next exercise.
 >
-> Also decided: one accent colour (blue) replaces the six per-day colours, emerald and amber; coral is the warning colour. The six-set exercise (Sled Push, Day 6) uses tighter gaps with the same control sizes.
+> Also decided: one accent colour (blue) replaces the six per-day colours, emerald and amber; coral is the warning colour.
+>
+> **Changed 2026-11-13, from gym use:** the effort chips are Easy / Mid / Max (Mid is an explicit "about right"); an exercise and its alternate are tracked separately, and switching swaps the history and the pre-filled numbers; sled work is out of the program, so no exercise has six sets and the six-set layout from the handoff was removed.
 
 ---
 
@@ -55,7 +57,7 @@ Every one of these must exist, unchanged in behavior, on the same screen it is o
    | First session | dash | accent | no history yet |
 8. **Notes row**, collapsed by default, showing today's note or *"Last time: <first line of last session's note>"*; tap to expand a textarea. This preview is deliberate — a note the lifter can't see isn't a note.
 9. Warm-up sets are marked (`W`) and visibly distinct from working sets.
-10. **Effort chips**: `last set  [Easy] [Max]` on the right of the "LOG YOUR SETS" header, 26 px tall. Optional: untouched means "about right"; one tap sets, the same tap clears. The selected chip takes the day accent. (The old abs-slot dropdown no longer exists.)
+10. **Effort chips**: `last set  [Easy] [Mid] [Max]` on the right of the "Sets" header, 26 px tall. Optional; one tap sets, the same tap clears. Mid means "about right" and is treated like no rating. On the superset screen and in history the `last set` caption is dropped to make room for three chips.
 10a. **Superset screen**: the two exercises of a superset share one screen as two compact panels separated by a hairline. Each panel has: name + alternate toggle, an inline verdict (one line), one row with last-session chips on the left and the effort chips on the right, collapsed notes row (30 px), and its set rows. No chart, no "Sets" header, no cue and no target line. The header reads `4–5 of 6 · Superset, alternate sets`. Set rows are identical to the single-exercise screen.
 
 ### Day overview
@@ -90,7 +92,6 @@ Every one of these must exist, unchanged in behavior, on the same screen it is o
 |---|---|---|---|
 | Exercise | 5 set rows + history + chart + verdict + note row + effort chips | 715 pt of 723 | **8 pt** |
 | Exercise (superset) | 3 + 3 set rows, both with history | 714 of 723 | 9 pt |
-| Exercise (six sets) | Sled Push, Day 6: 6 set rows + history + chart, tighter gaps | 719 of 723 | **4 pt** |
 | Day overview | 6 exercises + mobility block | 733 of 738 | **5 pt** |
 | Day overview (Peach Protocol) | 8 exercises, no mobility block | 735 of 738 | **3 pt** |
 | Summary | 6 exercises | 636 of 674 | 38 pt |
@@ -99,7 +100,7 @@ Every one of these must exist, unchanged in behavior, on the same screen it is o
 These come from `tests/measure.js --seed` (`npm run measure`), which renders each screen in Chromium at 393×852 with seeded history and the standalone insets applied. It also checks the touch-target sizes below and exits non-zero if a screen overflows or a target shrinks. Re-run it on any layout proposal.
 
 - The exercise screen has essentially **zero vertical slack**. Any added padding, larger type, or taller cards there must be paid for elsewhere on the same screen. A design that adds 10 pt per set row is 50 pt over.
-- **One layout for all exercises**, with one narrow exception. Sizes do not change with the number of sets (see §1): a 3-set exercise shows the same 44 px steppers and 18 px numerals as a 5-set one and leaves the bottom of the screen empty. The exception is the six-set exercise (Sled Push on Day 6): controls stay the same size and only the gaps between elements shrink.
+- **One layout for all exercises.** Sizes do not change with the number of sets (see §1). A 3-set exercise shows the same 44 px steppers and 18 px numerals as a 5-set one and leaves the bottom of the screen empty. No exercise has more than five set rows.
 - The compiled stylesheet contains only the Tailwind classes the app already uses. A new utility class is silently ignored at runtime — one such class once collapsed every set row in Safari while passing the DOM tests. Anything new must be an inline style, and `tests/measure.js` is the check.
 - Content must never sit under the Dynamic Island or the home indicator.
 
@@ -140,7 +141,6 @@ Explicitly **not** wanted: pill buttons for primary actions (rejected last time)
 | `day_overview_peach_8_exercises.png` | Day overview, Peach Protocol | 8 exercises; not drawn in the design round — 3 pt spare |
 | `exercise_deadlift_with_history.png` | Logging, worst case | 5 set rows + last-workout chips + chart + verdict + note row + effort chips, 87 px bottom bar — 8 pt spare |
 | `exercise_note_expanded.png` | Logging, note open | Not drawn in the design round; tokens applied |
-| `exercise_sled_push_6_sets.png` | Logging, six sets | The tighter-gap layout — 4 pt spare |
 | `exercise_superset_pair.png` | Logging, superset | Two compact panels on one screen; first set checked, Easy selected |
 | `summary_6_exercises.png` | Summary | — |
 | `complete.png` | Complete | — |
@@ -162,7 +162,7 @@ Two rendering caveats: the screenshots come from headless Chromium on Linux, so 
 
 ## 6. Acceptance checklist (the implementer will test these)
 
-- [ ] `cd tests && npm test` passes: walkthrough (26 functional checks, and it fails if `workout-tracker.html` was not rebuilt from `src/`), migration (19), engine (40).
+- [ ] `cd tests && npm test` passes: walkthrough (27 functional checks, and it fails if `workout-tracker.html` was not rebuilt from `src/`), migration (19), engine (50).
 - [ ] `npm run measure` ends with "All screens fit and all touch targets hold".
 - [ ] All hit sizes in §3 preserved (measured, not eyeballed).
 - [ ] A lifter who used the app last week can find every control without hunting.

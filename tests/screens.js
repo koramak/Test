@@ -22,10 +22,7 @@ const seed = {
     lean_tri_ext: [three('Leaning Tricep Extension', 30, [10, 9, 8], 23), three('Leaning Tricep Extension', 30, [12, 11, 10], 16), three('Leaning Tricep Extension', 30, [13, 12, 12], 9, { notes: 'rope, step out one pace' })],
     high_rep_curl: [three('EZ Bar Curl', 55, [7, 6, 6], 23), three('EZ Bar Curl', 55, [8, 8, 7], 16), three('EZ Bar Curl', 55, [9, 8, 8], 9)],
     incline_db: [23, 16, 9].map((n, k) => entry('Incline Dumbbell Press (30°)', [set(30, 10, { warmup: true }), set(50, 7 + k), set(50, 7 + k), set(50, 6 + k)], n)),
-    lateral_raise: [entry('Lateral Raise + Bent-Over Fly', [set(10, 8), set(10, 7)], 9, { effort: 'easy' })] } },
-  day6: { sessions: [{ date: day(7), absDone: true, durationMin: 44 }], exercises: {
-    sled_push: [28, 21, 14, 7].map((n, k) => entry('Sled Push', Array(6).fill(0).map(() => set([70, 80, 80, 90][k], 50)), n)),
-    sled_drag: [entry('Backward Sled Drag', [set(70, 90), set(70, 90), set(70, 85), set(70, 80)], 7)] } }
+    lateral_raise: [entry('Lateral Raise + Bent-Over Fly', [set(10, 8), set(10, 7)], 9, { effort: 'easy' })] } }
 };
 (async () => {
   const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || '/opt/pw-browsers/chromium', args: ['--no-sandbox'] });
@@ -44,9 +41,6 @@ const seed = {
   await tap('Leaning Tricep Extension'); await page.waitForSelector('.set-row');
   await page.click('.set-row button'); await page.click('.effort-chips button');
   await shot('exercise_superset_pair');
-  await page.click('.nav-back'); await tap('Back');
-  await tap('Strongman Conditioning'); await tap('Sled Push'); await page.waitForSelector('.set-row');
-  await page.click('.set-row button'); await shot('exercise_sled_push_6_sets');
   await page.click('.nav-back'); await tap('Back');
   await tap('Lower Power'); await shot('day_overview_lower_power');
   await tap('Begin Workout'); await page.waitForSelector('.set-row');

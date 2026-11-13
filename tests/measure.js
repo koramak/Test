@@ -18,9 +18,6 @@ let failures = 0;
     const entry = (w, r, n, extra = {}) => ({ exerciseName: 'x', usedAlt: false, weight: w, sets: [{ weight: Math.round(w*0.5), reps: 5, completed: true, warmup: true }, { weight: Math.round(w*0.7), reps: 3, completed: true, warmup: true }, { weight: w, reps: r, completed: true }, { weight: w, reps: r, completed: true }, { weight: w, reps: r, completed: true }], date: day(n), skipped: false, ...extra });
     const seed = { day2: { exercises: { deadlift: [entry(215, 6, 40), entry(225, 5, 30, { notes: 'belt too loose, tighten before set 2' }), entry(230, 5, 20), entry(235, 4, 10)] }, sessions: [{ date: day(10), absDone: true }, { date: day(20), absDone: true }, { date: day(30), absDone: false }] } };
     // History for a superset pair, so the two-panel screen is measured at its tallest
-    // Six set rows with history: Sled Push on Day 6, the one exercise with the tighter layout
-    const six = (w, n) => ({ exerciseName: 'Sled Push', usedAlt: false, weight: w, sets: Array(6).fill(0).map(() => ({ weight: w, reps: 50, completed: true })), date: day(n), skipped: false });
-    seed.day6 = { exercises: { sled_push: [six(70, 33), six(80, 26), six(80, 19), six(90, 12)] }, sessions: [{ date: day(12), absDone: true }] };
     seed.day2.exercises.leg_curl = [entry(90, 10, 10, { notes: 'pad one notch back' })];
     seed.day2.exercises.leg_ext = [entry(100, 12, 10)];
     await ctx.addInitScript((v) => { localStorage.setItem('workoutLog_4day', v); }, JSON.stringify(seed));
@@ -105,14 +102,9 @@ let failures = 0;
   await click('Complete workout');
   await page.waitForTimeout(600);
   await report('complete');
-  // Six-set layout (Sled Push, Day 6)
-  await click('Done'); await click('Strongman Conditioning');
-  await page.click('.exercise-row'); await page.waitForTimeout(500);
-  await report('exercise-sled-push-6-sets');
-  await sizes('six sets', loggingTargets);
   // Peach Protocol's longest day (8 exercises): not drawn in the design round, must still fit
-  await page.click('.nav-back'); await page.waitForTimeout(300);
-  await click('Back'); await click('Switch program'); await click('Peach Protocol'); await click('Lower Volume');
+  await click('Done');
+  await click('Switch program'); await click('Peach Protocol'); await click('Lower Volume');
   await report('day-overview-peach-8-exercises');
   await browser.close();
   console.log(failures ? `\n${failures} check(s) FAILED` : '\nAll screens fit and all touch targets hold');

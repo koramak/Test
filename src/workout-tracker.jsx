@@ -232,9 +232,12 @@ const verdictFor = (p) => {
   return v('Hold', 'dash');
 };
 
-const getExerciseConfig = (exercise) => ({
+// alt = true when the alternate exercise (the name after " / ") is selected. It may
+// carry its own overrides in exercise.altProgression.
+const getExerciseConfig = (exercise, alt) => ({
   ...(progressionConfig[exercise.id] || defaultProgressionConfig),
-  ...(exercise.progression || {})
+  ...(exercise.progression || {}),
+  ...(alt ? exercise.altProgression || {} : {})
 });
 
 // ---------------------------------------------------------------------------
@@ -424,12 +427,13 @@ const SetRow = ({ set, label, config, onToggle, onChange, onCopy }) => {
 // Row label: W for warm-ups, otherwise the working-set number
 const setLabel = (sets, i) => sets[i].warmup ? 'W' : i + 1 - sets.slice(0, i).filter(s => s.warmup).length;
 
-// How the last set felt. Optional: untouched means "about right". Easy = 3 or more
-// reps left, Max = nothing left. One tap to set, same tap to clear.
-const EffortChips = ({ value, onChange }) => (
+// How the last set felt. Optional. Easy = 3 or more reps left, Mid = about right (the
+// engine treats it like no rating), Max = nothing left. One tap to set, same tap to clear.
+// compact drops the "last set" caption where three chips leave no room for it.
+const EffortChips = ({ value, onChange, compact }) => (
   <div className="effort-chips" style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
-    <span style={{ fontWeight: 500, fontSize: 10, lineHeight: '14px', color: T.ink3 }}>last set</span>
-    {[['easy', 'Easy'], ['max', 'Max']].map(([k, label]) => (
+    {compact ? null : <span style={{ fontWeight: 500, fontSize: 10, lineHeight: '14px', color: T.ink3 }}>last set</span>}
+    {[['easy', 'Easy'], ['mid', 'Mid'], ['max', 'Max']].map(([k, label]) => (
       <button key={k} onClick={() => onChange(value === k ? null : k)} className="active:scale-90" style={{ height: 26, minWidth: 40, boxSizing: 'border-box', padding: '0 10px', borderRadius: 13, fontWeight: 600, fontSize: 11, border: `1px solid ${value === k ? T.accent : T.lineStrong}`, background: value === k ? tint(0.10) : 'transparent', color: value === k ? T.accent : T.ink2 }}>{label}</button>
     ))}
   </div>
@@ -589,7 +593,7 @@ const workoutData4Day = {
     { id: "high_rep_curl", name: "EZ Bar Curl / Cable Curl", sets: 3, reps: "6-10", defaultWeight: 55, muscles: ["biceps"], notes: "⇄ Superset with tricep extension · heavy, strict, full range", superset: 1, progression: { progressionType: "load-first", repRange: [6, 10], restTime: 75 } },
     { id: "lateral_raise", name: "Lateral Raise + Bent-Over Fly / Cable Lateral", sets: 2, reps: "7-12", defaultWeight: 10, muscles: ["sideDelts", "rearDelts"], notes: "Side raise + bent-over fly back to back = 1 set · start 7 reps, build to 12 · 60 s" }
   ]},
-  day4: { name: "Lower Size · Squat", focus: "Squat strength · light deadlift · posterior chain · sled", mobility: [
+  day4: { name: "Lower Size · Squat", focus: "Squat strength · light deadlift · posterior chain", mobility: [
     "Weighted knee-to-wall (KB or plate on knee) · 10/side",
     "Adductor rock-backs · 8/side",
     "Goblet deep-squat pry with a 10-25 lb plate · 3×5 breaths",
@@ -598,10 +602,9 @@ const workoutData4Day = {
   ], exercises: [
     { id: "squat", name: "Barbell Squat / Front Squat", sets: 5, warmupSets: 2, reps: "4-6", defaultWeight: 155, muscles: ["quads", "glutes", "hamstrings"], notes: "2 ramp (~50%/70%), then 3 heavy · 3 min", progression: { repRange: [4, 6], incrementPct: 0.02, stallReset: true } },
     { id: "deadlift_light", name: "Light Deadlift / Trap Bar Deadlift", sets: 3, warmupSets: 1, reps: "3", defaultWeight: 175, muscles: ["hamstrings", "glutes", "lats"], notes: "Weight is set for you at ~78% of deadlift day · 2 min · reset every rep. Trap bar when the back is beat" },
-    { id: "leg_press", name: "Leg Press / Bulgarian Split Squat", sets: 4, warmupSets: 1, reps: "8-12", defaultWeight: 270, muscles: ["quads", "glutes"], notes: "1 feeder, then 3 at weight · 90 s", progression: { restTime: 90 } },
+    { id: "leg_press", name: "Leg Press / Bulgarian Split Squat", sets: 3, reps: "8-12", defaultWeight: 270, muscles: ["quads", "glutes"], notes: "3 at weight, no warm-up (the squats and deadlifts already did it) · 90 s", progression: { restTime: 90 } },
     { id: "back_extension", name: "45° Back Extension / Reverse Hyper", sets: 3, reps: "10-15", defaultWeight: 0, muscles: ["hamstrings", "glutes"], notes: "⇄ Superset with calves · hold a plate, full hip flexion at the bottom", superset: 1, progression: { repRange: [10, 15], restTime: 60 } },
-    { id: "calf_raise", name: "Calf Raises / Seated Calf", sets: 3, reps: "12-20", defaultWeight: 150, muscles: ["calves"], notes: "⇄ Superset with back extension · full range, pause at the stretch", superset: 1 },
-    { id: "sled_push", name: "Sled Push / Prowler Push", sets: 4, reps: "50-65 ft", defaultWeight: 90, muscles: ["quads", "glutes", "calves"], notes: "Heavy · each trip 20-30 s · 90 s rest · concentric only, so no soreness. Drop if over 50 min" }
+    { id: "calf_raise", name: "Seated Calf Raise", sets: 3, reps: "12-20", defaultWeight: 90, muscles: ["calves"], notes: "⇄ Superset with back extension · plate-loaded seated machine · full range, pause at the stretch", superset: 1, description: "Seated calf raise machine, plate-loaded. Pads on your lower thighs, balls of the feet on the platform, heels hanging off. Let the heels drop to a full stretch, pause, then drive up and squeeze at the top. Log the plates you load, not counting the machine." },
   ]},
   day5: { name: "Arms + Shoulders", focus: "Dips toward bodyweight · triceps · biceps · delts · pull", mobility: [
     "Shoulder CARs, slow full circles · 3/side",
@@ -610,21 +613,21 @@ const workoutData4Day = {
     "Overhead lat stretch · 2×20 s",
     "Light lateral raises ×15 + hammer curls ×15 → first working set"
   ], exercises: [
-    { id: "dips", name: "Assisted Dips / Machine Dip", sets: 3, reps: "6-10", defaultWeight: 60, muscles: ["triceps", "chest"], notes: "⇄ Superset with pulldown · weight = assistance, less is harder · goal: 0 = bodyweight", superset: 1, progression: { repRange: [6, 10], restTime: 90 } },
+    { id: "dips", name: "Assisted Dips / Machine Dip", altProgression: { assisted: false }, sets: 3, reps: "6-10", defaultWeight: 60, muscles: ["triceps", "chest"], notes: "⇄ Superset with pulldown · weight = assistance, less is harder · goal: 0 = bodyweight", superset: 1, progression: { repRange: [6, 10], restTime: 90 } },
     { id: "lat_pulldown", name: "Lat Pulldown / Pull-ups", sets: 3, reps: "6-10", defaultWeight: 100, muscles: ["lats", "biceps"], notes: "⇄ Superset with dips · counts as biceps work too", superset: 1, progression: { progressionType: "load-first", repRange: [6, 10], restTime: 90 } },
     { id: "lean_tri_ext", name: "Leaning Tricep Extension / Tricep Pushdown", sets: 3, reps: "8-15", defaultWeight: 30, muscles: ["triceps"], notes: "⇄ Superset with hammer curls · face away, lean forward, press forward", superset: 2 },
     { id: "hammer_curl", name: "Hammer Curl / Cross-Body Curl", sets: 3, reps: "10-15", defaultWeight: 25, muscles: ["biceps", "forearms"], notes: "⇄ Superset with tricep extension · brachialis + grip for the log and carries", superset: 2, progression: { restTime: 75 } },
     { id: "lateral_raise", name: "Lateral Raise + Bent-Over Fly / Cable Lateral", sets: 2, reps: "7-12", defaultWeight: 10, muscles: ["sideDelts", "rearDelts"], notes: "Side raise + bent-over fly back to back = 1 set · start 7 reps, build to 12 · 60 s" }
   ]},
-  day6: { name: "Strongman Conditioning", focus: "Sled · carries · back extension · no pressing", mobility: [
+  day6: { name: "Strongman Conditioning", focus: "Lunges · step-ups · carries · back extension · no pressing", mobility: [
     "Ankle rocks / bodyweight knee-to-wall · 10/side",
     "Walking lunge with overhead reach · 10 steps",
     "Spiderman lunge with T-spine rotation · 5/side",
     "Cossack squats · 6/side",
-    "Light farmer's carry 60 ft out and back → first sled trip"
+    "Light farmer's carry 60 ft out and back → first lunge set"
   ], exercises: [
-    { id: "sled_push", name: "Sled Push / Prowler Push", sets: 6, reps: "50-65 ft", defaultWeight: 90, muscles: ["quads", "glutes", "calves"], notes: "Heavy · 90 s rest · ~12 min total" },
-    { id: "sled_drag", name: "Backward Sled Drag / Sled Pull", sets: 4, reps: "80-100 ft", defaultWeight: 70, muscles: ["quads", "calves"], notes: "Moderate · short steps, knees over toes · 60 s" },
+    { id: "walking_lunge", name: "Walking Lunges / Stationary Lunges", sets: 4, reps: "24-30 steps", defaultWeight: 25, muscles: ["quads", "glutes"], notes: "Per dumbbell · long steps, steady pace · 90 s" },
+    { id: "step_up", name: "Box Step-Up / Diagonal Step-Up", sets: 3, reps: "10-12", defaultWeight: 20, muscles: ["quads", "glutes"], notes: "Per dumbbell, per leg · knee-high box, control the way down · 60 s" },
     { id: "back_extension", name: "45° Back Extension / Reverse Hyper", sets: 3, reps: "12-15", defaultWeight: 0, muscles: ["hamstrings", "glutes"], notes: "Hold a plate · 60 s", progression: { repRange: [12, 15], restTime: 60 } },
     { id: "farmers_walk", name: "Farmer's Walk / Suitcase Carry", sets: 4, reps: "50-70 ft", defaultWeight: 55, muscles: ["traps", "forearms", "abs"], notes: "~80% of your deadlift-day carry · grip endurance, not max · 90 s" },
     { id: "suitcase_carry", name: "Suitcase Carry / One-Arm Farmer's", sets: 3, reps: "60-80 ft", defaultWeight: 70, muscles: ["abs", "forearms", "traps"], notes: "Per side · hips level, no lean · 60 s" }
@@ -700,6 +703,9 @@ const retiredExerciseNames = {
   'ez bar curl': { id: 'high_rep_curl', alt: false }, 'cable curl': { id: 'high_rep_curl', alt: true },
   'lateral raise': { id: 'lateral_raise', alt: false },
   'seated row machine': { id: 'seated_row', alt: false },
+  'sled push': { id: 'sled_push', alt: false }, 'prowler push': { id: 'sled_push', alt: true },
+  'backward sled drag': { id: 'sled_drag', alt: false }, 'sled pull': { id: 'sled_drag', alt: true },
+  'seated calf': { id: 'calf_raise', alt: false },
   'lat pulldown': { id: 'lat_pulldown', alt: false }, 'pull-ups': { id: 'lat_pulldown', alt: true }, 'assisted pull-ups': { id: 'lat_pulldown', alt: true }
 };
 
@@ -801,28 +807,23 @@ function WorkoutApp() {
   // Shared progression: the same exercise done on any day of this program
   // pulls from one history, so leg curls on Day 2 and Day 4 progress together.
   // Programs stay separate (they are separate users' logs).
-  const getLastSession = (exerciseId) => {
-    if (!selectedProgram) return null;
-    const programLog = workoutLog[selectedProgram] || {};
-    let latest = null;
-    Object.values(programLog).forEach(dayLog => {
-      (dayLog?.exercises?.[exerciseId] || []).forEach(entry => {
-        if (!latest || new Date(entry.date) > new Date(latest.date)) latest = entry;
-      });
-    });
-    return latest;
-  };
-  // Full history for one exercise across all days, oldest first - feeds
-  // the progress chart and PR detection
-  const getAllSessions = (exerciseId) => {
+  // An exercise and its alternate ("Conventional Deadlift" vs "Trap Bar Deadlift") are
+  // tracked separately: alt = true/false picks one variant's history, undefined takes all
+  // (exercises with no alternate, and lookups that don't care).
+  const variantEntries = (exerciseId, alt) => {
     if (!selectedProgram) return [];
-    const programLog = workoutLog[selectedProgram] || {};
     const all = [];
-    Object.values(programLog).forEach(dayLog => {
-      (dayLog?.exercises?.[exerciseId] || []).forEach(entry => all.push(entry));
+    Object.values(workoutLog[selectedProgram] || {}).forEach(dayLog => {
+      (dayLog?.exercises?.[exerciseId] || []).forEach(entry => { if (alt === undefined || !!entry.usedAlt === alt) all.push(entry); });
     });
     return all.sort((a, b) => new Date(a.date) - new Date(b.date));
   };
+  // Full history, oldest first - feeds the progress chart, stall check and PR detection
+  const getAllSessions = (exerciseId, alt) => variantEntries(exerciseId, alt);
+  const getLastSession = (exerciseId, alt) => { const all = variantEntries(exerciseId, alt); return all.length ? all[all.length - 1] : null; };
+  // Which variant is selected for the exercise at this position today
+  const hasAlt = (exercise) => exercise.name.includes(' / ');
+  const altOf = (exercise, index) => hasAlt(exercise) ? !!useAltExercise[index] : undefined;
 
   // Ab routine adherence across the whole program (the routine precedes
   // every workout regardless of day). Sessions logged before the feature
@@ -841,11 +842,11 @@ function WorkoutApp() {
     return { done: recent.filter(s => s.absDone).length, total: recent.length };
   };
 
-  const calculateProgression = (exercise) => { const p = computeProgression(exercise); return { ...p, verdict: verdictFor(p) }; };
-  const computeProgression = (exercise) => {
-    const config = getExerciseConfig(exercise);
+  const calculateProgression = (exercise, alt) => { const p = computeProgression(exercise, alt); return { ...p, verdict: verdictFor(p) }; };
+  const computeProgression = (exercise, alt) => {
+    const config = getExerciseConfig(exercise, alt);
     const [low, high] = config.repRange;
-    let lastData = getLastSession(exercise.id);
+    let lastData = getLastSession(exercise.id, alt);
     // New prescription: older sessions stay logged but stop seeding weight/reps
     if (config.restartFrom && lastData && new Date(lastData.date) < new Date(config.restartFrom)) lastData = null;
     const performed = lastData ? getPerformedSets(lastData) : [];
@@ -854,7 +855,8 @@ function WorkoutApp() {
 
     // Light second exposure: load follows the heavy lift's current working weight
     if (config.derivedFrom) {
-      const parentLast = getLastSession(config.derivedFrom);
+      // Follow the heavy lift's main variant; fall back to whatever was logged
+      const parentLast = getLastSession(config.derivedFrom, false) || getLastSession(config.derivedFrom);
       const prog = programConfigs[selectedProgram];
       const parentEx = prog ? Object.values(prog.data).flatMap(d => d.exercises).find(e => e.id === config.derivedFrom) : null;
       const parentBase = parentLast ? (getPerformedSets(parentLast)[0]?.weight ?? parentLast.weight) : (parentEx?.defaultWeight ?? exercise.defaultWeight);
@@ -863,7 +865,13 @@ function WorkoutApp() {
       return { weight: derived, reps: lastAvgReps ?? high, suggestion: `${Math.round(config.pct * 100)}% of your ${parentName} (${parentBase} lb) — no need to push this`, action: 'maintain', kind: 'light', icon: Minus, config, lastWeight: derived, lastSession: lastData };
     }
 
-    if (!lastData) return { weight: exercise.defaultWeight, reps: config.startReps ?? high, suggestion: 'First time - start with suggested weight', action: 'start', kind: 'first', icon: null, config };
+    if (!lastData) {
+      // First session of the alternate: start from its own default if it has one, otherwise
+      // from the main exercise's last working weight as the nearest guess
+      const other = alt ? getLastSession(exercise.id, false) : null;
+      const firstWeight = alt ? (exercise.altDefaultWeight ?? (other && !other.skipped ? (getPerformedSets(other)[0]?.weight ?? other.weight) : exercise.defaultWeight)) : exercise.defaultWeight;
+      return { weight: firstWeight, reps: config.startReps ?? high, suggestion: 'First time - start with suggested weight', action: 'start', kind: 'first', icon: null, config };
+    }
 
     // If last session was skipped, don't progress - keep same weight/reps
     if (lastData.skipped) {
@@ -876,7 +884,7 @@ function WorkoutApp() {
     // no rep gain -> drop 10% and rebuild. No calendar deloads. A session at a lower
     // load (e.g. right after a reset) is not a stall.
     if (config.stallReset && result.action === 'maintain') {
-      const hist = getAllSessions(exercise.id).filter(e => !e.skipped).slice(-4);
+      const hist = getAllSessions(exercise.id, alt).filter(e => !e.skipped).slice(-4);
       if (hist.length >= 4) {
         const w = hist.map(e => getPerformedSets(e)[0]?.weight ?? e.weight);
         const r = hist.map(e => avgRepsOf(getPerformedSets(e)));
@@ -943,8 +951,8 @@ function WorkoutApp() {
   // Fresh set rows for one exercise, pre-filled with what the engine suggests for today
   // (new weight after hitting the range, reset weight after a stall, derived weight for
   // the light lifts)
-  const initialExerciseData = (exercise) => {
-    const progression = calculateProgression(exercise);
+  const initialExerciseData = (exercise, alt) => {
+    const progression = calculateProgression(exercise, alt);
     const numSets = typeof exercise.sets === 'number' ? exercise.sets : 3;
     const numWarmups = Math.min(exercise.warmupSets || 0, numSets - 1);
     const startWeight = progression.weight;
@@ -970,7 +978,7 @@ function WorkoutApp() {
     // Functional update so a just-restored session isn't clobbered by stale state
     setSessionData(prev => {
       const next = { ...prev };
-      unit.forEach(i => { if (!next[i]) next[i] = initialExerciseData(exercises[i]); });
+      unit.forEach(i => { if (!next[i]) next[i] = initialExerciseData(exercises[i], altOf(exercises[i], i)); });
       return next;
     });
     setView('exercise');
@@ -980,7 +988,18 @@ function WorkoutApp() {
   const updateSet = (exIndex, setIndex, field, value) => patchExercise(exIndex, d => ({ sets: d.sets.map((s, i) => i === setIndex ? { ...s, [field]: value } : s) }));
   const toggleSetComplete = (exIndex, setIndex) => patchExercise(exIndex, d => ({ sets: d.sets.map((s, i) => i === setIndex ? { ...s, completed: !s.completed } : s) }));
   const copyPreviousSet = (exIndex, setIndex) => patchExercise(exIndex, d => setIndex === 0 ? {} : ({ sets: d.sets.map((s, i) => i === setIndex ? { ...s, weight: d.sets[setIndex - 1].weight, reps: d.sets[setIndex - 1].reps } : s) }));
-  const toggleAltExercise = (exIndex) => setUseAltExercise(prev => ({ ...prev, [exIndex]: !prev[exIndex] }));
+  // Switching to the alternate swaps the name, the history and the pre-filled numbers.
+  // Rows that already have a logged set are left alone so nothing typed is lost.
+  const toggleAltExercise = (exIndex) => {
+    const exercise = programConfigs[selectedProgram].data[selectedDay].exercises[exIndex];
+    const nextAlt = !useAltExercise[exIndex];
+    setUseAltExercise(prev => ({ ...prev, [exIndex]: nextAlt }));
+    setSessionData(prev => {
+      const cur = prev[exIndex];
+      if (!cur || cur.sets.some(s => s.completed)) return prev;
+      return { ...prev, [exIndex]: { ...cur, sets: initialExerciseData(exercise, nextAlt).sets } };
+    });
+  };
 
   const nextExercise = () => {
     const exercises = programConfigs[selectedProgram].data[selectedDay].exercises;
@@ -1015,9 +1034,9 @@ function WorkoutApp() {
     return { ...prev, [selectedProgram]: { ...programLog, [day]: { ...dayLog, exercises, sessions } } };
   });
   // Config for a logged exercise id: the program's own entry if it still exists
-  const configForId = (id) => {
+  const configForId = (id, usedAlt) => {
     const ex = Object.values(programConfigs[selectedProgram]?.data || {}).flatMap(d => d.exercises).find(e => e.id === id);
-    return ex ? getExerciseConfig(ex) : (progressionConfig[id] || defaultProgressionConfig);
+    return ex ? getExerciseConfig(ex, !!usedAlt && hasAlt(ex)) : (progressionConfig[id] || defaultProgressionConfig);
   };
 
   const completeWorkout = () => {
@@ -1068,8 +1087,8 @@ function WorkoutApp() {
       // sessions can't PR; assisted exercises invert (less assistance wins).
       const completedWork = workSets.filter(s => s.completed);
       if (completedWork.length === 0) return;
-      const cfg = getExerciseConfig(exercise);
-      const priorSets = getAllSessions(exerciseId)
+      const cfg = getExerciseConfig(exercise, usedAlt);
+      const priorSets = getAllSessions(exerciseId, hasAlt(exercise) ? !!usedAlt : undefined)
         .filter(e => !e.skipped)
         .flatMap(e => (e.sets || []).filter(s => !s.warmup && s.completed));
       if (priorSets.length === 0) return;
@@ -1234,7 +1253,7 @@ function WorkoutApp() {
           g.entry.sets[idx] = set;
           if (iSkip >= 0 && /yes/i.test(r[iSkip])) g.entry.skipped = true;
           if (iNotes >= 0 && r[iNotes]) g.entry.notes = r[iNotes];
-          if (iEff >= 0 && /^(easy|max)$/i.test((r[iEff] || '').trim())) g.entry.effort = r[iEff].trim().toLowerCase();
+          if (iEff >= 0 && /^(easy|mid|max)$/i.test((r[iEff] || '').trim())) g.entry.effort = r[iEff].trim().toLowerCase();
         });
         Object.values(groups).forEach(({ dayKey, id, entry }) => {
           entry.sets = entry.sets.filter(Boolean);
@@ -1459,14 +1478,14 @@ function WorkoutApp() {
             <p style={{ ...TY.subtitle, marginBottom: 12 }}>Changes save as you make them and feed the next suggestion.</p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               {sess.entries.map(({ id, entry }) => {
-                const cfg = configForId(id);
+                const cfg = configForId(id, entry.usedAlt);
                 const edit = (fn) => editHistoryEntry(sess.day, id, entry.date, fn);
                 const editSet = (i, patch) => edit(e => ({ ...e, sets: e.sets.map((x, k) => k === i ? { ...x, ...patch } : x) }));
                 return (
                   <div key={id + entry.date} style={{ padding: 10, borderRadius: 8, border: `1px solid ${T.line}` }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, height: 26, marginBottom: 6 }}>
                       <div style={{ ...TY.rowTitle, ...ellipsis, lineHeight: '20px', flex: 1, minWidth: 0 }}>{entry.exerciseName && entry.exerciseName !== 'x' ? entry.exerciseName : id}{entry.skipped ? <span style={{ fontSize: 10, color: T.warn }}> · skipped</span> : null}</div>
-                      <EffortChips value={entry.effort || null} onChange={(v) => edit(e => { const { effort, ...rest } = e; return v ? { ...rest, effort: v } : rest; })} />
+                      <EffortChips compact value={entry.effort || null} onChange={(v) => edit(e => { const { effort, ...rest } = e; return v ? { ...rest, effort: v } : rest; })} />
                     </div>
                     {entry.notes ? <div style={{ ...TY.note, fontStyle: 'italic', color: T.ink2, marginBottom: 6 }}>{entry.notes}</div> : null}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
@@ -1522,7 +1541,8 @@ function WorkoutApp() {
         <AbRow done={absDone} onToggle={() => setAbsDone(!absDone)} gap={DAY_GAPS.ab} sub={adherence ? `Done ${adherence.done} of last ${adherence.total} workouts` : 'Tap when done — tracked with each workout'} />
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
           {dayData.exercises.map((ex, i) => {
-            const lastData = getLastSession(ex.id);
+            const variant = altOf(ex, i);
+            const lastData = getLastSession(ex.id, variant);
             // Equipment taken? Tap any exercise to jump straight to it
             const doneThisSession = inSession && sessionData[i]?.sets?.some(s => s.completed && !s.warmup);
             // A superset pair reads as one block: flattened inner corners and a tick across the gap
@@ -1535,7 +1555,7 @@ function WorkoutApp() {
                   {doneThisSession ? <Check size={16} stroke={3.5} /> : i + 1}
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ ...TY.rowTitle, ...ellipsis, lineHeight: '20px' }}>{ex.superset ? <span style={{ color: T.ink3 }}>⇄ </span> : null}{ex.name.split(' / ')[0]}</div>
+                  <div style={{ ...TY.rowTitle, ...ellipsis, lineHeight: '20px' }}>{ex.superset ? <span style={{ color: T.ink3 }}>⇄ </span> : null}{ex.name.split(' / ')[variant ? 1 : 0]}</div>
                   <div style={{ ...TY.meta, ...ellipsis }}>{ex.sets} × {ex.reps}{lastData ? (lastData.skipped ? ' · Skipped' : <span> · <span style={{ color: T.ink, fontWeight: 600 }}>{lastData.weight} lbs</span></span>) : ''}{doneThisSession ? <span> · <span style={{ color: T.accent }}>worked today</span></span> : null}</div>
                 </div>
                 <button onClick={(e) => { e.stopPropagation(); setInfoExerciseId(ex.id); }} className="info-btn active:scale-90" title="How to do it" style={{ width: 36, height: 36, flexShrink: 0, borderRadius: 8, background: T.line, color: T.ink3, fontWeight: 700, fontSize: 12 }}>?</button>
@@ -1548,16 +1568,16 @@ function WorkoutApp() {
           <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 50, display: 'flex', alignItems: 'flex-end', background: 'rgba(0,0,0,0.7)' }} onClick={() => setInfoExerciseId(null)}>
             <div className="info-sheet" style={{ width: '100%', maxWidth: 448, margin: '0 auto', padding: 16, paddingBottom: 'calc(16px + env(safe-area-inset-bottom, 0px))', background: T.surface, borderTop: `1px solid ${T.line}`, borderRadius: '16px 16px 0 0' }} onClick={(e) => e.stopPropagation()}>
               <div style={{ ...TY.label, marginBottom: 4 }}>How to do it</div>
-              <p style={{ margin: 0, fontSize: 14, lineHeight: '22px', color: T.ink2 }}>{infoMedia?.description || 'No description yet.'}</p>
+              <p style={{ margin: 0, fontSize: 14, lineHeight: '22px', color: T.ink2 }}>{infoEx?.description || infoMedia?.description || 'No description yet.'}</p>
               <div style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-                {infoMedia?.youtube && (
+                {infoMedia?.youtube && !infoEx?.description && (
                   <a href={infoMedia.youtube} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 12px', borderRadius: 8, fontWeight: 600, fontSize: 12, background: tint(0.10), color: T.accent, textDecoration: 'none' }}>Watch form video</a>
                 )}
                 <span style={pill}>{infoCfg.repRange[0]}-{infoCfg.repRange[1]} reps</span>
                 {infoCfg.weightIncrement > 0 && (
                   <span style={pill}>{infoCfg.assisted ? `−${infoCfg.weightIncrement} lb assist` : infoCfg.weightSteps ? 'next dumbbell up' : `+${infoCfg.weightIncrement} lb`}</span>
                 )}
-                {infoMedia?.source && <span style={TY.meta}>Source: {infoMedia.source}</span>}
+                {infoMedia?.source && !infoEx?.description && <span style={TY.meta}>Source: {infoMedia.source}</span>}
               </div>
               <button onClick={() => setInfoExerciseId(null)} style={{ width: '100%', marginTop: 12, padding: '8px 0', fontWeight: 600, fontSize: 12, color: T.ink3 }}>Close</button>
             </div>
@@ -1577,9 +1597,8 @@ function WorkoutApp() {
     const unit = unitOf(exercises, currentExerciseIndex);
     const paired = unit.length > 1;
     const lastOfUnit = unit[unit.length - 1];
-    // Six set rows (Sled Push, Day 6) only fit with tighter gaps. Controls keep their size.
-    const six = !paired && (sessionData[unit[0]]?.sets.length || 0) >= 6;
-    const G = six ? { spacer: 6, title: 8, card: 6, aboveSets: 8, belowHeader: 4, rows: 4 } : { spacer: 12, title: 16, card: 10, aboveSets: 16, belowHeader: 6, rows: 8 };
+    // Gaps of the single-exercise layout (design/handoff/HANDOFF.md 4.1)
+    const G = { spacer: 12, title: 16, card: 10, aboveSets: 16, belowHeader: 6, rows: 8 };
 
     // What the Next block announces: the following exercise (or pair), or the summary
     const nextUnit = lastOfUnit < exercises.length - 1 ? unitOf(exercises, lastOfUnit + 1) : null;
@@ -1590,14 +1609,15 @@ function WorkoutApp() {
       const label = `Next · ${nextUnit.length > 1 ? `${first + 1}–${lastIdx + 1}` : first + 1} of ${exercises.length}`;
       if (nextUnit.length > 1) return { label, name: nextUnit.map(nameOf).join(' + '), detail: 'Superset · alternate sets' };
       const ex = exercises[first];
-      const last = getLastSession(ex.id);
+      const last = getLastSession(ex.id, altOf(ex, first));
       const lastWeight = last && !last.skipped ? (getPerformedSets(last)[0]?.weight ?? last.weight) : null;
       return { label, name: nameOf(first), detail: `${ex.sets} × ${String(ex.reps).replace('-', '–')}${lastWeight !== null ? ` · last ${lastWeight} lb` : ''}` };
     })();
 
     const renderPanel = (index) => {
       const exercise = exercises[index];
-      const progression = calculateProgression(exercise);
+      const variant = altOf(exercise, index);
+      const progression = calculateProgression(exercise, variant);
       const exerciseConfig = progression.config;
       const nameParts = exercise.name.split(' / ');
       const hasAlt = nameParts.length > 1;
@@ -1635,7 +1655,7 @@ function WorkoutApp() {
       const note = (height, gap) => (
         <NoteRow open={notesOpen === index} height={height} gap={gap} today={currentData.notes} previous={last?.notes} onOpen={() => setNotesOpen(index)} onClose={() => setNotesOpen(null)} onChange={(v) => patchExercise(index, { notes: v })} />
       );
-      const effort = <EffortChips value={currentData.effort || null} onChange={(v) => patchExercise(index, { effort: v })} />;
+      const effort = <EffortChips compact={paired} value={currentData.effort || null} onChange={(v) => patchExercise(index, { effort: v })} />;
 
       if (paired) {
         return (
@@ -1646,7 +1666,7 @@ function WorkoutApp() {
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, height: 26, marginBottom: 6 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 5, flex: 1, minWidth: 0, overflow: 'hidden' }}>
                 {last && <span style={{ ...TY.label, flexShrink: 0, marginRight: 1 }}>Last</span>}
-                <LastChips sets={last?.sets} />
+                <LastChips sets={last?.sets} tight />
               </div>
               {effort}
             </div>
@@ -1661,10 +1681,10 @@ function WorkoutApp() {
           {last && (
             <div style={{ height: 50, boxSizing: 'border-box', padding: '7px 12px', borderRadius: 6, background: T.surface, marginBottom: G.card }}>
               <div style={{ ...TY.label, ...ellipsis }}>Last · {lastDate}{last.effort ? ` · felt ${last.effort}` : ''}</div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginTop: 4, overflow: 'hidden' }}><LastChips sets={last.sets} tight={six} /></div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginTop: 4, overflow: 'hidden' }}><LastChips sets={last.sets} /></div>
             </div>
           )}
-          <ProgressSpark entries={getAllSessions(exercise.id)} config={exerciseConfig} gap={G.card} />
+          <ProgressSpark entries={getAllSessions(exercise.id, variant)} config={exerciseConfig} gap={G.card} />
           <Verdict verdict={progression.verdict} reason={progression.suggestion} gap={G.card} />
           {note(36, G.aboveSets)}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, height: 26, marginBottom: G.belowHeader }}>
@@ -1788,6 +1808,7 @@ function WorkoutApp() {
             setView('home');
             setSelectedDay(null);
             setSessionData({});
+            setUseAltExercise({});
             setSessionDay(null);
             setWorkoutStartedAt(null);
             setCompletedPRs([]);
