@@ -478,10 +478,20 @@ const NoteRow = ({ open, height, today, previous, onOpen, onClose, onChange, gap
       </span>
     </button>
   ) : (
-    <div className="notes-open" style={{ padding: '8px 12px', marginBottom: gap, borderRadius: 6, border: `1px solid ${T.lineStrong}`, background: T.surface }}>
-      {prev && <div style={{ ...TY.note, color: T.ink2, marginBottom: 4 }}><span style={{ ...TY.label, marginRight: 6 }}>Last time</span>{prev}</div>}
-      <textarea value={today || ''} onChange={(e) => onChange(e.target.value)} placeholder="Add workout notes..." rows={3} autoFocus style={{ width: '100%', background: 'transparent', border: 'none', color: T.ink, fontFamily: FONT, fontSize: 14, lineHeight: '20px' }} />
-      <button onClick={onClose} style={{ fontWeight: 600, fontSize: 11, color: T.ink3, marginTop: 4 }}>Done</button>
+    <div className="notes-open" style={{ padding: '8px 12px', marginBottom: gap, borderRadius: 6, border: `1px solid ${T.accent}`, background: T.surface }}>
+      {prev && (
+        <div style={{ ...TY.note, color: T.ink2, paddingBottom: 6, marginBottom: 6, borderBottom: `1px solid ${T.line}` }}>
+          <div style={{ ...TY.label, marginBottom: 2 }}>Last time</div>
+          {prev}
+        </div>
+      )}
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+        <span style={{ color: T.accent, marginTop: 3 }}><Pencil size={14} /></span>
+        <textarea value={today || ''} onChange={(e) => onChange(e.target.value)} placeholder="Today's note…" rows={3} autoFocus style={{ flex: 1, minWidth: 0, padding: 0, background: 'transparent', border: 'none', color: T.ink, fontFamily: FONT, fontSize: 14, lineHeight: '20px' }} />
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 4 }}>
+        <button onClick={onClose} className="active:scale-90" style={{ height: 30, minWidth: 64, padding: '0 14px', borderRadius: 15, fontWeight: 600, fontSize: 12, background: tint(0.10), border: `1px solid ${T.accent}`, color: T.accent }}>Done</button>
+      </div>
     </div>
   );
 };
@@ -1341,21 +1351,29 @@ function WorkoutApp() {
   if (view === 'programSelect') {
     return (
       <Page center>
-        <div style={{ textAlign: 'center', marginBottom: 40 }}>
-          <h1 style={{ ...TY.screenTitle, fontSize: 24, lineHeight: '32px', marginBottom: 8 }}>Choose Your Program</h1>
-          <p style={{ ...TY.subtitle, fontSize: 14, lineHeight: '20px' }}>Select a workout plan to get started</p>
+        <div style={{ textAlign: 'center', marginBottom: 24 }}>
+          <h1 style={TY.screenTitle}>Choose Your Program</h1>
+          <p style={{ ...TY.subtitle, marginTop: 2 }}>Each program keeps its own log</p>
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          {Object.entries(programConfigs).map(([key, cfg]) => (
-            <button key={key} onClick={() => selectProgram(key)} className={pressable} style={{ ...card, width: '100%', padding: 20, textAlign: 'left', display: 'flex', alignItems: 'center', gap: 16 }}>
-              <div style={{ width: 48, height: 48, borderRadius: 8, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: T.accent, color: T.primaryInk }}><cfg.icon size={24} /></div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontWeight: 600, fontSize: 16, lineHeight: '24px', color: T.ink }}>{cfg.name}</div>
-                <div style={TY.subtitle}>{cfg.subtitle}</div>
-              </div>
-              <span style={{ color: T.ink4 }}><ChevronRight size={20} /></span>
-            </button>
-          ))}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {Object.entries(programConfigs).map(([key, cfg]) => {
+            // How much is logged under each program, so it is obvious which one is yours
+            const dates = Object.values(workoutLog[key] || {}).flatMap(d => (d?.sessions || []).map(x => new Date(x.date).getTime() || 0));
+            const days = dates.length ? Math.floor((Date.now() - Math.max(...dates)) / 864e5) : null;
+            const logged = dates.length === 0 ? 'No workouts yet' : `${dates.length} ${dates.length === 1 ? 'workout' : 'workouts'} · last ${days <= 0 ? 'today' : days === 1 ? 'yesterday' : `${days}d ago`}`;
+            return (
+              <button key={key} onClick={() => selectProgram(key)} className={pressable} style={{ ...card, width: '100%', padding: '12px 16px', textAlign: 'left', display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div style={{ width: 40, height: 40, borderRadius: 8, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: key === selectedProgram ? T.accent : T.line, color: key === selectedProgram ? T.primaryInk : T.ink2 }}><cfg.icon size={20} stroke={2.5} /></div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ ...TY.rowTitle, ...ellipsis, fontSize: 15, lineHeight: '20px' }}>{cfg.name}</div>
+                  <div style={{ ...TY.subtitle, ...ellipsis }}>{cfg.subtitle}</div>
+                  <div style={{ ...TY.meta, marginTop: 2 }}>{logged}</div>
+                </div>
+                {key === selectedProgram && <span style={{ height: 18, boxSizing: 'border-box', padding: '0 7px', borderRadius: 9, border: `1px solid ${T.accent}`, color: T.accent, fontWeight: 600, fontSize: 10, lineHeight: '16px', textTransform: 'uppercase', letterSpacing: 0.6, flexShrink: 0 }}>Current</span>}
+                <span style={{ color: T.ink4 }}><ChevronRight size={16} /></span>
+              </button>
+            );
+          })}
         </div>
       </Page>
     );
@@ -1531,7 +1549,20 @@ function WorkoutApp() {
     const infoEx = infoExerciseId ? dayData.exercises.find(e => e.id === infoExerciseId) : null;
     const infoCfg = infoEx ? getExerciseConfig(infoEx) : (progressionConfig[infoExerciseId] || defaultProgressionConfig);
     const infoMedia = infoExerciseId ? (exerciseMedia[infoExerciseId] || exerciseMedia[progressionConfig[infoExerciseId]?.derivedFrom]) : null;
-    const pill = { padding: '2px 8px', borderRadius: 9, fontWeight: 600, fontSize: 10, lineHeight: '14px', background: tint(0.10), color: T.accent };
+    // Decision A took the cue and the target line off the logging screens, so the sheet
+    // carries them: sets x reps, rest, when the weight moves, reps in reserve, the cue.
+    const infoFacts = [];
+    if (infoEx) {
+      const [, top] = infoCfg.repRange;
+      infoFacts.push(`${infoEx.sets} × ${infoEx.reps}`);
+      if (infoCfg.restTime) infoFacts.push(`rest ${infoCfg.restTime >= 60 ? (infoCfg.restTime / 60).toFixed(infoCfg.restTime % 60 ? 1 : 0) + ' min' : infoCfg.restTime + ' s'}`);
+      if (infoCfg.derivedFrom) infoFacts.push(`${Math.round(infoCfg.pct * 100)}% of your heavy day`);
+      else if (infoCfg.assisted) infoFacts.push(`−${infoCfg.weightIncrement} lb assist when every set hits ${top}`);
+      else if (infoCfg.weightSteps) infoFacts.push(`next dumbbell up when every set hits ${top}`);
+      else if (infoCfg.weightIncrement > 0) infoFacts.push(`${infoCfg.incrementPct ? '~2% more' : '+' + infoCfg.weightIncrement + ' lb'} when every set hits ${top}`);
+      if (typeof infoCfg.rirTarget === 'number') infoFacts.push(`${infoCfg.rirTarget} in reserve`);
+    }
+    const infoNames = infoEx ? infoEx.name.split(' / ') : [];
     return (
       <Page bottom={96}>
         <BackLink onClick={() => setView('home')} gap={DAY_GAPS.back} />
@@ -1577,20 +1608,30 @@ function WorkoutApp() {
         </div>
         {infoExerciseId && (
           <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 50, display: 'flex', alignItems: 'flex-end', background: 'rgba(0,0,0,0.7)' }} onClick={() => setInfoExerciseId(null)}>
-            <div className="info-sheet" style={{ width: '100%', maxWidth: 448, margin: '0 auto', padding: 16, paddingBottom: 'calc(16px + env(safe-area-inset-bottom, 0px))', background: T.surface, borderTop: `1px solid ${T.line}`, borderRadius: '16px 16px 0 0' }} onClick={(e) => e.stopPropagation()}>
-              <div style={{ ...TY.label, marginBottom: 4 }}>How to do it</div>
-              <p style={{ margin: 0, fontSize: 14, lineHeight: '22px', color: T.ink2 }}>{infoEx?.description || infoMedia?.description || 'No description yet.'}</p>
-              <div style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-                {infoMedia?.youtube && !infoEx?.description && (
-                  <a href={infoMedia.youtube} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 12px', borderRadius: 8, fontWeight: 600, fontSize: 12, background: tint(0.10), color: T.accent, textDecoration: 'none' }}>Watch form video</a>
-                )}
-                <span style={pill}>{infoCfg.repRange[0]}-{infoCfg.repRange[1]} reps</span>
-                {infoCfg.weightIncrement > 0 && (
-                  <span style={pill}>{infoCfg.assisted ? `−${infoCfg.weightIncrement} lb assist` : infoCfg.weightSteps ? 'next dumbbell up' : `+${infoCfg.weightIncrement} lb`}</span>
-                )}
-                {infoMedia?.source && !infoEx?.description && <span style={TY.meta}>Source: {infoMedia.source}</span>}
-              </div>
-              <button onClick={() => setInfoExerciseId(null)} style={{ width: '100%', marginTop: 12, padding: '8px 0', fontWeight: 600, fontSize: 12, color: T.ink3 }}>Close</button>
+            <div className="info-sheet" style={{ width: '100%', maxWidth: 448, maxHeight: '85vh', overflowY: 'auto', boxSizing: 'border-box', margin: '0 auto', padding: '8px 16px 16px', paddingBottom: 'calc(16px + env(safe-area-inset-bottom, 0px))', background: T.surface, borderTop: `1px solid ${T.lineStrong}`, borderRadius: '16px 16px 0 0' }} onClick={(e) => e.stopPropagation()}>
+              <div style={{ width: 36, height: 4, borderRadius: 2, background: T.lineStrong, margin: '0 auto 12px' }} />
+              <h2 style={{ margin: 0, fontFamily: DISPLAY, fontWeight: 600, fontSize: 17, lineHeight: '24px', letterSpacing: -0.2, color: T.ink }}>{infoNames[0] || infoExerciseId}</h2>
+              {infoNames[1] ? <div style={{ ...TY.meta, marginTop: 1 }}>Alternate: {infoNames[1]}</div> : null}
+              {infoFacts.length > 0 && (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 10 }}>
+                  {infoFacts.map((f, i) => <span key={i} style={{ height: 22, boxSizing: 'border-box', padding: '0 9px', borderRadius: 11, fontWeight: 600, fontSize: 11, lineHeight: '22px', ...(i === 0 ? { background: tint(0.10), color: T.accent } : { background: T.line, color: T.ink2 }) }}>{f}</span>)}
+                </div>
+              )}
+              {infoEx?.notes ? (
+                <>
+                  <div style={{ ...TY.label, marginTop: 14, marginBottom: 2 }}>Coaching cue</div>
+                  <p style={{ margin: 0, fontSize: 13, lineHeight: '19px', color: T.ink }}>{infoEx.notes}</p>
+                </>
+              ) : null}
+              <div style={{ ...TY.label, marginTop: 14, marginBottom: 2 }}>How to do it</div>
+              <p style={{ margin: 0, fontSize: 13, lineHeight: '19px', color: T.ink2 }}>{infoEx?.description || infoMedia?.description || 'No description yet.'}</p>
+              {infoMedia?.youtube && !infoEx?.description && (
+                <div style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+                  <a href={infoMedia.youtube} target="_blank" rel="noopener noreferrer" style={{ height: 36, boxSizing: 'border-box', display: 'inline-flex', alignItems: 'center', gap: 6, padding: '0 12px', borderRadius: 8, fontWeight: 600, fontSize: 12, background: tint(0.10), border: `1px solid ${tint(0.55)}`, color: T.accent, textDecoration: 'none' }}><Ico d="M8 5.5v13l10.5-6.5L8 5.5z" size={12} /> Watch form video</a>
+                  {infoMedia.source && <span style={TY.meta}>Source: {infoMedia.source}</span>}
+                </div>
+              )}
+              <div style={{ marginTop: 16 }}><SecondaryButton onClick={() => setInfoExerciseId(null)} height={44}>Close</SecondaryButton></div>
             </div>
           </div>
         )}
@@ -1789,32 +1830,42 @@ function WorkoutApp() {
   if (view === 'complete') {
     const dayData = workoutData[selectedDay];
     const todayDate = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+    const logged = Object.values(sessionData).filter(d => d && d.sets.some(s => s.completed && !s.warmup)).length;
     return (
-      <Page center>
+      <Page center bottom={96}>
         <div style={{ textAlign: 'center' }}>
-          <div style={{ width: 80, height: 80, margin: '0 auto 24px', borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', background: T.primaryBg, color: T.primaryInk }}>
-            <Trophy size={36} />
+          <div style={{ width: 64, height: 64, margin: '0 auto 16px', borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', background: T.accent, color: T.primaryInk }}>
+            <Trophy size={30} />
           </div>
-          <h1 style={{ ...TY.screenTitle, marginBottom: 4 }}>Workout Complete!</h1>
-          <p style={{ ...TY.subtitle, fontSize: 14, lineHeight: '20px', marginBottom: 8 }}>{dayData.name}</p>
-          <p style={{ ...TY.subtitle, marginBottom: 24 }}>{todayDate}{lastDurationMin ? ` · ${lastDurationMin} min` : ''}</p>
+          <div style={{ ...TY.accentLabel, marginBottom: 4 }}>{todayDate}</div>
+          <h1 style={TY.screenTitle}>Workout Complete!</h1>
+          <p style={{ ...TY.subtitle, marginTop: 2 }}>{dayData.name}</p>
+          <div style={{ ...card, display: 'flex', margin: '20px 0 0', padding: '10px 0' }}>
+            {[[`${logged}/${dayData.exercises.length}`, 'exercises'], [lastDurationMin ? `${lastDurationMin}` : '–', 'minutes'], [`${completedPRs.length}`, completedPRs.length === 1 ? 'record' : 'records']].map(([value, label], i) => (
+              <div key={i} style={{ flex: 1, borderLeft: i ? `1px solid ${T.line}` : 'none' }}>
+                <div style={{ fontFamily: DISPLAY, fontWeight: 700, fontSize: 20, lineHeight: '26px', fontVariantNumeric: 'tabular-nums', color: i === 2 && completedPRs.length ? T.accent : T.ink }}>{value}</div>
+                <div style={TY.label}>{label}</div>
+              </div>
+            ))}
+          </div>
 
-          {storageError && <div style={{ marginBottom: 24 }}><StorageWarning onBackup={exportBackup} /></div>}
+          {storageError && <StorageWarning onBackup={exportBackup} />}
           {completedPRs.length > 0 && (
-            <div style={{ marginBottom: 24, display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 8, textAlign: 'left' }}>
               <div style={TY.accentLabel}>Personal records</div>
               {completedPRs.map((pr, i) => (
-                <div key={i} style={{ padding: 12, borderRadius: 8, textAlign: 'left', display: 'flex', alignItems: 'center', gap: 12, background: tint(0.10), border: `1px solid ${tint(0.55)}` }}>
-                  <span style={{ color: T.accent }}><Trophy size={16} /></span>
-                  <div>
-                    <div style={{ ...TY.rowTitle, lineHeight: '20px' }}>{pr.name}</div>
-                    <div style={{ ...TY.note, color: T.accent }}>{pr.detail} <span style={{ color: T.ink3 }}>(was {pr.prev})</span></div>
+                <div key={i} style={{ ...card, padding: '8px 12px', display: 'flex', alignItems: 'center', gap: 10, borderColor: tint(0.55) }}>
+                  <span style={{ width: 28, height: 28, borderRadius: 14, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: tint(0.10), color: T.accent }}><Trophy size={14} /></span>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ ...TY.rowTitle, ...ellipsis, lineHeight: '20px' }}>{pr.name}</div>
+                    <div style={TY.meta}><span style={{ color: T.accent, fontWeight: 600 }}>{pr.detail}</span> · was {pr.prev}</div>
                   </div>
                 </div>
               ))}
             </div>
           )}
-
+        </div>
+        <ActionBar>
           <PrimaryButton onClick={() => {
             setView('home');
             setSelectedDay(null);
@@ -1824,7 +1875,7 @@ function WorkoutApp() {
             setWorkoutStartedAt(null);
             setCompletedPRs([]);
           }}>Done</PrimaryButton>
-        </div>
+        </ActionBar>
       </Page>
     );
   }

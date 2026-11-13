@@ -55,13 +55,14 @@ Every one of these must exist, unchanged in behavior, on the same screen it is o
    | Light day · 78% | dash | accent | the light squat / light deadlift, whose weight follows the heavy lift |
    | Skipped last time | dash | accent | the last session of this exercise had no checked set |
    | First session | dash | accent | no history yet |
-8. **Notes row**, collapsed by default, showing today's note or *"Last time: <first line of last session's note>"*; tap to expand a textarea. This preview is deliberate — a note the lifter can't see isn't a note.
+8. **Notes row**, collapsed by default, showing today's note or *"Last time: <first line of last session's note>"*; tap to expand a textarea. This preview is deliberate — a note the lifter can't see isn't a note. Expanded, it is the same row opened: accent border, last session's full note above a divider, the textarea, and a `Done` pill at the bottom right.
 9. Warm-up sets are marked (`W`) and visibly distinct from working sets.
 10. **Effort chips**: `last set  [Easy] [Mid] [Max]` on the right of the "Sets" header, 26 px tall. Optional; one tap sets, the same tap clears; no rating means nothing. Easy (3+ reps left) doubles the weight jump at the top of the range and aims +2 reps inside it. Mid (1-2 left) aims +1 rep inside the range and holds the weight after a miss below it. Max (nothing left) holds weight and reps inside the range. On the superset screen and in history the `last set` caption is dropped to make room for three chips.
 10a. **Superset screen**: the two exercises of a superset share one screen as two compact panels separated by a hairline. Each panel has: name + alternate toggle, an inline verdict (one line), one row with last-session chips on the left and the effort chips on the right, collapsed notes row (30 px), and its set rows. No chart, no "Sets" header, no cue and no target line. The header reads `4–5 of 6 · Superset, alternate sets`. Set rows are identical to the single-exercise screen.
 
 ### Day overview
 11. Back, day name and focus line, the **5-minute mobility block** (5 short lines), the **ab-routine checkbox** with adherence text, one tappable row per exercise (name, sets × reps, last weight, "⇄" marker on superset pairs, checkmark once worked this session), a **"?" button per row** that opens a bottom sheet (description, video link, rep range, increment), and a fixed **Start / Continue workout** button.
+11a. The **"?" sheet** is the one place that holds the plan for an exercise, since the logging screens no longer show it: exercise name and alternate, fact chips (sets × reps, rest, when the weight moves, reps in reserve), the coaching cue, how to do it, the form-video link with its source, and a full-width Close button.
 12. Tapping any exercise row jumps straight into that exercise (equipment-taken use case).
 
 ### Home
@@ -69,7 +70,8 @@ Every one of these must exist, unchanged in behavior, on the same screen it is o
 
 ### Summary → Complete
 14. Summary: count of exercises completed, the ab checkbox again, one row per exercise with sets done, **"Complete workout, progress weight"** primary and **"Review exercises"** secondary.
-15. Complete: confirmation, date + duration, **personal records** list when any, Done.
+15. Complete: trophy tile, date, confirmation, day name, a three-part card (exercises logged, minutes, records), the **personal records** list when any, and Done in the bottom action bar, where every other primary action sits.
+15c. Program select: one row per program in the Home row style, with its icon, name, subtitle and how much is logged under it (`8 workouts · last 9d ago`). The program in use carries a `Current` badge and an accent icon.
 
 ### History (new)
 15a. **History list** (from the Home utility row): Back, title, count line, one tappable row per logged workout, newest first (date in the day accent, day name, `N exercises · 50 min · 1 PR`). This screen scrolls; it is the only one allowed to.

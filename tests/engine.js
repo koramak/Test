@@ -72,7 +72,7 @@ const log4 = (days) => ({ lastProgram: '4day', workoutLog_4day: days });
     ok('14/12/10 on an 8-12 range averages 12 but does NOT add weight', a.verdict() === 'Hold' && a.nums() === '120,12,120,12,120,12');
     a.root.querySelector('.nav-back').click(); await wait(150);
     a.rows().find(r => r.textContent.includes('Cable Row')).querySelector('.info-btn').click(); await wait(150);
-    ok('info sheet uses the day\'s own rep range (8-12, not the base 10-12)', a.root.querySelector('.info-sheet').textContent.includes('8-12 reps'));
+    ok('info sheet shows the day\'s own target (8-12, not the base 10-12) and the coaching cue', a.root.querySelector('.info-sheet').textContent.includes('3 × 8-12') && a.root.querySelector('.info-sheet').textContent.includes('when every set hits 12') && a.root.querySelector('.info-sheet').textContent.includes('squeeze, don\'t heave'));
   }
   // 4. Light lifts follow the heavy lift every session, not just the first
   {
